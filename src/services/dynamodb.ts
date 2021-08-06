@@ -3,8 +3,8 @@ import { DynamoDBDocument, QueryCommandOutput, QueryCommandInput } from '@aws-sd
 import { NativeAttributeValue } from '@aws-sdk/util-dynamodb'
 
 const dynamoClient = new DynamoDBClient({
-  region: 'us-west-2',
-  endpoint: 'http://localhost:8000',
+  region: process.env.DYNAMODB_REGION,
+  endpoint: process.env.DYNAMODB_ENDPOINT,
 })
 
 const ddbDocClient = DynamoDBDocument.from(dynamoClient, { marshallOptions: { removeUndefinedValues: true } })

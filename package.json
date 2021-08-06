@@ -16,8 +16,10 @@
     "@emotion/react": "^11.4.0",
     "@emotion/styled": "^11.3.0",
     "aws-sdk": "^2.958.0",
+    "dotenv": "^10.0.0",
     "framer-motion": "^4.1.17",
     "next": "11.0.1",
+    "ramda": "^0.27.1",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-infinite-scroll-component": "^6.1.0",
@@ -25,6 +27,7 @@
     "react-sidebar": "^3.0.2"
   },
   "devDependencies": {
+    "@types/ramda": "^0.27.44",
     "@types/react": "17.0.15",
     "@types/react-sidebar": "^3.0.1",
     "eslint": "7.32.0",
