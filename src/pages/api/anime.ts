@@ -7,8 +7,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   try {
     const params = req.query
-    const { season, nextCursor } = params
-    const resp = await getAnimesBySeason({ season: parseInt(season as string), nextCursor })
+    // const { season, nextCursor } = params
+    const resp = await getAnimesBySeason(params)
 
     return res.status(200).json(resp)
   } catch (error) {

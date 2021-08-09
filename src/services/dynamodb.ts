@@ -10,15 +10,17 @@ const dynamoClient = new DynamoDBClient({
 const ddbDocClient = DynamoDBDocument.from(dynamoClient, { marshallOptions: { removeUndefinedValues: true } })
 
 export async function getAnimesBySeason(request: any): Promise<any> {
-  const { season, nextCursor } = request
+  const { year, season, nextCursor } = request
   const input: QueryCommandInput = {
     TableName: 'Animes',
-    IndexName: 'SeasonIndex',
     Limit: 15,
     ExpressionAttributeValues: {
-      ':season': season,
+      ':year': year,
     },
-    KeyConditionExpression: 'season = :season',
+    ExpressionAttributeNames: {
+      '#y': 'year',
+    },
+    KeyConditionExpression: '#y = :year',
     ...(nextCursor ? { ExclusiveStartKey: JSON.parse(nextCursor) } : {}),
   }
   const resp: QueryCommandOutput = await ddbDocClient.query(input)
