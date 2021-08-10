@@ -13,14 +13,11 @@ export async function getAnimesBySeason(request: any): Promise<any> {
   const { year, season, nextCursor } = request
   const input: QueryCommandInput = {
     TableName: 'Animes',
-    Limit: 15,
+    Limit: 30,
     ExpressionAttributeValues: {
-      ':year': year,
+      ':yearSeason': `${year}-${season}`,
     },
-    ExpressionAttributeNames: {
-      '#y': 'year',
-    },
-    KeyConditionExpression: '#y = :year',
+    KeyConditionExpression: 'yearSeason = :yearSeason',
     ...(nextCursor ? { ExclusiveStartKey: JSON.parse(nextCursor) } : {}),
   }
   const resp: QueryCommandOutput = await ddbDocClient.query(input)
