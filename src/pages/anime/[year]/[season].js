@@ -1,20 +1,28 @@
-import { Box, Button, Flex } from '@chakra-ui/react'
+import { Box, Button, Flex, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { getAnimesBySeason } from '../../../services/dynamodb'
 import { useInfiniteQuery } from 'react-query'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import AnimeList from '../../../components/AnimeList'
+import { range } from 'ramda'
 
 export default function AnimeListBySeason({ resp, params }) {
   const { animes, nextCursor } = resp
   const { year, season } = params
+  const yearList = range(2019, 2023)
+  const seasonList = ['SPRING', 'SUMMER', 'FALL', 'WINTER', 'UNDEFINED']
+  const router = useRouter()
 
+  // todo change fetch to axios
   const fetchAnimeList = useCallback(
     async ({ pageParam }) => {
-      const resp = await fetch(`/api/anime?year=${year}&season=${season}&nextCursor=${JSON.stringify(pageParam)}`)
-      console.log('fetching using react query')
+      const resp = await fetch(
+        `/api/anime?year=${year}&season=${season}&nextCursor=${pageParam ? JSON.stringify(pageParam) : ''}`
+      )
+      console.log(pageParam)
       const data = await resp.json()
       return {
         data: data.animes,
@@ -30,6 +38,7 @@ export default function AnimeListBySeason({ resp, params }) {
     getNextPageParam: (lastPage, pages) => {
       return lastPage.nextCursor
     },
+    enabled: false,
     initialData: { pages: [{ data: resp.animes, nextCursor: resp.nextCursor }], pageParams: [] },
     refetchInterval: false,
     refetchOnReconnect: false,
@@ -41,48 +50,46 @@ export default function AnimeListBySeason({ resp, params }) {
   const toShowAnimes = data?.pages.map(({ data }) => data).flat() || []
 
   return (
-    <div>
+    <>
       <Flex flexDir="column" align="center">
         <Link href="/anime" passHref>
           <Button>Back to List</Button>
         </Link>
-        <h1>Anime List</h1>
-        <p>Anime Title</p>
-        <p>Anime Season</p>
-        {/* <InfiniteScroll
-          dataLength={toShowAnimes.length}
-          next={fetchNextPage}
-          hasMore={hasNextPage}
-          loader={isFetching ? <h4>Loading...</h4> : null}
-          endMessage={<h4>Yay! You have seen it all</h4>}
-          scrollThreshold={0.95}
-          scrollableTarget="scrollableDiv"
-        >
-          {toShowAnimes.map(anime => (
-            <div key={anime.title} style={{ border: 'solid', borderColor: 'black', borderWidth: '1px' }}>
-              <p>{anime.title}</p>
-              <p>{anime.yearSeason}</p>
-              <img src={anime.picture} alt={anime.title} height="300px" width="300px" />
-            </div>
-          ))}
-        </InfiniteScroll> */}
-
-        <Button onClick={fetchNextPage}>Load more manually</Button>
-        {/* <Button
-          onClick={() => {
-            fetch(`/api/anime?season=${year}&nextCursor=${JSON.stringify(nextCursor)}`)
-          }}
-        >
-          fetch next page
-        </Button> */}
       </Flex>
+
+      {isFetching ? <h1>isFetching</h1> : <h1>is not fetching</h1>}
+
+      <Flex justifyContent="center">
+        <Menu autoSelect={false}>
+          <MenuButton as={Button}>{year}</MenuButton>
+          <MenuList>
+            {yearList.reverse().map(yearItem => (
+              <MenuItem key={yearItem} onClick={() => router.push(`/anime/${yearItem}/${season}`)}>
+                {yearItem}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
+
+        <Menu>
+          <MenuButton as={Button}>{season}</MenuButton>
+          <MenuList>
+            {seasonList.map(seasonItem => (
+              <MenuItem key={seasonItem} onClick={() => router.push(`/anime/${year}/${seasonItem}`)}>
+                {seasonItem}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
+      </Flex>
+
       <AnimeList
         animes={toShowAnimes}
-        hasNextPage={!!hasNextPage}
+        hasNextPage={hasNextPage}
         fetchNextPage={fetchNextPage}
         isFetching={isFetching}
       />
-    </div>
+    </>
   )
 }
 

@@ -1,5 +1,6 @@
-import { AspectRatio, Box, Image as ChakraImage } from '@chakra-ui/react'
+import { AspectRatio, Box, Image as ChakraImage, Text } from '@chakra-ui/react'
 import React from 'react'
+import path from 'path'
 
 type anime = {
   title: string
@@ -7,14 +8,26 @@ type anime = {
   picture: string
 }
 
+const fallbackImage = path.resolve('image', 'iyanakao.png')
+
 const AnimeCard = ({ anime }: { anime: anime }) => {
+  // todo anime.picture
   return (
-    <Box border="1px" borderColor="black">
+    <Box border="1px" borderColor="black" position="relative">
       <AspectRatio ratio={1}>
-        <ChakraImage src={anime.picture} alt="" />
+        <ChakraImage src={fallbackImage} alt="" />
       </AspectRatio>
-      {/* <p>{anime.title}</p>
-      <p>{anime.yearSeason}</p> */}
+      <Text
+        noOfLines={2}
+        position="absolute"
+        bottom="0"
+        textShadow="0 0 3px black"
+        color="white"
+        fontSize="lg"
+        fontWeight="semibold"
+      >
+        {anime.title}
+      </Text>
     </Box>
   )
 }
