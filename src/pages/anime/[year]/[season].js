@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react'
+import { Box, Button, Flex, Menu, MenuButton, MenuItem, MenuList, Select } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { getAnimesBySeason } from '../../../services/dynamodb'
 import { useInfiniteQuery } from 'react-query'
@@ -12,7 +12,7 @@ import { range } from 'ramda'
 export default function AnimeListBySeason({ resp, params }) {
   const { animes, nextCursor } = resp
   const { year, season } = params
-  const yearList = range(2019, 2023)
+  const yearList = range(2000, 2023).map(number => number.toString())
   const seasonList = ['SPRING', 'SUMMER', 'FALL', 'WINTER', 'UNDEFINED']
   const router = useRouter()
 
@@ -38,8 +38,8 @@ export default function AnimeListBySeason({ resp, params }) {
     getNextPageParam: (lastPage, pages) => {
       return lastPage.nextCursor
     },
-    enabled: false,
-    initialData: { pages: [{ data: resp.animes, nextCursor: resp.nextCursor }], pageParams: [] },
+    // enabled: false,
+    initialData: { pages: [{ data: resp.animes, nextCursor: resp.nextCursor }], pageParams: [undefined] },
     refetchInterval: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
@@ -49,6 +49,26 @@ export default function AnimeListBySeason({ resp, params }) {
 
   const toShowAnimes = data?.pages.map(({ data }) => data).flat() || []
 
+  const selectYearOnChange = e => {
+    const selectedYear = e.target.value
+    console.log(selectedYear)
+    if (selectedYear === year) {
+      return
+    } else {
+      router.push(`/anime/${selectedYear}/${season}`)
+    }
+  }
+
+  const selectSeasonOnChange = e => {
+    const selectedSeason = e.target.value
+    console.log(selectedSeason)
+    if (selectedSeason === season) {
+      return
+    } else {
+      router.push(`/anime/${year}/${selectedSeason}`)
+    }
+  }
+
   return (
     <>
       <Flex flexDir="column" align="center">
@@ -57,30 +77,21 @@ export default function AnimeListBySeason({ resp, params }) {
         </Link>
       </Flex>
 
-      {isFetching ? <h1>isFetching</h1> : <h1>is not fetching</h1>}
-
-      <Flex justifyContent="center">
-        <Menu autoSelect={false}>
-          <MenuButton as={Button}>{year}</MenuButton>
-          <MenuList>
-            {yearList.reverse().map(yearItem => (
-              <MenuItem key={yearItem} onClick={() => router.push(`/anime/${yearItem}/${season}`)}>
-                {yearItem}
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu>
-
-        <Menu>
-          <MenuButton as={Button}>{season}</MenuButton>
-          <MenuList>
-            {seasonList.map(seasonItem => (
-              <MenuItem key={seasonItem} onClick={() => router.push(`/anime/${year}/${seasonItem}`)}>
-                {seasonItem}
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu>
+      <Flex>
+        <Select variant="filled" onChange={selectYearOnChange}>
+          {yearList.map(yearItem => (
+            <option key={yearItem} selected={yearItem === year} value={yearItem}>
+              {yearItem}
+            </option>
+          ))}
+        </Select>
+        <Select variant="filled" onChange={selectSeasonOnChange}>
+          {seasonList.map(seasonItem => (
+            <option key={seasonItem} selected={seasonItem === season}>
+              {seasonItem}
+            </option>
+          ))}
+        </Select>
       </Flex>
 
       <AnimeList
