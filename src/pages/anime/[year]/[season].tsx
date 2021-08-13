@@ -1,20 +1,22 @@
-import { Box, Button, Flex } from '@chakra-ui/react'
-import { range } from 'ramda'
+import { Button, Flex, Select } from '@chakra-ui/react'
+import { getAnimesBySeason } from '../../../services/dynamodb'
+import { useAnimesQuery } from '../../../hooks/useAnimesQuery'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import AnimeList from '../../../components/AnimeList'
 import { GetStaticProps } from 'next'
-import { getAnimesBySeason } from '../../services/dynamodb'
-import { useAnimesQuery } from '../../hooks/useAnimesQuery'
-import AnimeFilter from '../../components/AnimeFilter'
-import AnimeList from '../../components/AnimeList'
-
-// todo remove this duplicate page
+import AnimeFilter from '../../../components/AnimeFilter'
 
 type AnimeListProps = {
   resp: any
   params: any
 }
 
-export default function AnimeListToday({ resp, params }: AnimeListProps) {
+export default function AnimeListBySeason({ resp, params }: AnimeListProps) {
+  const { animes, nextCursor } = resp
+  const { year, season } = params
+  const router = useRouter()
+
   const { data, fetchNextPage, hasNextPage, isFetching } = useAnimesQuery(resp, params)
 
   const toShowAnimes = data?.pages.map(({ data }) => data).flat() || []
@@ -39,10 +41,14 @@ export default function AnimeListToday({ resp, params }: AnimeListProps) {
   )
 }
 
-export const getStaticProps: GetStaticProps = async ({ params = { year: '2021', season: 'SUMMER' } }) => {
+export const getStaticProps: GetStaticProps = async ({ params }) => {
   const resp = await getAnimesBySeason(params)
 
   return {
     props: { resp, params },
   }
+}
+
+export async function getStaticPaths() {
+  return { paths: [], fallback: 'blocking' }
 }

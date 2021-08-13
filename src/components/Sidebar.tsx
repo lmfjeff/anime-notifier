@@ -18,7 +18,12 @@ export const Sidebar = () => {
       <Button>User</Button>
       <Button>Theme</Button>
       <Button>Help</Button>
-      <Button>Logout</Button>
+      <Link href="/signin" passHref>
+        <Button>Sign In</Button>
+      </Link>
+      <Link href="/signout" passHref>
+        <Button>Sign Out</Button>
+      </Link>
     </Flex>
   )
 }

@@ -23,12 +23,12 @@
     "framer-motion": "^4.1.17",
     "image-type": "^4.1.0",
     "next": "11.0.1",
+    "next-auth": "^3.27.3",
     "ramda": "^0.27.1",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-infinite-scroll-component": "^6.1.0",
-    "react-query": "^3.19.1",
-    "react-sidebar": "^3.0.2"
+    "react-query": "^3.19.1"
   },
   "devDependencies": {
     "@types/ramda": "^0.27.44",
