@@ -37,18 +37,16 @@ const AnimeFilter = ({ params }: AnimeFilterProps) => {
 
   return (
     <Flex>
-      <Select variant="filled" onChange={selectYearOnChange}>
+      <Select variant="filled" onChange={selectYearOnChange} defaultValue={year}>
         {yearList.map(yearItem => (
-          <option key={yearItem} selected={yearItem === year} value={yearItem}>
+          <option key={yearItem} value={yearItem}>
             {yearItem}
           </option>
         ))}
       </Select>
-      <Select variant="filled" onChange={selectSeasonOnChange}>
+      <Select variant="filled" onChange={selectSeasonOnChange} defaultValue={season}>
         {seasonList.map(seasonItem => (
-          <option key={seasonItem} selected={seasonItem === season}>
-            {seasonItem}
-          </option>
+          <option key={seasonItem}>{seasonItem}</option>
         ))}
       </Select>
     </Flex>

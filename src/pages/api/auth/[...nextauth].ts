@@ -1,5 +1,15 @@
 import NextAuth from 'next-auth'
 import Providers from 'next-auth/providers'
+import { DynamoDBAdapter } from '@next-auth/dynamodb-adapter'
+import AWS from 'aws-sdk'
+import { ServiceConfigurationOptions } from 'aws-sdk/lib/service'
+import { session } from 'next-auth/client'
+import jwt from 'next-auth/jwt'
+
+const serviceConfigOptions: ServiceConfigurationOptions = {
+  region: process.env.DYNAMODB_REGION,
+  endpoint: process.env.DYNAMODB_ENDPOINT,
+}
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
@@ -11,6 +21,7 @@ export default NextAuth({
       clientSecret: process.env.GOOGLE_SECRET,
     }),
   ],
+  adapter: DynamoDBAdapter(new AWS.DynamoDB.DocumentClient(serviceConfigOptions)),
 
   // The secret should be set to a reasonably long random string.
   // It is used to sign cookies and to sign and encrypt JSON Web Tokens, unless
@@ -37,13 +48,27 @@ export default NextAuth({
   // https://next-auth.js.org/configuration/options#jwt
   jwt: {
     // A secret to use for key generation (you should set this explicitly)
-    secret: 'INp8IvdIyeMcoGAgFGoA61DdBglwwSqnXJZkgz8PSnw',
+    secret: process.env.JWT_SECRET,
     // Set to true to use encryption (default: false)
     // encryption: true,
     // You can define your own encode/decode functions for signing and encryption
     // if you want to override the default behaviour.
     // encode: async ({ secret, token, maxAge }) => {},
     // decode: async ({ secret, token, maxAge }) => {},
+  },
+
+  callbacks: {
+    /**
+     * @param  {string} url      URL provided as callback URL by the client
+     * @param  {string} baseUrl  Default base URL of site (can be used as fallback)
+     * @return {string}          URL the client will be redirect to
+     */
+    async redirect(url: string, baseUrl: string): Promise<string> {
+      return baseUrl
+    },
+    async session(session, user) {
+      return session
+    },
   },
 
   // Enable debug messages in the console if you are having problems

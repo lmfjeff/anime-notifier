@@ -17,6 +17,7 @@
     "@chakra-ui/react": "^1.6.5",
     "@emotion/react": "^11.4.0",
     "@emotion/styled": "^11.3.0",
+    "@next-auth/dynamodb-adapter": "^0.4.2",
     "aws-sdk": "^2.958.0",
     "axios": "^0.21.1",
     "dotenv": "^10.0.0",

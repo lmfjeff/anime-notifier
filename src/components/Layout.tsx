@@ -1,4 +1,5 @@
 import { Box, Button, Container, Flex } from '@chakra-ui/react'
+import { useSession } from 'next-auth/client'
 import React, { useState } from 'react'
 import { Sidebar } from './Sidebar'
 

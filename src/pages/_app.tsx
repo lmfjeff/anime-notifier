@@ -12,7 +12,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
+        <AuthProvider session={pageProps.session}>
           <Layout>
             <Component {...pageProps} />
           </Layout>

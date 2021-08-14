@@ -1,8 +1,9 @@
 import React from 'react'
-import { signIn, signOut, useSession } from 'next-auth/client'
+import { getSession, signIn, signOut, useSession } from 'next-auth/client'
 import { Button } from '@chakra-ui/react'
+import { GetServerSideProps } from 'next'
 
-const Signin = () => {
+export default function Signin() {
   const [session, loading] = useSession()
 
   // if (loading) return <div>loading...</div>
@@ -12,7 +13,7 @@ const Signin = () => {
       {!session && (
         <>
           Not signed in <br />
-          <Button onClick={() => signIn()}>Sign in</Button>
+          <Button onClick={() => signIn('google')}>Sign in with Google</Button>
         </>
       )}
       {session && (
@@ -25,4 +26,9 @@ const Signin = () => {
   )
 }
 
-export default Signin
+export const getServerSideProps: GetServerSideProps = async context => {
+  const session = await getSession(context)
+  return {
+    props: { session },
+  }
+}
