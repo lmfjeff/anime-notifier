@@ -6,7 +6,7 @@ import { GetServerSideProps } from 'next'
 export default function Signin() {
   const [session, loading] = useSession()
 
-  // if (loading) return <div>loading...</div>
+  // if (typeof window !== 'undefined' && loading) return null
 
   return (
     <>
@@ -22,6 +22,8 @@ export default function Signin() {
           <Button onClick={() => signOut()}>Sign out</Button>
         </>
       )}
+      {loading && <div>loading...</div>}
+      <div>session is: {JSON.stringify(session)}</div>
     </>
   )
 }

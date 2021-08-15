@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocument, QueryCommandOutput, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBDocument, QueryCommandOutput, QueryCommandInput, UpdateCommandInput } from '@aws-sdk/lib-dynamodb'
 import { NativeAttributeValue } from '@aws-sdk/util-dynamodb'
 
 const dynamoClient = new DynamoDBClient({
@@ -24,5 +24,32 @@ export async function getAnimesBySeason(request: any): Promise<any> {
   return {
     animes: resp.Items,
     nextCursor: resp.LastEvaluatedKey ? resp.LastEvaluatedKey : null,
+  }
+}
+
+export async function addFollowing(req: any): Promise<any> {
+  const { anime, userId } = req
+  const now = new Date()
+  const input: UpdateCommandInput = {
+    TableName: 'next-auth',
+    Key: {
+      pk: `USER#${userId}`,
+      sk: `USER#${userId}`,
+    },
+    UpdateExpression: 'SET #anime = list_append(if_not_exists(#anime, :emptyList), :anime), #updatedAt = :updatedAt',
+    ExpressionAttributeNames: {
+      '#anime': 'anime',
+      '#updatedAt': 'updatedAt',
+    },
+    ExpressionAttributeValues: {
+      ':anime': [anime],
+      ':emptyList': [],
+      ':updatedAt': now.toISOString(),
+    },
+    ReturnValues: 'UPDATED_NEW',
+  }
+  const resp = await ddbDocClient.update(input)
+  return {
+    resp,
   }
 }

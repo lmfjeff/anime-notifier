@@ -1,4 +1,5 @@
-import { AspectRatio, Box, Image as ChakraImage, Text } from '@chakra-ui/react'
+import { AspectRatio, Box, IconButton, Image as ChakraImage, Text } from '@chakra-ui/react'
+import { AddIcon } from '@chakra-ui/icons'
 import React from 'react'
 import path from 'path'
 
@@ -17,6 +18,15 @@ const AnimeCard = ({ anime }: { anime: anime }) => {
       <AspectRatio ratio={1}>
         <ChakraImage src={fallbackImage} alt="" />
       </AspectRatio>
+      {/* <AddIcon position="absolute" top="0" right="0" color="white" /> */}
+      <IconButton
+        aria-label="add following"
+        icon={<AddIcon />}
+        position="absolute"
+        top="0"
+        right="0"
+        onClick={() => fetch(`/api/following?anime=${anime.title}`)}
+      />
       <Text
         noOfLines={2}
         position="absolute"
