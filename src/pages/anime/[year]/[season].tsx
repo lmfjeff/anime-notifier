@@ -1,4 +1,4 @@
-import { Button, Flex, Select } from '@chakra-ui/react'
+import { Button, Flex, Text } from '@chakra-ui/react'
 import { getAnimesBySeason } from '../../../services/dynamodb'
 import { useAnimesQuery } from '../../../hooks/useAnimesQuery'
 import Link from 'next/link'
@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import AnimeList from '../../../components/AnimeList'
 import { GetStaticProps } from 'next'
 import AnimeFilter from '../../../components/AnimeFilter'
+import { useQuery } from 'react-query'
 
 type AnimeListProps = {
   resp: any
@@ -19,14 +20,25 @@ export default function AnimeListBySeason({ resp, params }: AnimeListProps) {
 
   const { data, fetchNextPage, hasNextPage, isFetching } = useAnimesQuery(resp, params)
 
+  const fetchFollowing = async () => {
+    const resp = await fetch('/api/getFollowing')
+    const data = await resp.json()
+    return data
+  }
+  const getFollowingQuery = useQuery('getFollowing', fetchFollowing)
+  const followingAnimes = getFollowingQuery.data?.anime || null
+
+  const addFollowing = async (title: string) => {
+    await fetch(`/api/addFollowing?anime=${title}`)
+    await getFollowingQuery.refetch()
+  }
+
   const toShowAnimes = data?.pages.map(({ data }) => data).flat() || []
 
   return (
     <>
       <Flex flexDir="column" align="center">
-        <Link href="/anime" passHref>
-          <Button>Back to List</Button>
-        </Link>
+        <div>List of Animes</div>
       </Flex>
 
       <AnimeFilter params={params} />
@@ -36,6 +48,8 @@ export default function AnimeListBySeason({ resp, params }: AnimeListProps) {
         hasNextPage={!!hasNextPage}
         fetchNextPage={fetchNextPage}
         isFetching={isFetching}
+        followingAnimes={followingAnimes}
+        addFollowing={addFollowing}
       />
     </>
   )

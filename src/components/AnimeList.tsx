@@ -11,9 +11,16 @@ type Props = {
   hasNextPage: boolean
   fetchNextPage: () => unknown
   isFetching: boolean
+  followingAnimes: string[]
+  addFollowing: (title: string) => void
 }
 
-const AnimeList = ({ animes, hasNextPage, fetchNextPage, isFetching }: Props) => {
+const AnimeList = ({ animes, hasNextPage, fetchNextPage, isFetching, followingAnimes, addFollowing }: Props) => {
+  const isFollowed = (title: string) => {
+    if (followingAnimes) {
+      return followingAnimes.includes(title)
+    } else return false
+  }
   return (
     <>
       <InfiniteScroll
@@ -27,7 +34,7 @@ const AnimeList = ({ animes, hasNextPage, fetchNextPage, isFetching }: Props) =>
       >
         <SimpleGrid minChildWidth="144px" spacing={3} mx={10}>
           {animes.map(anime => (
-            <AnimeCard key={anime.title} anime={anime} />
+            <AnimeCard key={anime.title} anime={anime} followed={isFollowed(anime.title)} addFollowing={addFollowing} />
           ))}
         </SimpleGrid>
       </InfiniteScroll>

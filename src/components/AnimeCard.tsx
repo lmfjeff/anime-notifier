@@ -9,9 +9,15 @@ type anime = {
   picture: string
 }
 
+type animeCardProps = {
+  anime: anime
+  followed: boolean
+  addFollowing: (title: string) => void
+}
+
 const fallbackImage = path.resolve('image', 'iyanakao.png')
 
-const AnimeCard = ({ anime }: { anime: anime }) => {
+const AnimeCard = ({ anime, followed, addFollowing }: animeCardProps) => {
   // todo anime.picture
   return (
     <Box border="1px" borderColor="black" position="relative">
@@ -25,7 +31,8 @@ const AnimeCard = ({ anime }: { anime: anime }) => {
         position="absolute"
         top="0"
         right="0"
-        onClick={() => fetch(`/api/following?anime=${anime.title}`)}
+        onClick={() => addFollowing(anime.title)}
+        disabled={followed}
       />
       <Text
         noOfLines={2}

@@ -1,5 +1,11 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocument, QueryCommandOutput, QueryCommandInput, UpdateCommandInput } from '@aws-sdk/lib-dynamodb'
+import {
+  DynamoDBDocument,
+  QueryCommandOutput,
+  QueryCommandInput,
+  UpdateCommandInput,
+  GetCommandInput,
+} from '@aws-sdk/lib-dynamodb'
 import { NativeAttributeValue } from '@aws-sdk/util-dynamodb'
 
 const dynamoClient = new DynamoDBClient({
@@ -51,5 +57,26 @@ export async function addFollowing(req: any): Promise<any> {
   const resp = await ddbDocClient.update(input)
   return {
     resp,
+  }
+}
+
+export async function getFollowing(req: any): Promise<any> {
+  const { userId } = req
+  const input: GetCommandInput = {
+    TableName: 'next-auth',
+    Key: {
+      pk: `USER#${userId}`,
+      sk: `USER#${userId}`,
+    },
+    ExpressionAttributeNames: {
+      '#anime': 'anime',
+    },
+    ProjectionExpression: '#anime',
+  }
+  const resp = await ddbDocClient.get(input)
+  const anime = resp.Item?.anime || null
+
+  return {
+    anime,
   }
 }

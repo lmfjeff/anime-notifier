@@ -16,10 +16,12 @@ export const Sidebar = () => {
         <Button>Setting</Button>
         <Button>Profile</Button>
         <Button>Notification</Button>
-        <Link href="/anime" passHref>
+        <Link href="/following" passHref>
           <Button>List</Button>
         </Link>
-        <Button>Explore</Button>
+        <Link href="/anime/2021/SUMMER" passHref>
+          <Button>Explore</Button>
+        </Link>
         <Button>User</Button>
         <Button>Theme</Button>
         <Button>Help</Button>

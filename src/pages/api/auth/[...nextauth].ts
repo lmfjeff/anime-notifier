@@ -32,11 +32,10 @@ export default NextAuth({
     // Use JSON Web Tokens for session instead of database sessions.
     // This option can be used with or without a database for users/accounts.
     // Note: `jwt` is automatically set to `true` if no database is specified.
-    jwt: false,
+    jwt: true,
 
     // Seconds - How long until an idle session expires and is no longer valid.
     // maxAge: 30 * 24 * 60 * 60, // 30 days
-    maxAge: 60,
 
     // Seconds - Throttle how frequently to write to database to extend a session.
     // Use it to limit write operations. Set to 0 to always update the database.
@@ -50,7 +49,9 @@ export default NextAuth({
   jwt: {
     // A secret to use for key generation (you should set this explicitly)
     secret: process.env.JWT_SECRET,
-    signingKey: process.env.JWT_SIGNING_PRIVATE_KEY,
+    // todo self-signed signingKey error (syntax error: json position XX)
+    // signingKey: process.env.JWT_SIGNING_PRIVATE_KEY,
+
     // Set to true to use encryption (default: false)
     // encryption: true,
     // You can define your own encode/decode functions for signing and encryption
@@ -68,8 +69,8 @@ export default NextAuth({
     async redirect(url: string, baseUrl: string): Promise<string> {
       return baseUrl
     },
-    async session(session, user) {
-      session.userId = user.id
+    async session(session, token) {
+      session.userId = token.sub
       return session
     },
   },
