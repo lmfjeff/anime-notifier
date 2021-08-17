@@ -15,7 +15,7 @@ const AnimeFilter = ({ params }: AnimeFilterProps) => {
   const yearList = range(2000, 2023)
     .map(number => number.toString())
     .reverse()
-  const seasonList = ['WINTER', 'SPRING', 'SUMMER', 'FALL', 'UNDEFINED']
+  const seasonList = ['winter', 'spring', 'summer', 'autumn']
 
   const selectYearOnChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedYear = e.target.value

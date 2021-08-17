@@ -10,11 +10,7 @@ export default function Following({ anime }: followingProps) {
   return (
     <div>
       <div>Following:</div>
-      <ul>
-        {anime.map(anime => (
-          <li key={anime}>{anime}</li>
-        ))}
-      </ul>
+      <ul>{anime && anime.map(id => <li key={id}>{id}</li>)}</ul>
     </div>
   )
 }

@@ -15,7 +15,7 @@ const dynamoClient = new DynamoDBClient({
 
 const ddbDocClient = DynamoDBDocument.from(dynamoClient, { marshallOptions: { removeUndefinedValues: true } })
 
-export async function getAnimesBySeason(request: any): Promise<any> {
+async function getAnimesBySeason(request: any): Promise<any> {
   const { year, season, nextCursor } = request
   const input: QueryCommandInput = {
     TableName: 'Animes',
@@ -25,8 +25,28 @@ export async function getAnimesBySeason(request: any): Promise<any> {
     },
     KeyConditionExpression: 'yearSeason = :yearSeason',
     ...(nextCursor ? { ExclusiveStartKey: JSON.parse(nextCursor) } : {}),
+    ProjectionExpression: 'id,yearSeason,title,picture,dayOfWeek,#t,genres',
+    ExpressionAttributeNames: {
+      '#t': 'time',
+    },
   }
   const resp: QueryCommandOutput = await ddbDocClient.query(input)
+  if (!resp.LastEvaluatedKey || !resp.Items) {
+    // No more
+    return resp
+  }
+  const { Items: nextItems, ...rest } = await getAnimesBySeason({
+    ...request,
+    nextCursor: JSON.stringify(resp.LastEvaluatedKey),
+  })
+  return {
+    Items: [...resp.Items, ...(nextItems ?? [])],
+    ...rest,
+  }
+}
+
+export async function getAllAnimesBySeason(request: any): Promise<any> {
+  const resp = await getAnimesBySeason(request)
   return {
     animes: resp.Items,
     nextCursor: resp.LastEvaluatedKey ? resp.LastEvaluatedKey : null,

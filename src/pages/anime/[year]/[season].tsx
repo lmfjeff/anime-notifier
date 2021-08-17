@@ -1,5 +1,5 @@
 import { Button, Flex, Text } from '@chakra-ui/react'
-import { getAnimesBySeason } from '../../../services/dynamodb'
+import { getAllAnimesBySeason } from '../../../services/dynamodb'
 import { useAnimesQuery } from '../../../hooks/useAnimesQuery'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -28,8 +28,8 @@ export default function AnimeListBySeason({ resp, params }: AnimeListProps) {
   const getFollowingQuery = useQuery('getFollowing', fetchFollowing)
   const followingAnimes = getFollowingQuery.data?.anime || null
 
-  const addFollowing = async (title: string) => {
-    await fetch(`/api/addFollowing?anime=${title}`)
+  const addFollowing = async (id: string) => {
+    await fetch(`/api/addFollowing?anime=${id}`)
     await getFollowingQuery.refetch()
   }
 
@@ -56,7 +56,7 @@ export default function AnimeListBySeason({ resp, params }: AnimeListProps) {
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const resp = await getAnimesBySeason(params)
+  const resp = await getAllAnimesBySeason(params)
 
   return {
     props: { resp, params },

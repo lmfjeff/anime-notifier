@@ -1,6 +1,7 @@
-import { Button, SimpleGrid } from '@chakra-ui/react'
+import { Button, SimpleGrid, Text } from '@chakra-ui/react'
 import * as React from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import { compareDayOfWeek, getDayOfWeekFromString } from '../utils/date'
 import AnimeCard from './AnimeCard'
 
 // import { AppleDailyArticleCard } from '../ArticleCard'
@@ -16,13 +17,14 @@ type Props = {
 }
 
 const AnimeList = ({ animes, hasNextPage, fetchNextPage, isFetching, followingAnimes, addFollowing }: Props) => {
-  const isFollowed = (title: string) => {
+  const isFollowed = (id: string) => {
     if (followingAnimes) {
-      return followingAnimes.includes(title)
+      return followingAnimes.includes(id)
     } else return false
   }
   return (
     <>
+      <Text>Total: {animes.length} </Text>
       <InfiniteScroll
         dataLength={animes.length} // This is important field to render the next data
         next={fetchNextPage}
@@ -33,9 +35,12 @@ const AnimeList = ({ animes, hasNextPage, fetchNextPage, isFetching, followingAn
         scrollableTarget="scrollableDiv"
       >
         <SimpleGrid minChildWidth="144px" spacing={3} mx={10}>
-          {animes.map(anime => (
-            <AnimeCard key={anime.title} anime={anime} followed={isFollowed(anime.title)} addFollowing={addFollowing} />
-          ))}
+          {animes
+            .filter(anime => !!anime.dayOfWeek)
+            .sort(compareDayOfWeek)
+            .map(anime => (
+              <AnimeCard key={anime.id} anime={anime} followed={isFollowed(anime.id)} addFollowing={addFollowing} />
+            ))}
         </SimpleGrid>
       </InfiniteScroll>
       {hasNextPage ? <Button onClick={fetchNextPage}>Load more manually</Button> : null}

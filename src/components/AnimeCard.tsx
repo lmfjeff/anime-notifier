@@ -2,12 +2,7 @@ import { AspectRatio, Box, IconButton, Image as ChakraImage, Text } from '@chakr
 import { AddIcon } from '@chakra-ui/icons'
 import React from 'react'
 import path from 'path'
-
-type anime = {
-  title: string
-  yearSeason: string
-  picture: string
-}
+import { anime } from '../types/anime'
 
 type animeCardProps = {
   anime: anime
@@ -15,7 +10,7 @@ type animeCardProps = {
   addFollowing: (title: string) => void
 }
 
-const fallbackImage = path.resolve('image', 'iyanakao.png')
+const fallbackImage = path.resolve('image', 'hellomoto.png')
 
 const AnimeCard = ({ anime, followed, addFollowing }: animeCardProps) => {
   // todo anime.picture
@@ -31,9 +26,12 @@ const AnimeCard = ({ anime, followed, addFollowing }: animeCardProps) => {
         position="absolute"
         top="0"
         right="0"
-        onClick={() => addFollowing(anime.title)}
+        onClick={() => addFollowing(anime.id)}
         disabled={followed}
       />
+      <Text position="absolute" top="0" textShadow="0 0 3px black" color="white" fontSize="lg" fontWeight="semibold">
+        {anime.dayOfWeek} {anime.time}
+      </Text>
       <Text
         noOfLines={2}
         position="absolute"

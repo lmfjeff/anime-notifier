@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getAnimesBySeason } from '../../services/dynamodb'
+import { getAllAnimesBySeason } from '../../services/dynamodb'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const params = req.query
     // const { season, nextCursor } = params
-    const resp = await getAnimesBySeason(params)
+    const resp = await getAllAnimesBySeason(params)
 
     return res.status(200).json(resp)
   } catch (error) {

@@ -19,7 +19,7 @@ export const Sidebar = () => {
         <Link href="/following" passHref>
           <Button>List</Button>
         </Link>
-        <Link href="/anime/2021/SUMMER" passHref>
+        <Link href="/anime/2021/summer" passHref>
           <Button>Explore</Button>
         </Link>
         <Button>User</Button>
