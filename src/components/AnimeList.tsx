@@ -22,6 +22,24 @@ const AnimeList = ({ animes, hasNextPage, fetchNextPage, isFetching, followingAn
       return followingAnimes.includes(id)
     } else return false
   }
+  const filterByHavingDayOfWeek = (a: any) => !!a.dayOfWeek
+  const filterByTV = (a: any) => a.type === 'tv'
+  const sortedAnimes = [
+    { day: '1', animes: new Array() },
+    { day: '2', animes: new Array() },
+    { day: '3', animes: new Array() },
+    { day: '4', animes: new Array() },
+    { day: '5', animes: new Array() },
+    { day: '6', animes: new Array() },
+    { day: '7', animes: new Array() },
+  ]
+  animes
+    .filter(filterByTV)
+    .filter(filterByHavingDayOfWeek)
+    .forEach((anime: any) => {
+      sortedAnimes[getDayOfWeekFromString(anime.dayOfWeek) - 1].animes.push(anime)
+    })
+  console.log(sortedAnimes)
   return (
     <>
       <Text>Total: {animes.length} </Text>
@@ -34,14 +52,25 @@ const AnimeList = ({ animes, hasNextPage, fetchNextPage, isFetching, followingAn
         scrollThreshold={0.95}
         scrollableTarget="scrollableDiv"
       >
-        <SimpleGrid minChildWidth="144px" spacing={3} mx={10}>
+        {sortedAnimes.map(dayAnimes => (
+          <>
+            <Text>Day {dayAnimes.day}</Text>
+            <SimpleGrid minChildWidth="144px" spacing="10px" key={dayAnimes.day}>
+              {dayAnimes.animes.map((anime: any) => (
+                <AnimeCard key={anime.id} anime={anime} followed={isFollowed(anime.id)} addFollowing={addFollowing} />
+              ))}
+            </SimpleGrid>
+          </>
+        ))}
+        {/* <SimpleGrid minChildWidth="144px" spacing={3} mx={10}>
           {animes
-            .filter(anime => !!anime.dayOfWeek)
+            .filter(filterByTV)
+            .filter(filterByHavingDayOfWeek)
             .sort(compareDayOfWeek)
             .map(anime => (
               <AnimeCard key={anime.id} anime={anime} followed={isFollowed(anime.id)} addFollowing={addFollowing} />
             ))}
-        </SimpleGrid>
+        </SimpleGrid> */}
       </InfiniteScroll>
       {hasNextPage ? <Button onClick={fetchNextPage}>Load more manually</Button> : null}
     </>

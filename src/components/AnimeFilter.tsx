@@ -22,7 +22,7 @@ const AnimeFilter = ({ params }: AnimeFilterProps) => {
     if (selectedYear === year) {
       return
     } else {
-      router.push(`/anime/${selectedYear}/${season}`)
+      router.push(`/anime/season/${selectedYear}/${season}`)
     }
   }
 
@@ -31,7 +31,7 @@ const AnimeFilter = ({ params }: AnimeFilterProps) => {
     if (selectedSeason === season) {
       return
     } else {
-      router.push(`/anime/${year}/${selectedSeason}`)
+      router.push(`/anime/season/${year}/${selectedSeason}`)
     }
   }
 

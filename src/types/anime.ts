@@ -7,18 +7,21 @@ export type anime = {
   title: string
   // url
   picture: string | null
-  summary: string | null
+  alternative_titles: any
   // e.g. 20210815
   startDate: string
   endDate: string | null
-  // 1-7
-  dayOfWeek: number
-  // e.g. 2215
-  time: string | null
-  // e.g. TV / Movie / OVA / ONA / SP
-  type: string
+  summary: string | null
   // e.g. ['comedy','isekai']
   genres: string[]
+  // e.g. TV / Movie / OVA / ONA / SP
+  type: string
+  status: string
+  // 1-7
+  dayOfWeek: string
+  // e.g. 2215
+  time: string | null
   // e.g. original / light novel / manga / game
   source: string
+  studio: any
 }

@@ -1,11 +1,11 @@
 import { Button, Flex, Text } from '@chakra-ui/react'
-import { getAllAnimesBySeason } from '../../../services/dynamodb'
-import { useAnimesQuery } from '../../../hooks/useAnimesQuery'
+import { getAllAnimesBySeason } from '../../../../services/dynamodb'
+import { useAnimesQuery } from '../../../../hooks/useAnimesQuery'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import AnimeList from '../../../components/AnimeList'
+import AnimeList from '../../../../components/AnimeList'
 import { GetStaticProps } from 'next'
-import AnimeFilter from '../../../components/AnimeFilter'
+import AnimeFilter from '../../../../components/AnimeFilter'
 import { useQuery } from 'react-query'
 
 type AnimeListProps = {

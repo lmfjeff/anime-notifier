@@ -5,6 +5,7 @@ import {
   QueryCommandInput,
   UpdateCommandInput,
   GetCommandInput,
+  GetCommandOutput,
 } from '@aws-sdk/lib-dynamodb'
 import { NativeAttributeValue } from '@aws-sdk/util-dynamodb'
 
@@ -19,15 +20,19 @@ async function getAnimesBySeason(request: any): Promise<any> {
   const { year, season, nextCursor } = request
   const input: QueryCommandInput = {
     TableName: 'Animes',
+    IndexName: 'YearSeasonIndex',
     Limit: 30,
     ExpressionAttributeValues: {
       ':yearSeason': `${year}-${season}`,
     },
     KeyConditionExpression: 'yearSeason = :yearSeason',
     ...(nextCursor ? { ExclusiveStartKey: JSON.parse(nextCursor) } : {}),
-    ProjectionExpression: 'id,yearSeason,title,picture,dayOfWeek,#t,genres',
+    ProjectionExpression: 'id,yearSeason,title,picture,dayOfWeek,#time,genres,alternative_titles,#type,#status,#source',
     ExpressionAttributeNames: {
-      '#t': 'time',
+      '#time': 'time',
+      '#type': 'type',
+      '#status': 'status',
+      '#source': 'source',
     },
   }
   const resp: QueryCommandOutput = await ddbDocClient.query(input)
@@ -50,6 +55,32 @@ export async function getAllAnimesBySeason(request: any): Promise<any> {
   return {
     animes: resp.Items,
     nextCursor: resp.LastEvaluatedKey ? resp.LastEvaluatedKey : null,
+  }
+}
+
+export async function getAnimeById(request: any): Promise<any> {
+  const { id } = request
+  const input: GetCommandInput = {
+    TableName: 'Animes',
+    Key: { id },
+    ExpressionAttributeNames: {
+      '#time': 'time',
+      '#type': 'type',
+      '#status': 'status',
+      '#source': 'source',
+    },
+    ProjectionExpression:
+      'id,yearSeason,title,picture,alternative_titles,startDate,endDate,summary,genres,#type,#status,dayOfWeek,#time,#source,studio',
+  }
+  const resp: GetCommandOutput = await ddbDocClient.get(input)
+  if (resp.Item) {
+    return {
+      anime: resp.Item,
+    }
+  } else {
+    return {
+      anime: null,
+    }
   }
 }
 
