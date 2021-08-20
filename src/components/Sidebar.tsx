@@ -11,25 +11,36 @@ export const Sidebar = () => {
     <Flex flexDirection="column" style={{ border: 'solid', borderColor: 'black', borderWidth: '1px' }}>
       <>
         <Link href="/home" passHref>
-          <Button>Home</Button>
+          <Button colorScheme="blue">Home</Button>
         </Link>
         <Button>Setting</Button>
         <Button>Profile</Button>
         <Button>Notification</Button>
         <Link href="/following" passHref>
-          <Button>List</Button>
+          <Button colorScheme="blue">List</Button>
         </Link>
         <Link href="/anime/season/2021/summer" passHref>
-          <Button>Explore</Button>
+          <Button colorScheme="blue">Explore</Button>
         </Link>
         <Button>User</Button>
         <Button>Theme</Button>
         <Button>Help</Button>
         <Link href="/signin" passHref>
-          <Button>Sign In</Button>
+          <Button colorScheme="blue">Sign In</Button>
         </Link>
-        {session && <Button onClick={() => signOut()}>Sign Out</Button>}
-        <Button onClick={() => fetch('/api/hello')}>Test</Button>
+        {session && (
+          <Button colorScheme="blue" onClick={() => signOut()}>
+            Sign Out
+          </Button>
+        )}
+        {session && (
+          <Link href="/admin" passHref>
+            <Button colorScheme="blue">Admin</Button>
+          </Link>
+        )}
+        <Button colorScheme="blue" onClick={() => fetch('/api/hello')}>
+          Test
+        </Button>
       </>
     </Flex>
   )

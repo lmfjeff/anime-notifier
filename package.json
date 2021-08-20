@@ -20,6 +20,7 @@
     "@emotion/styled": "^11.3.0",
     "@next-auth/dynamodb-adapter": "^0.4.2",
     "axios": "^0.21.1",
+    "dayjs": "^1.10.6",
     "dotenv": "^10.0.0",
     "framer-motion": "^4.1.17",
     "image-type": "^4.1.0",

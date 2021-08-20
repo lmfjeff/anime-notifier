@@ -11,7 +11,7 @@ type animeCardProps = {
   addFollowing: (title: string) => void
 }
 
-const fallbackImage = path.resolve('image', 'iyanakao.png')
+const fallbackImage = path.resolve('image', 'hellomoto.png')
 
 const AnimeCard = ({ anime, followed, addFollowing }: animeCardProps) => {
   // todo anime.picture
@@ -25,7 +25,8 @@ const AnimeCard = ({ anime, followed, addFollowing }: animeCardProps) => {
         </AspectRatio>
       </Link>
       <Text position="absolute" top="0" textShadow="0 0 3px black" color="white" fontSize="lg" fontWeight="semibold">
-        {anime.dayOfWeek} {anime.time}
+        <p>{anime.dayOfWeek || '星期不定'}</p>
+        <p>{anime.time || '無時間'}</p>
       </Text>
       <Text
         noOfLines={2}
