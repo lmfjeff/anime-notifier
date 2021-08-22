@@ -9,6 +9,9 @@ aws dynamodb: nosql database
 
 react-query: fetching, caching, pagination of database data
 image-type: identify image type
+dayjs
+ramda
+nanoid
 
 eslint, prettier: format, error check
 

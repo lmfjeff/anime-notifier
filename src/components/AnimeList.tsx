@@ -19,12 +19,21 @@ type Props = {
   isFetching: boolean
   followingAnimes: string[]
   addFollowing: (title: string) => void
+  removeFollowing: (title: string) => void
 }
 
 // todo center the animeList (even in narrow view)
 // todo lazy load the compact view
 
-const AnimeList = ({ animes, hasNextPage, fetchNextPage, isFetching, followingAnimes, addFollowing }: Props) => {
+const AnimeList = ({
+  animes,
+  hasNextPage,
+  fetchNextPage,
+  isFetching,
+  followingAnimes,
+  addFollowing,
+  removeFollowing,
+}: Props) => {
   const [sort, setSort] = useState('weekly')
   const isFollowed = (id: string) => {
     if (followingAnimes) {
@@ -64,7 +73,13 @@ const AnimeList = ({ animes, hasNextPage, fetchNextPage, isFetching, followingAn
           <Text>{dayAnimes.day}</Text>
           <Wrap>
             {dayAnimes.animes.map((anime: any) => (
-              <AnimeCard key={anime.id} anime={anime} followed={isFollowed(anime.id)} addFollowing={addFollowing} />
+              <AnimeCard
+                key={anime.id}
+                anime={anime}
+                followed={isFollowed(anime.id)}
+                addFollowing={addFollowing}
+                removeFollowing={removeFollowing}
+              />
             ))}
           </Wrap>
         </div>
@@ -78,7 +93,13 @@ const AnimeList = ({ animes, hasNextPage, fetchNextPage, isFetching, followingAn
         .filter(filterByTV)
         .map(transformAnimeLateNight)
         .map((anime: any) => (
-          <AnimeCard key={anime.id} anime={anime} followed={isFollowed(anime.id)} addFollowing={addFollowing} />
+          <AnimeCard
+            key={anime.id}
+            anime={anime}
+            followed={isFollowed(anime.id)}
+            addFollowing={addFollowing}
+            removeFollowing={removeFollowing}
+          />
         ))}
     </Wrap>
   )

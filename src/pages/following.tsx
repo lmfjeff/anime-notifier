@@ -1,6 +1,6 @@
 import { GetServerSideProps } from 'next'
 import { getSession } from 'next-auth/client'
-import { getFollowing } from '../services/dynamodb'
+import { getFollowing } from '../services/followingService'
 
 type followingProps = {
   anime: string[]

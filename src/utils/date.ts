@@ -48,11 +48,9 @@ export const transformAnimeLateNight = (anime: any) => {
 }
 
 export function reorderByDate(animes: any[]) {
-  const shift = dayjs().day() - 1
+  const shift = dayjs().day()
   const unknown = animes.pop()
   const shifted = animes.slice(0, shift)
   const remained = animes.slice(shift)
   return [...remained, ...shifted, unknown]
 }
-
-console.log(sortTime({ time: '21:56' }, { time: '21:55' }))

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getAllAnimesBySeason } from '../../services/dynamodb'
+import { getAllAnimesBySeason } from '../../services/animeService'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {

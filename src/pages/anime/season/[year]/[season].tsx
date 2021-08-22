@@ -1,5 +1,4 @@
 import { Button, Flex, Text } from '@chakra-ui/react'
-import { getAllAnimesBySeason } from '../../../../services/dynamodb'
 import { useAnimesQuery } from '../../../../hooks/useAnimesQuery'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -7,6 +6,8 @@ import AnimeList from '../../../../components/AnimeList'
 import { GetStaticProps } from 'next'
 import AnimeFilter from '../../../../components/AnimeFilter'
 import { useQuery } from 'react-query'
+import { getAllAnimesBySeason } from '../../../../services/animeService'
+import axios from 'axios'
 
 type AnimeListProps = {
   resp: any
@@ -21,15 +22,23 @@ export default function AnimeListBySeason({ resp, params }: AnimeListProps) {
   const { data, fetchNextPage, hasNextPage, isFetching } = useAnimesQuery(resp, params)
 
   const fetchFollowing = async () => {
-    const resp = await fetch('/api/getFollowing')
-    const data = await resp.json()
+    const resp = await axios.get('/api/following')
+    const data = await resp.data
     return data
   }
   const getFollowingQuery = useQuery('getFollowing', fetchFollowing)
   const followingAnimes = getFollowingQuery.data?.anime || null
 
   const addFollowing = async (id: string) => {
-    await fetch(`/api/addFollowing?anime=${id}`)
+    await axios.post('/api/following', {
+      anime: id,
+    })
+    await getFollowingQuery.refetch()
+  }
+
+  const removeFollowing = async (id: string) => {
+    // await fetch(`/api/removeFollowing?anime=${id}`)
+    await axios.delete('/api/following', { params: { anime: id } })
     await getFollowingQuery.refetch()
   }
 
@@ -50,6 +59,7 @@ export default function AnimeListBySeason({ resp, params }: AnimeListProps) {
         isFetching={isFetching}
         followingAnimes={followingAnimes}
         addFollowing={addFollowing}
+        removeFollowing={removeFollowing}
       />
     </>
   )

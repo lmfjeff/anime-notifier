@@ -1,20 +1,12 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { ddbDocClient } from './ddbDocClient'
 import {
-  DynamoDBDocument,
   QueryCommandOutput,
   QueryCommandInput,
-  UpdateCommandInput,
   GetCommandInput,
   GetCommandOutput,
+  UpdateCommandInput,
+  UpdateCommandOutput,
 } from '@aws-sdk/lib-dynamodb'
-import { NativeAttributeValue } from '@aws-sdk/util-dynamodb'
-
-const dynamoClient = new DynamoDBClient({
-  region: process.env.DYNAMODB_REGION,
-  endpoint: process.env.DYNAMODB_ENDPOINT,
-})
-
-const ddbDocClient = DynamoDBDocument.from(dynamoClient, { marshallOptions: { removeUndefinedValues: true } })
 
 async function getAnimesBySeason(request: any): Promise<any> {
   const { year, season, nextCursor } = request
@@ -84,50 +76,49 @@ export async function getAnimeById(request: any): Promise<any> {
   }
 }
 
-export async function addFollowing(req: any): Promise<any> {
-  const { anime, userId } = req
-  const now = new Date()
+// todo check
+export async function updateAnime(request: any) {
+  const { anime } = request
   const input: UpdateCommandInput = {
-    TableName: 'next-auth',
-    Key: {
-      pk: `USER#${userId}`,
-      sk: `USER#${userId}`,
-    },
-    UpdateExpression: 'SET #anime = list_append(if_not_exists(#anime, :emptyList), :anime), #updatedAt = :updatedAt',
+    TableName: 'Animes',
+    Key: { id: anime.id },
+    UpdateExpression:
+      'set #yearSeason=:yearSeason, #title=:title, #picture=:picture, #alternative_titles=:alternative_titles, #startDate=:startDate, #endDate=:endDate, #summary=:summary, #genres=:genres, #type=:type, #status=:status, #dayOfWeek=:dayOfWeek, #time=:time, #source=:source, #studio=:studio',
     ExpressionAttributeNames: {
-      '#anime': 'anime',
-      '#updatedAt': 'updatedAt',
+      '#id': 'id',
+      '#yearSeason': 'yearSeason',
+      '#title': 'title',
+      '#picture': 'picture',
+      '#alternative_titles': 'alternative_titles',
+      '#startDate': 'startDate',
+      '#endDate': 'endDate',
+      '#summary': 'summary',
+      '#genres': 'genres',
+      '#type': 'type',
+      '#status': 'status',
+      '#dayOfWeek': 'dayOfWeek',
+      '#time': 'time',
+      '#source': 'source',
+      '#studio': 'studio',
     },
     ExpressionAttributeValues: {
-      ':anime': [anime],
-      ':emptyList': [],
-      ':updatedAt': now.toISOString(),
+      ':yearSeason': anime.yearSeason,
+      ':title': anime.title,
+      ':picture': anime.picture,
+      ':alternative_titles': anime.alternative_titles,
+      ':startDate': anime.startDate,
+      ':endDate': anime.endDate,
+      ':summary': anime.summary,
+      ':genres': anime.genres,
+      ':type': anime.type,
+      ':status': anime.status,
+      ':dayOfWeek': anime.dayOfWeek,
+      ':time': anime.time,
+      ':source': anime.source,
+      ':studio': anime.studio,
     },
     ReturnValues: 'UPDATED_NEW',
   }
-  const resp = await ddbDocClient.update(input)
-  return {
-    resp,
-  }
-}
-
-export async function getFollowing(req: any): Promise<any> {
-  const { userId } = req
-  const input: GetCommandInput = {
-    TableName: 'next-auth',
-    Key: {
-      pk: `USER#${userId}`,
-      sk: `USER#${userId}`,
-    },
-    ExpressionAttributeNames: {
-      '#anime': 'anime',
-    },
-    ProjectionExpression: '#anime',
-  }
-  const resp = await ddbDocClient.get(input)
-  const anime = resp.Item?.anime || null
-
-  return {
-    anime,
-  }
+  const resp: UpdateCommandOutput = await ddbDocClient.update(input)
+  return { resp }
 }

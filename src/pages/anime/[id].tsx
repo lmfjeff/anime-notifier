@@ -1,5 +1,5 @@
 import { GetStaticProps } from 'next'
-import { getAnimeById } from '../../services/dynamodb'
+import { getAnimeById } from '../../services/animeService'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const resp = await getAnimeById(params)
