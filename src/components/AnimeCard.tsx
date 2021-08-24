@@ -16,7 +16,7 @@ const fallbackImage = path.resolve('image', 'hellomoto.png')
 
 const AnimeCard = ({ anime, followed, addFollowing, removeFollowing }: animeCardProps) => {
   // todo anime.picture
-  const displayName = anime.alternative_titles?.ja || anime.title
+  const displayName = anime.title
   const handleClick = useCallback(() => {
     if (followed) {
       removeFollowing(anime.id)

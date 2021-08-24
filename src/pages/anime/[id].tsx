@@ -30,7 +30,7 @@ export default function AnimeById({ resp }: { resp: any }) {
     dayOfWeek,
     time,
     source,
-    studio,
+    studios,
   } = anime
   if (anime)
     return (
@@ -51,7 +51,7 @@ export default function AnimeById({ resp }: { resp: any }) {
         <p>dayOfWeek: {dayOfWeek}</p>
         <p>time: {time}</p>
         <p>source: {source}</p>
-        <p>studio: {studio || 'n/a'}</p>
+        <p>studios: {studios || 'n/a'}</p>
       </>
     )
   return <div>no this anime id</div>

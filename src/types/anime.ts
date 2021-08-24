@@ -7,9 +7,9 @@ export type anime = {
   title: string
   // url
   picture: string | null
-  alternative_titles: any
+  alternative_titles: { [key: string]: any } | null
   // e.g. 20210815
-  startDate: string
+  startDate: string | null
   endDate: string | null
   summary: string | null
   // e.g. ['comedy','isekai']
@@ -18,10 +18,10 @@ export type anime = {
   type: string
   status: string
   // 1-7
-  dayOfWeek: string
+  dayOfWeek: string | null
   // e.g. 2215
   time: string | null
   // e.g. original / light novel / manga / game
-  source: string
-  studio: any
+  source: string | null
+  studios: string[]
 }

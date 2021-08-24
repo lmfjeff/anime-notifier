@@ -1,4 +1,5 @@
 import { Box } from '@chakra-ui/react'
+import axios from 'axios'
 import { GetStaticProps } from 'next'
 import AnimeForm from '../../../components/AnimeForm'
 import { getAnimeById } from '../../../services/animeService'
@@ -32,8 +33,12 @@ export default function AnimeEdit({ resp }: { resp: any }) {
     dayOfWeek,
     time,
     source,
-    studio,
+    studios,
   } = anime
+
+  const submitUpdate = async (anime: any) => {
+    const resp = await axios.put('/api/anime', { anime })
+  }
 
   // editable, form control, input, formik, react hook form, react final form
   if (anime)
@@ -56,8 +61,13 @@ export default function AnimeEdit({ resp }: { resp: any }) {
         <p>dayOfWeek: {dayOfWeek}</p>
         <p>time: {time}</p>
         <p>source: {source}</p>
-        <p>studio: {studio || 'n/a'}</p>
-        <AnimeForm />
+        <p>
+          studios:{' '}
+          {studios.map((studio: any) => (
+            <span key={studio}>{studio}, </span>
+          ))}
+        </p>
+        <AnimeForm anime={anime} submitFn={submitUpdate} />
       </>
     )
   return <div>no this anime id</div>

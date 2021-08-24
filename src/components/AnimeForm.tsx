@@ -1,56 +1,69 @@
-import { Button, Container, FormControl, FormErrorMessage, FormHelperText, FormLabel, Input } from '@chakra-ui/react'
+import {
+  Button,
+  Container,
+  FormControl,
+  FormErrorMessage,
+  FormHelperText,
+  FormLabel,
+  Input,
+  useFormControl,
+} from '@chakra-ui/react'
 import React from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 
 type Inputs = {
-  title: string
-  year: number
-  season: string
-  picture: string
-  startDate: string
-  endDate: string
-  summary: string
-  genres: string
-  type: string
-  status: string
-  dayOfWeek: string
-  time: string
-  source: string
-  studio: string
+  // anime: {
+  //   yearSeason: string
+  //   title: string
+  //   picture: string
+  //   alternative_titles: { [key: string]: any }
+  //   startDate: string
+  //   endDate: string
+  //   summary: string
+  //   genres: string[]
+  //   type: string
+  //   status: string
+  //   dayOfWeek: string
+  //   time: string
+  //   source: string
+  //   studios: string[]
+  // }
+  anime: { [key: string]: any }
+  submitFn: (a: any) => void
 }
 
-export default function AnimeForm() {
+export default function AnimeForm({ anime, submitFn }: Inputs) {
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<Inputs>()
-  const onSubmit: SubmitHandler<Inputs> = data => console.log(data)
+  } = useForm()
+  const onSubmit = (anime: any) => {
+    submitFn(anime)
+  }
+
+  const formControl = (key: string, val: string) => (
+    <FormControl isInvalid={!!errors[key]} key={key}>
+      <FormLabel htmlFor={key}>{key}</FormLabel>
+      <Input id={key} {...register(key)} defaultValue={val} />
+      <FormErrorMessage>{errors[key] && errors[key].message}</FormErrorMessage>
+    </FormControl>
+  )
 
   // console.log(watch('name'))
+
+  // form control: isInvalid, input required
 
   return (
     <Container border="1px" borderRadius={5} borderColor="gray" p={5}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <FormControl isInvalid={!!errors.title}>
-          <FormLabel htmlFor="title">Title</FormLabel>
-          <Input
-            id="title"
-            {...register('title', {
-              required: 'This is required',
-              minLength: { value: 4, message: 'Minimum length should be 4' },
-            })}
-          />
-          <FormErrorMessage>{errors.title && errors.title.message}</FormErrorMessage>
-          <FormHelperText>We will never share your email.</FormHelperText>
-        </FormControl>
-
-        <FormControl>
-          <FormLabel htmlFor="year">Year</FormLabel>
-          <Input id="year" />
-        </FormControl>
-
+        {/* {Object.entries(anime).map(([key, val]) =>
+          typeof val === 'string' && (key === 'title' || 'summary') ? formControl(key, val) : null
+        )} */}
+        {formControl('id', anime.id)}
+        {formControl('title', anime.title)}
+        {formControl('summary', anime.summary)}
         <Button mt={4} colorScheme="teal" isLoading={isSubmitting} type="submit">
           Submit
         </Button>

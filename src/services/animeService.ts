@@ -62,7 +62,7 @@ export async function getAnimeById(request: any): Promise<any> {
       '#source': 'source',
     },
     ProjectionExpression:
-      'id,yearSeason,title,picture,alternative_titles,startDate,endDate,summary,genres,#type,#status,dayOfWeek,#time,#source,studio',
+      'id,yearSeason,title,picture,alternative_titles,startDate,endDate,summary,genres,#type,#status,dayOfWeek,#time,#source,studios',
   }
   const resp: GetCommandOutput = await ddbDocClient.get(input)
   if (resp.Item) {
@@ -79,43 +79,57 @@ export async function getAnimeById(request: any): Promise<any> {
 // todo check
 export async function updateAnime(request: any) {
   const { anime } = request
+  const now = new Date()
+  // let update_expression: { [key: string]: any }
+  // Object.entries(anime).forEach(([key, val]) => {
+  //   update_expression[key] = val
+  // })
+  let update_expression = 'set #updatedAt=:updatedAt,'
+  Object.entries(anime).forEach(([key, val]) => {
+    if (key !== 'id') update_expression += `#${key}=:${key},`
+  })
+  update_expression = update_expression.slice(0, -1)
+  console.log(update_expression)
   const input: UpdateCommandInput = {
     TableName: 'Animes',
     Key: { id: anime.id },
     UpdateExpression:
-      'set #yearSeason=:yearSeason, #title=:title, #picture=:picture, #alternative_titles=:alternative_titles, #startDate=:startDate, #endDate=:endDate, #summary=:summary, #genres=:genres, #type=:type, #status=:status, #dayOfWeek=:dayOfWeek, #time=:time, #source=:source, #studio=:studio',
+      // 'set #yearSeason=:yearSeason, #title=:title, #picture=:picture, #alternative_titles=:alternative_titles, #startDate=:startDate, #endDate=:endDate, #summary=:summary, #genres=:genres, #type=:type, #status=:status, #dayOfWeek=:dayOfWeek, #time=:time, #source=:source, #studios=:studios, #updatedAt=:updatedAt',
+      update_expression,
+    // 'set #updatedAt=:updatedAt,#title=:title,#summary=:summary',
     ExpressionAttributeNames: {
-      '#id': 'id',
-      '#yearSeason': 'yearSeason',
+      // '#yearSeason': 'yearSeason',
       '#title': 'title',
-      '#picture': 'picture',
-      '#alternative_titles': 'alternative_titles',
-      '#startDate': 'startDate',
-      '#endDate': 'endDate',
+      // '#picture': 'picture',
+      // '#alternative_titles': 'alternative_titles',
+      // '#startDate': 'startDate',
+      // '#endDate': 'endDate',
       '#summary': 'summary',
-      '#genres': 'genres',
-      '#type': 'type',
-      '#status': 'status',
-      '#dayOfWeek': 'dayOfWeek',
-      '#time': 'time',
-      '#source': 'source',
-      '#studio': 'studio',
+      // '#genres': 'genres',
+      // '#type': 'type',
+      // '#status': 'status',
+      // '#dayOfWeek': 'dayOfWeek',
+      // '#time': 'time',
+      // '#source': 'source',
+      // '#studios': 'studios',
+      '#updatedAt': 'updatedAt',
     },
     ExpressionAttributeValues: {
-      ':yearSeason': anime.yearSeason,
+      // ':yearSeason': anime.yearSeason,
       ':title': anime.title,
-      ':picture': anime.picture,
-      ':alternative_titles': anime.alternative_titles,
-      ':startDate': anime.startDate,
-      ':endDate': anime.endDate,
+      // ':picture': anime.picture,
+      // ':alternative_titles': anime.alternative_titles,
+      // ':startDate': anime.startDate,
+      // ':endDate': anime.endDate,
       ':summary': anime.summary,
-      ':genres': anime.genres,
-      ':type': anime.type,
-      ':status': anime.status,
-      ':dayOfWeek': anime.dayOfWeek,
-      ':time': anime.time,
-      ':source': anime.source,
-      ':studio': anime.studio,
+      // ':genres': anime.genres,
+      // ':type': anime.type,
+      // ':status': anime.status,
+      // ':dayOfWeek': anime.dayOfWeek,
+      // ':time': anime.time,
+      // ':source': anime.source,
+      // ':studios': anime.studios,
+      ':updatedAt': now.toISOString(),
     },
     ReturnValues: 'UPDATED_NEW',
   }
