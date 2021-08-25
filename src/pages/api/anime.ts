@@ -12,6 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
+  // todo implement yup validation for anime object
   if (req.method === 'PUT') {
     try {
       const resp = await updateAnime({ anime: req.body.anime })

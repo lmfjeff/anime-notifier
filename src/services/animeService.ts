@@ -76,61 +76,31 @@ export async function getAnimeById(request: any): Promise<any> {
   }
 }
 
-// todo check
+// todo implement yup validation (server side / client side?)
 export async function updateAnime(request: any) {
   const { anime } = request
   const now = new Date()
-  // let update_expression: { [key: string]: any }
-  // Object.entries(anime).forEach(([key, val]) => {
-  //   update_expression[key] = val
-  // })
+
   let update_expression = 'set #updatedAt=:updatedAt,'
+  let expression_attribute_names: { [key: string]: any } = { '#updatedAt': 'updatedAt' }
+  let expression_attribute_values: { [key: string]: any } = { ':updatedAt': now.toISOString() }
+
+  // set update input based on request.anime object
   Object.entries(anime).forEach(([key, val]) => {
-    if (key !== 'id') update_expression += `#${key}=:${key},`
+    if (key !== 'id') {
+      update_expression += `#${key}=:${key},`
+      expression_attribute_names = { ...expression_attribute_names, ...{ ['#' + key]: key } }
+      expression_attribute_values = { ...expression_attribute_values, ...{ [':' + key]: val } }
+    }
   })
   update_expression = update_expression.slice(0, -1)
-  console.log(update_expression)
+
   const input: UpdateCommandInput = {
     TableName: 'Animes',
     Key: { id: anime.id },
-    UpdateExpression:
-      // 'set #yearSeason=:yearSeason, #title=:title, #picture=:picture, #alternative_titles=:alternative_titles, #startDate=:startDate, #endDate=:endDate, #summary=:summary, #genres=:genres, #type=:type, #status=:status, #dayOfWeek=:dayOfWeek, #time=:time, #source=:source, #studios=:studios, #updatedAt=:updatedAt',
-      update_expression,
-    // 'set #updatedAt=:updatedAt,#title=:title,#summary=:summary',
-    ExpressionAttributeNames: {
-      // '#yearSeason': 'yearSeason',
-      '#title': 'title',
-      // '#picture': 'picture',
-      // '#alternative_titles': 'alternative_titles',
-      // '#startDate': 'startDate',
-      // '#endDate': 'endDate',
-      '#summary': 'summary',
-      // '#genres': 'genres',
-      // '#type': 'type',
-      // '#status': 'status',
-      // '#dayOfWeek': 'dayOfWeek',
-      // '#time': 'time',
-      // '#source': 'source',
-      // '#studios': 'studios',
-      '#updatedAt': 'updatedAt',
-    },
-    ExpressionAttributeValues: {
-      // ':yearSeason': anime.yearSeason,
-      ':title': anime.title,
-      // ':picture': anime.picture,
-      // ':alternative_titles': anime.alternative_titles,
-      // ':startDate': anime.startDate,
-      // ':endDate': anime.endDate,
-      ':summary': anime.summary,
-      // ':genres': anime.genres,
-      // ':type': anime.type,
-      // ':status': anime.status,
-      // ':dayOfWeek': anime.dayOfWeek,
-      // ':time': anime.time,
-      // ':source': anime.source,
-      // ':studios': anime.studios,
-      ':updatedAt': now.toISOString(),
-    },
+    UpdateExpression: update_expression,
+    ExpressionAttributeNames: expression_attribute_names,
+    ExpressionAttributeValues: expression_attribute_values,
     ReturnValues: 'UPDATED_NEW',
   }
   const resp: UpdateCommandOutput = await ddbDocClient.update(input)

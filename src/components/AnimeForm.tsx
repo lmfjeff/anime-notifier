@@ -64,6 +64,7 @@ export default function AnimeForm({ anime, submitFn }: Inputs) {
         {formControl('id', anime.id)}
         {formControl('title', anime.title)}
         {formControl('summary', anime.summary)}
+        {formControl('yearSeason', anime.yearSeason)}
         <Button mt={4} colorScheme="teal" isLoading={isSubmitting} type="submit">
           Submit
         </Button>
