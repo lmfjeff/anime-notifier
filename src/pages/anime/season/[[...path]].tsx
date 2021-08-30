@@ -1,20 +1,44 @@
-import { Button, Flex, Text } from '@chakra-ui/react'
-import { useAnimesQuery } from '../../../../hooks/useAnimesQuery'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import AnimeList from '../../../../components/AnimeList'
-import { GetStaticProps } from 'next'
-import AnimeFilter from '../../../../components/AnimeFilter'
-import { useQuery } from 'react-query'
-import { getAllAnimesBySeason } from '../../../../services/animeService'
+import { Flex } from '@chakra-ui/react'
 import axios from 'axios'
+import { GetStaticProps } from 'next'
+import { useRouter } from 'next/router'
+import { nth } from 'ramda'
+import React from 'react'
+import { useQuery } from 'react-query'
+import AnimeFilter from '../../../components/AnimeFilter'
+import AnimeList from '../../../components/AnimeList'
+import { useAnimesQuery } from '../../../hooks/useAnimesQuery'
+import { getAllAnimesBySeason } from '../../../services/animeService'
+import { month2Season } from '../../../utils/date'
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const { path } = params as {
+    path?: any[]
+  }
+
+  const now = new Date()
+  const nowMonth = now.getMonth()
+
+  const year = nth(0, path || []) || now.getFullYear().toString()
+  const season = nth(1, path || []) || month2Season(nowMonth)
+
+  const resp = await getAllAnimesBySeason({ year, season })
+
+  return {
+    props: { resp, params },
+  }
+}
+
+export async function getStaticPaths() {
+  return { paths: [], fallback: 'blocking' }
+}
 
 type AnimeListProps = {
   resp: any
   params: any
 }
 
-export default function AnimeListBySeason({ resp, params }: AnimeListProps) {
+const AnimeSeasonIndex = ({ resp, params }: AnimeListProps) => {
   const { animes, nextCursor } = resp
   const { year, season } = params
   const router = useRouter()
@@ -65,14 +89,4 @@ export default function AnimeListBySeason({ resp, params }: AnimeListProps) {
   )
 }
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const resp = await getAllAnimesBySeason(params)
-
-  return {
-    props: { resp, params },
-  }
-}
-
-export async function getStaticPaths() {
-  return { paths: [], fallback: 'blocking' }
-}
+export default AnimeSeasonIndex

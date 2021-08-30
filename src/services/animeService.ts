@@ -19,7 +19,8 @@ async function getAnimesBySeason(request: any): Promise<any> {
     },
     KeyConditionExpression: 'yearSeason = :yearSeason',
     ...(nextCursor ? { ExclusiveStartKey: JSON.parse(nextCursor) } : {}),
-    ProjectionExpression: 'id,yearSeason,title,picture,dayOfWeek,#time,genres,alternative_titles,#type,#status,#source',
+    ProjectionExpression:
+      'id,yearSeason,title,picture,dayOfWeek,#time,genres,alternative_titles,#type,#status,#source,malId',
     ExpressionAttributeNames: {
       '#time': 'time',
       '#type': 'type',

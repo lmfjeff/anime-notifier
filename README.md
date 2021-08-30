@@ -43,3 +43,15 @@ aws s3api put-object --bucket music-bucket --key hyouka1.png --body hyouka1.png 
 aws s3api get-object --bucket music-bucket --key hyouka1.png abc.png --endpoint-url http://localhost:4566
 
 aws s3api list-buckets --endpoint-url http://localhost:4566
+
+aws s3api list-objects-v2 --bucket anime --endpoint-url http://localhost:4566
+
+--- fetching mal api & acgsecrets.hk (2019-2021) ---
+./mal/
+getAuth.ts => getToken.ts / refreshToken.ts
+malToLocal.ts: fetch animes info from mal api to local file (2019-2021)
+importData.ts: create anime items in dynamodb
+
+./acg/
+parse.ts: fetch animes info from acgsecrets.hk to local file (2019-2021)
+modifyDb.ts: modify title & summary of animes in dynamodb using malId

@@ -15,24 +15,24 @@ export async function getStaticPaths() {
 
 export default function AnimeById({ resp }: { resp: any }) {
   const { anime } = resp
-  const {
-    id,
-    yearSeason,
-    title,
-    picture,
-    alternative_titles,
-    startDate,
-    endDate,
-    summary,
-    genres,
-    type,
-    status,
-    dayOfWeek,
-    time,
-    source,
-    studios,
-  } = anime
-  if (anime)
+  if (anime) {
+    const {
+      id,
+      yearSeason,
+      title,
+      picture,
+      alternative_titles,
+      startDate,
+      endDate,
+      summary,
+      genres,
+      type,
+      status,
+      dayOfWeek,
+      time,
+      source,
+      studios,
+    } = anime
     return (
       <>
         <p>Title: {title}</p>
@@ -54,5 +54,6 @@ export default function AnimeById({ resp }: { resp: any }) {
         <p>studios: {studios || 'n/a'}</p>
       </>
     )
+  }
   return <div>no this anime id</div>
 }

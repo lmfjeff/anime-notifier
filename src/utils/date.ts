@@ -54,3 +54,20 @@ export function reorderByDate(animes: any[]) {
   const remained = animes.slice(shift)
   return [...remained, ...shifted, unknown]
 }
+
+export function month2Season(n: number): string | undefined {
+  let season
+  if (n >= 1 && n <= 3) {
+    season = 'winter'
+  }
+  if (n >= 4 && n <= 6) {
+    season = 'spring'
+  }
+  if (n >= 7 && n <= 9) {
+    season = 'summmer'
+  }
+  if (n >= 10 && n <= 12) {
+    season = 'autumn'
+  }
+  return season
+}

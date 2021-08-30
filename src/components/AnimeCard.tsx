@@ -1,9 +1,9 @@
 import { AspectRatio, Box, IconButton, Image as ChakraImage, Text } from '@chakra-ui/react'
 import { AddIcon, EditIcon } from '@chakra-ui/icons'
 import React, { useCallback } from 'react'
-import path from 'path'
 import { anime } from '../types/anime'
 import Link from 'next/link'
+import { AnimeImage } from './AnimeImage'
 
 type animeCardProps = {
   anime: anime
@@ -12,11 +12,12 @@ type animeCardProps = {
   removeFollowing: (title: string) => void
 }
 
-const fallbackImage = path.resolve('image', 'hellomoto.png')
+// const fallbackImage = path.resolve('image', 'hellomoto.png')
 
 const AnimeCard = ({ anime, followed, addFollowing, removeFollowing }: animeCardProps) => {
   // todo anime.picture
   const displayName = anime.title
+  const picture = anime.picture?.includes('localhost') ? anime.picture : ''
   const handleClick = useCallback(() => {
     if (followed) {
       removeFollowing(anime.id)
@@ -29,7 +30,8 @@ const AnimeCard = ({ anime, followed, addFollowing, removeFollowing }: animeCard
       <Link href={`/anime/${anime.id}`} passHref>
         <Box as="a">
           <AspectRatio ratio={1}>
-            <ChakraImage src={fallbackImage} alt="" />
+            {/* <AnimeImage src={anime.picture ? anime.picture : ''} alt="" /> */}
+            <AnimeImage src={picture} alt="" />
           </AspectRatio>
         </Box>
       </Link>
