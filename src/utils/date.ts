@@ -14,6 +14,8 @@ export function toWeekday(n: number) {
 }
 
 export function sortDay(a: any, b: any) {
+  if (!a.dayOfWeek) return 1
+  if (!b.dayOfWeek) return -1
   return parseWeekday(a.dayOfWeek) - parseWeekday(b.dayOfWeek)
 }
 
@@ -24,7 +26,7 @@ export function sortTime(a: any, b: any) {
 }
 
 export function jp2hk(anime: any) {
-  if (!anime.time) return anime
+  if (!anime.time || !anime.dayOfWeek) return anime
   const day = parseWeekday(anime.dayOfWeek)
   const time = dayjs(anime.time, 'HH:mm').day(day)
   const transformedTime = time.subtract(1, 'hour')
@@ -64,7 +66,7 @@ export function month2Season(n: number): string | undefined {
     season = 'spring'
   }
   if (n >= 7 && n <= 9) {
-    season = 'summmer'
+    season = 'summer'
   }
   if (n >= 10 && n <= 12) {
     season = 'autumn'

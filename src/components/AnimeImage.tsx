@@ -1,6 +1,5 @@
 import React from 'react'
 import { Image as ChakraImage, ImageProps } from '@chakra-ui/react'
-import Image from 'next/image'
 import fallbackImage from '../../public/image/hellomoto.png'
 
 export const AnimeImage: React.FC<ImageProps> = ({ onLoad, src, onError, ...props }) => {

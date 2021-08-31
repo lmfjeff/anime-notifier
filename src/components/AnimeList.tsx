@@ -1,4 +1,4 @@
-import { Button, SimpleGrid, Stack, Text, Wrap } from '@chakra-ui/react'
+import { Box, Button, SimpleGrid, Stack, Text, Wrap } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import {
@@ -20,6 +20,7 @@ type Props = {
   followingAnimes: string[]
   addFollowing: (title: string) => void
   removeFollowing: (title: string) => void
+  sort: string
 }
 
 // todo center the animeList (even in narrow view)
@@ -33,8 +34,8 @@ const AnimeList = ({
   followingAnimes,
   addFollowing,
   removeFollowing,
+  sort,
 }: Props) => {
-  const [sort, setSort] = useState('weekly')
   const isFollowed = (id: string) => {
     if (followingAnimes) {
       return followingAnimes.includes(id)
@@ -53,25 +54,22 @@ const AnimeList = ({
     { day: '星期未定/不定', animes: new Array() },
   ]
 
-  animes
-    .filter(filterByTV)
-    .map(jp2hk)
-    .map(transformAnimeLateNight)
-    .sort(sortTime)
-    .forEach((anime: any) => {
-      if (parseWeekday(anime.dayOfWeek) === -1) {
-        sortedAnimes[7].animes.push(anime)
-      } else {
-        sortedAnimes[parseWeekday(anime.dayOfWeek)].animes.push(anime)
-      }
-    })
+  const tvAnimes = animes.filter(filterByTV).map(jp2hk).map(transformAnimeLateNight).sort(sortTime)
+
+  tvAnimes.forEach((anime: any) => {
+    if (parseWeekday(anime.dayOfWeek) === -1) {
+      sortedAnimes[7].animes.push(anime)
+    } else {
+      sortedAnimes[parseWeekday(anime.dayOfWeek)].animes.push(anime)
+    }
+  })
 
   const weeklyView = (
     <>
       {reorderByDate(sortedAnimes).map(dayAnimes => (
-        <div key={dayAnimes.day}>
+        <Box key={dayAnimes.day} my={4}>
           <Text>{dayAnimes.day}</Text>
-          <Wrap>
+          <Wrap overflow="hidden">
             {dayAnimes.animes.map((anime: any) => (
               <AnimeCard
                 key={anime.id}
@@ -82,33 +80,28 @@ const AnimeList = ({
               />
             ))}
           </Wrap>
-        </div>
+        </Box>
       ))}
     </>
   )
 
   const compactView = (
-    <Wrap overflow="hidden">
-      {animes
-        .filter(filterByTV)
-        .map(transformAnimeLateNight)
-        .map((anime: any) => (
-          <AnimeCard
-            key={anime.id}
-            anime={anime}
-            followed={isFollowed(anime.id)}
-            addFollowing={addFollowing}
-            removeFollowing={removeFollowing}
-          />
-        ))}
+    <Wrap overflow="hidden" my={4}>
+      {tvAnimes.sort(sortDay).map((anime: any) => (
+        <AnimeCard
+          key={anime.id}
+          anime={anime}
+          followed={isFollowed(anime.id)}
+          addFollowing={addFollowing}
+          removeFollowing={removeFollowing}
+        />
+      ))}
     </Wrap>
   )
 
   return (
     <>
-      <Button onClick={() => setSort('weekly')}>Weekly View</Button>
-      <Button onClick={() => setSort('compact')}>Compact View</Button>
-      <Text>Total: {animes.length} </Text>
+      <Text>收錄動畫數: {tvAnimes.length} </Text>
       <InfiniteScroll
         dataLength={animes.length} // This is important field to render the next data
         next={fetchNextPage}

@@ -1,17 +1,20 @@
+import axios from 'axios'
 import { useCallback } from 'react'
 import { useInfiniteQuery } from 'react-query'
 
-export function useAnimesQuery(resp: any, params: any) {
-  const { year, season } = params
+export function useAnimesQuery(resp: any, queryParams: any) {
+  const { year, season } = queryParams
   const queryKey = ['animes', year, season]
 
-  // todo change fetch to axios
   const fetchAnimeList = useCallback(
     async ({ pageParam }) => {
-      const resp = await fetch(
-        `/api/anime?year=${year}&season=${season}&nextCursor=${pageParam ? JSON.stringify(pageParam) : ''}`
-      )
-      const data = await resp.json()
+      const params = {
+        year,
+        season,
+        ...(pageParam ? { nextCursor: JSON.stringify(pageParam) } : {}),
+      }
+      const resp = await axios.get('/api/anime', { params })
+      const data = resp.data
       return {
         data: data.animes,
         nextCursor: data.nextCursor,

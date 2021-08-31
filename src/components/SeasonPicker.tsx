@@ -1,17 +1,15 @@
 import { Flex, Select } from '@chakra-ui/react'
-import { useRouter } from 'next/router'
 import { range } from 'ramda'
 import React from 'react'
 
 type AnimeFilterProps = {
-  params: any
+  queryParams: any
+  onSelectSeason: (val: any) => void
 }
 
-// todo move router to page /anime/[year]/[season]
+const SeasonPicker = ({ queryParams, onSelectSeason }: AnimeFilterProps) => {
+  const { year, season } = queryParams
 
-const AnimeFilter = ({ params }: AnimeFilterProps) => {
-  const router = useRouter()
-  const { year, season } = params
   const yearList = range(2000, 2023)
     .map(number => number.toString())
     .reverse()
@@ -22,7 +20,7 @@ const AnimeFilter = ({ params }: AnimeFilterProps) => {
     if (selectedYear === year) {
       return
     } else {
-      router.push(`/anime/season/${selectedYear}/${season}`)
+      onSelectSeason({ year: selectedYear, season })
     }
   }
 
@@ -31,20 +29,40 @@ const AnimeFilter = ({ params }: AnimeFilterProps) => {
     if (selectedSeason === season) {
       return
     } else {
-      router.push(`/anime/season/${year}/${selectedSeason}`)
+      onSelectSeason({ year, season: selectedSeason })
     }
   }
 
   return (
-    <Flex>
-      <Select variant="filled" onChange={selectYearOnChange} defaultValue={year}>
+    <Flex justifyContent="center" alignItems="center" wrap="wrap">
+      <Select
+        variant="filled"
+        onChange={selectYearOnChange}
+        defaultValue={year}
+        border="1px"
+        borderColor="gray"
+        w={40}
+        mx={1}
+        my={1}
+        size="sm"
+      >
         {yearList.map(yearItem => (
           <option key={yearItem} value={yearItem}>
             {yearItem}
           </option>
         ))}
       </Select>
-      <Select variant="filled" onChange={selectSeasonOnChange} defaultValue={season}>
+      <Select
+        variant="filled"
+        onChange={selectSeasonOnChange}
+        defaultValue={season}
+        border="1px"
+        borderColor="gray"
+        w={40}
+        mx={1}
+        my={1}
+        size="sm"
+      >
         {seasonList.map(seasonItem => (
           <option key={seasonItem}>{seasonItem}</option>
         ))}
@@ -53,4 +71,4 @@ const AnimeFilter = ({ params }: AnimeFilterProps) => {
   )
 }
 
-export default AnimeFilter
+export default SeasonPicker

@@ -3,13 +3,14 @@ import axios from 'axios'
 import { GetStaticProps } from 'next'
 import { useRouter } from 'next/router'
 import { nth } from 'ramda'
-import React from 'react'
+import React, { useState } from 'react'
 import { useQuery } from 'react-query'
-import AnimeFilter from '../../../components/AnimeFilter'
+import SeasonPicker from '../../../components/SeasonPicker'
 import AnimeList from '../../../components/AnimeList'
 import { useAnimesQuery } from '../../../hooks/useAnimesQuery'
 import { getAllAnimesBySeason } from '../../../services/animeService'
 import { month2Season } from '../../../utils/date'
+import AnimeSorter from '../../../components/AnimeSorter'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { path } = params as {
@@ -22,10 +23,15 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const year = nth(0, path || []) || now.getFullYear().toString()
   const season = nth(1, path || []) || month2Season(nowMonth)
 
-  const resp = await getAllAnimesBySeason({ year, season })
+  const queryParams = {
+    year,
+    season,
+  }
+
+  const resp = await getAllAnimesBySeason(queryParams)
 
   return {
-    props: { resp, params },
+    props: { resp, queryParams },
   }
 }
 
@@ -35,15 +41,15 @@ export async function getStaticPaths() {
 
 type AnimeListProps = {
   resp: any
-  params: any
+  queryParams: any
 }
 
-const AnimeSeasonIndex = ({ resp, params }: AnimeListProps) => {
+const AnimeSeasonIndex = ({ resp, queryParams }: AnimeListProps) => {
   const { animes, nextCursor } = resp
-  const { year, season } = params
   const router = useRouter()
+  const [sort, setSort] = useState('weekly')
 
-  const { data, fetchNextPage, hasNextPage, isFetching } = useAnimesQuery(resp, params)
+  const { data, fetchNextPage, hasNextPage, isFetching } = useAnimesQuery(resp, queryParams)
 
   const fetchFollowing = async () => {
     const resp = await axios.get('/api/following')
@@ -53,6 +59,10 @@ const AnimeSeasonIndex = ({ resp, params }: AnimeListProps) => {
   const getFollowingQuery = useQuery('getFollowing', fetchFollowing)
   const followingAnimes = getFollowingQuery.data?.anime || null
 
+  const onSelectSeason = (val: { year: string; season: string }) => {
+    router.push(`/anime/season/${val.year}/${val.season}`)
+  }
+
   const addFollowing = async (id: string) => {
     await axios.post('/api/following', {
       anime: id,
@@ -61,7 +71,6 @@ const AnimeSeasonIndex = ({ resp, params }: AnimeListProps) => {
   }
 
   const removeFollowing = async (id: string) => {
-    // await fetch(`/api/removeFollowing?anime=${id}`)
     await axios.delete('/api/following', { params: { anime: id } })
     await getFollowingQuery.refetch()
   }
@@ -70,11 +79,14 @@ const AnimeSeasonIndex = ({ resp, params }: AnimeListProps) => {
 
   return (
     <>
-      <Flex flexDir="column" align="center">
+      {/* <Flex flexDir="column" align="center">
         <div>List of Animes</div>
-      </Flex>
+      </Flex> */}
 
-      <AnimeFilter params={params} />
+      <Flex justifyContent="center" alignItems="center" wrap="wrap">
+        <SeasonPicker queryParams={queryParams} onSelectSeason={onSelectSeason} />
+        <AnimeSorter sort={sort} setSort={setSort} />
+      </Flex>
 
       <AnimeList
         animes={toShowAnimes}
@@ -84,6 +96,7 @@ const AnimeSeasonIndex = ({ resp, params }: AnimeListProps) => {
         followingAnimes={followingAnimes}
         addFollowing={addFollowing}
         removeFollowing={removeFollowing}
+        sort={sort}
       />
     </>
   )
