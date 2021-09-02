@@ -16,7 +16,13 @@ import { signOut, useSession } from 'next-auth/client'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 
-export const Sidebar = (props: any) => {
+type Props = FlexProps & {
+  handleToggle?: () => void
+  isOpen?: boolean
+}
+
+export const Sidebar = (props: Props) => {
+  const { handleToggle, isOpen, ...rest } = props
   const [session, loading] = useSession()
   const router = useRouter()
   const SidebarButton = ({ url, text }: { url: string; text: string }) => (
@@ -28,13 +34,14 @@ export const Sidebar = (props: any) => {
         bg="#eaeaea"
         _hover={{ bg: 'blue.200' }}
         _active={{ bg: 'blue.200' }}
+        onClick={handleToggle ? () => handleToggle() : () => {}}
       >
         {text}
       </Button>
     </Link>
   )
   return (
-    <Flex flexDirection="column" bg="#eaeaea" w={180} flexShrink={0} {...props}>
+    <Flex flexDirection="column" bg="#eaeaea" w={180} flexShrink={0} zIndex="modal" {...rest}>
       <Button as="b">Anime Notifier</Button>
       <SidebarButton url="/anime/season" text="番表" />
       <SidebarButton url="/following" text="追蹤" />
