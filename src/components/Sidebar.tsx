@@ -1,15 +1,4 @@
-import {
-  Box,
-  Button,
-  ComponentWithAs,
-  Flex,
-  FlexProps,
-  IconButton,
-  Spacer,
-  Text,
-  useBreakpointValue,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Button, Flex, FlexProps, Spacer } from '@chakra-ui/react'
 import React from 'react'
 import Link from 'next/link'
 import { signOut, useSession } from 'next-auth/client'
@@ -44,19 +33,23 @@ export const Sidebar = (props: Props) => {
     <Flex flexDirection="column" bg="#eaeaea" w={180} flexShrink={0} zIndex="modal" {...rest}>
       <Button as="b">Anime Notifier</Button>
       <SidebarButton url="/anime/season" text="番表" />
-      <SidebarButton url="/following" text="追蹤" />
       <SidebarButton url="/signin" text="登入" />
-      {session && <SidebarButton url="/admin" text="Admin" />}
       <Spacer />
-      {session && <Button onClick={() => signOut()}>Sign Out</Button>}
-      <SidebarButton url="/home" text="Home" />
-      <Button onClick={() => console.log()}>Test</Button>
-      <Button>Setting</Button>
-      <Button>Profile</Button>
-      <Button>Notification</Button>
-      <Button>User</Button>
-      <Button>Theme</Button>
-      <Button>Help</Button>
+      {session && (
+        <>
+          <SidebarButton url="/following" text="追蹤" />
+          <SidebarButton url="/admin" text="Admin" />
+          <Button onClick={() => signOut()}>登出</Button>
+          <SidebarButton url="/home" text="Home" />
+          <Button onClick={() => console.log()}>Test</Button>
+          <Button>Setting</Button>
+          <Button>Profile</Button>
+          <Button>Notification</Button>
+          <Button>User</Button>
+          <Button>Theme</Button>
+          <Button>Help</Button>
+        </>
+      )}
     </Flex>
   )
 }

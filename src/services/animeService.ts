@@ -1,12 +1,5 @@
 import { ddbDocClient } from './ddbDocClient'
-import {
-  QueryCommandOutput,
-  QueryCommandInput,
-  GetCommandInput,
-  GetCommandOutput,
-  UpdateCommandInput,
-  UpdateCommandOutput,
-} from '@aws-sdk/lib-dynamodb'
+import { QueryCommandInput, GetCommandInput, UpdateCommandInput, BatchGetCommandInput } from '@aws-sdk/lib-dynamodb'
 
 async function getAnimesBySeason(request: any): Promise<any> {
   const { year, season, nextCursor } = request
@@ -28,7 +21,7 @@ async function getAnimesBySeason(request: any): Promise<any> {
       '#source': 'source',
     },
   }
-  const resp: QueryCommandOutput = await ddbDocClient.query(input)
+  const resp = await ddbDocClient.query(input)
   if (!resp.LastEvaluatedKey || !resp.Items) {
     // No more
     return resp
@@ -65,7 +58,7 @@ export async function getAnimeById(request: any): Promise<any> {
     ProjectionExpression:
       'id,yearSeason,title,picture,alternative_titles,startDate,endDate,summary,genres,#type,#status,dayOfWeek,#time,#source,studios',
   }
-  const resp: GetCommandOutput = await ddbDocClient.get(input)
+  const resp = await ddbDocClient.get(input)
   if (resp.Item) {
     return {
       anime: resp.Item,
@@ -75,6 +68,19 @@ export async function getAnimeById(request: any): Promise<any> {
       anime: null,
     }
   }
+}
+
+export async function getAnimesByIds(request: any): Promise<any> {
+  const { anime }: { anime: string[] } = request
+  const keyArray = anime.map(id => ({ id }))
+  const input: BatchGetCommandInput = {
+    RequestItems: {
+      Animes: { Keys: keyArray, ProjectionExpression: 'id,title' },
+    },
+  }
+  const resp = await ddbDocClient.batchGet(input)
+
+  return { animes: resp.Responses?.Animes || null }
 }
 
 // todo implement yup validation (server side / client side?)
@@ -104,6 +110,6 @@ export async function updateAnime(request: any) {
     ExpressionAttributeValues: expression_attribute_values,
     ReturnValues: 'UPDATED_NEW',
   }
-  const resp: UpdateCommandOutput = await ddbDocClient.update(input)
+  const resp = await ddbDocClient.update(input)
   return { resp }
 }

@@ -67,6 +67,7 @@ const AnimeCard = ({ anime, followed, addFollowing, removeFollowing }: animeCard
         right="0"
         aria-label="Following"
         icon={<AddIcon />}
+        disabled={followed === null}
         onClick={handleClick}
         colorScheme={followed ? 'blue' : 'gray'}
       />
