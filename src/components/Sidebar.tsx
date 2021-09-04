@@ -1,4 +1,4 @@
-import { Button, Flex, FlexProps, Spacer } from '@chakra-ui/react'
+import { Button, Flex, FlexProps, Progress, Spacer } from '@chakra-ui/react'
 import React from 'react'
 import Link from 'next/link'
 import { signOut, useSession } from 'next-auth/client'
@@ -35,6 +35,7 @@ export const Sidebar = (props: Props) => {
       <SidebarButton url="/anime/season" text="番表" />
       <SidebarButton url="/signin" text="登入" />
       <Spacer />
+      {loading ? <Progress isIndeterminate /> : null}
       {session && (
         <>
           <SidebarButton url="/following" text="追蹤" />

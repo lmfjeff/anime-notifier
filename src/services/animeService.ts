@@ -72,6 +72,7 @@ export async function getAnimeById(request: any): Promise<any> {
 
 export async function getAnimesByIds(request: any): Promise<any> {
   const { anime }: { anime: string[] } = request
+  if (!anime || anime.length === 0) return { animes: [] }
   const keyArray = anime.map(id => ({ id }))
   const input: BatchGetCommandInput = {
     RequestItems: {

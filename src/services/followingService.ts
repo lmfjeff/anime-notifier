@@ -1,6 +1,7 @@
 import { ddbDocClient } from './ddbDocClient'
 import { UpdateCommandInput, GetCommandInput } from '@aws-sdk/lib-dynamodb'
 
+// todo check whether the added anime is valid anime id (exist in db)?
 export async function addFollowing(req: any): Promise<any> {
   const { anime, userId } = req
 
@@ -62,7 +63,7 @@ export async function getFollowing(req: any): Promise<any> {
     ProjectionExpression: '#anime',
   }
   const resp = await ddbDocClient.get(input)
-  const anime = resp.Item?.anime || null
+  const anime = resp.Item?.anime || []
 
   return {
     anime,

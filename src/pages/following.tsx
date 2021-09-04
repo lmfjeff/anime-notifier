@@ -1,21 +1,18 @@
-import { Button, Flex, IconButton, Spacer, Text } from '@chakra-ui/react'
+import { Button, Center, Flex, IconButton, Spacer, Spinner, Text } from '@chakra-ui/react'
 import axios from 'axios'
-import { GetServerSideProps } from 'next'
-import { getSession, useSession } from 'next-auth/client'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { useFollowingQuery } from '../hooks/useFollowingQuery'
-import { getAnimesByIds } from '../services/animeService'
-import { getFollowing } from '../services/followingService'
 import { CloseIcon } from '@chakra-ui/icons'
 import Link from 'next/link'
+import { useEffect, useMemo, useState } from 'react'
 
 type Props = {
   following: string[]
 }
 
 export default function Following() {
-  // const sortedAnimes = animes?.sort((a, b) => following.indexOf(a.id) - following.indexOf(b.id))
+  const queryClient = useQueryClient()
 
   const fetchFollowingId = async () => {
     const resp = await axios.get('/api/following')
@@ -32,43 +29,66 @@ export default function Following() {
 
   const following = fetchFollowingIdQuery.data?.anime
 
-  const { data, fetchNextPage, hasNextPage, isFetching } = useFollowingQuery(following, !!following)
+  const { data, fetchNextPage, hasNextPage, isFetching, refetch } = useFollowingQuery(
+    following,
+    !!following && !fetchFollowingIdQuery.isFetching
+  )
 
-  const animes = data?.pages.map(({ animes }) => animes).flat() || []
+  const rawAnimes = data?.pages.map(({ animes }) => animes).flat() || []
 
-  const sortedAnimes = animes?.sort((a, b) => following.indexOf(a.id) - following.indexOf(b.id))
+  const sortedAnimes = rawAnimes
+    ?.filter(anime => following.includes(anime.id))
+    .sort((a, b) => following.indexOf(a.id) - following.indexOf(b.id))
+
+  const removeFollowing = async (id: string) => {
+    await axios.delete('/api/following', { params: { anime: id } })
+    await queryClient.invalidateQueries('fetchFollowingId')
+    await queryClient.invalidateQueries(['animes', 'following'])
+  }
 
   return (
-    <div>
-      <div>Following:</div>
-      <div>{hasNextPage ? 'have next' : 'not have next'}</div>
-      <div>{isFetching ? 'fetching' : 'not fetching'}</div>
-      <Button onClick={() => fetchNextPage()}>Fetch More</Button>
-
-      <InfiniteScroll
-        dataLength={sortedAnimes.length} // This is important field to render the next data
-        next={fetchNextPage}
-        hasMore={!!hasNextPage}
-        loader={<Loading isLoading={isFetching} />}
-        endMessage={<End />}
-        scrollThreshold={0.95}
-        scrollableTarget="scrollableDiv"
-      >
-        {sortedAnimes && <FollowingList animes={sortedAnimes} />}
-      </InfiniteScroll>
-    </div>
+    <Flex flexDir="column" alignItems="center">
+      <Text color={fetchFollowingIdQuery.isFetching ? 'red' : ''}>fetching id</Text>
+      <Text color={isFetching ? 'red' : ''}>fetching anime</Text>
+      <Text fontSize="xl">追蹤的動畫</Text>
+      <Button onClick={() => refetch()}>refetch</Button>
+      {following && <Text pb={2}>總共 {following.length} 套動畫</Text>}
+      {following && data && (
+        <InfiniteScroll
+          dataLength={sortedAnimes.length} // This is important field to render the next data
+          next={fetchNextPage}
+          hasMore={!!hasNextPage}
+          loader={<Loading isLoading={isFetching} />}
+          endMessage={<End enabled={sortedAnimes.length > 0} />}
+          scrollThreshold={0.95}
+          scrollableTarget="scrollableDiv"
+        >
+          <FollowingList animes={sortedAnimes} removeFollowing={removeFollowing} />
+        </InfiniteScroll>
+      )}
+      {!following || !data ? <Loading isLoading={true} /> : null}
+    </Flex>
   )
 }
 
 const Loading = ({ isLoading }: { isLoading: boolean }) => {
-  return isLoading ? <h4>Loading...</h4> : null
+  return isLoading ? <Spinner position="fixed" bottom="15px" right="25px" /> : null
 }
 
-const End = () => {
-  return <h4>Yay! You have seen it all</h4>
+const End = ({ enabled }: { enabled: boolean }) => {
+  return enabled ? (
+    <Flex justifyContent="center">
+      <Text py={5}>列表尾</Text>
+    </Flex>
+  ) : null
 }
 
-const FollowingList = ({ animes }: { animes: any[] }) => {
+type followingListProps = {
+  animes: any[]
+  removeFollowing: (id: string) => Promise<void>
+}
+
+const FollowingList = ({ animes, removeFollowing }: followingListProps) => {
   return (
     <Flex justifyContent="center">
       <Flex flexDir="column" w={600}>
@@ -85,7 +105,11 @@ const FollowingList = ({ animes }: { animes: any[] }) => {
               <Text as="a">{title}</Text>
             </Link>
             <Spacer />
-            <IconButton aria-label="remove following" icon={<CloseIcon />}></IconButton>
+            <IconButton
+              aria-label="remove following"
+              icon={<CloseIcon />}
+              onClick={() => removeFollowing(id)}
+            ></IconButton>
           </Flex>
         ))}
       </Flex>
