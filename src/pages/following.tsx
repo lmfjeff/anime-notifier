@@ -6,68 +6,50 @@ import { useFollowingQuery } from '../hooks/useFollowingQuery'
 import { CloseIcon } from '@chakra-ui/icons'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
-
-type Props = {
-  following: string[]
-}
+import { useSession } from 'next-auth/client'
 
 export default function Following() {
+  const [session, loading] = useSession()
   const queryClient = useQueryClient()
 
-  const fetchFollowingId = async () => {
-    const resp = await axios.get('/api/following')
-    const data = await resp.data
-    return data
-  }
-  const fetchFollowingIdQuery = useQuery('fetchFollowingId', fetchFollowingId, {
-    refetchInterval: false,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: false,
-    refetchIntervalInBackground: false,
-    refetchOnMount: false,
-  })
+  const { data, fetchNextPage, hasNextPage, isFetching } = useFollowingQuery(!!session)
 
-  const following = fetchFollowingIdQuery.data?.anime
+  const animes = data?.pages.map(({ animes }) => animes).flat() || []
 
-  const { data, fetchNextPage, hasNextPage, isFetching, refetch } = useFollowingQuery(
-    following,
-    !!following && !fetchFollowingIdQuery.isFetching
-  )
-
-  const rawAnimes = data?.pages.map(({ animes }) => animes).flat() || []
-
-  const sortedAnimes = rawAnimes
-    ?.filter(anime => following.includes(anime.id))
-    .sort((a, b) => following.indexOf(a.id) - following.indexOf(b.id))
-
+  // todo use react-query useMutation + optimistic update
   const removeFollowing = async (id: string) => {
     await axios.delete('/api/following', { params: { anime: id } })
-    await queryClient.invalidateQueries('fetchFollowingId')
     await queryClient.invalidateQueries(['animes', 'following'])
   }
 
   return (
-    <Flex flexDir="column" alignItems="center">
-      <Text color={fetchFollowingIdQuery.isFetching ? 'red' : ''}>fetching id</Text>
-      <Text color={isFetching ? 'red' : ''}>fetching anime</Text>
-      <Text fontSize="xl">追蹤的動畫</Text>
-      <Button onClick={() => refetch()}>refetch</Button>
-      {following && <Text pb={2}>總共 {following.length} 套動畫</Text>}
-      {following && data && (
-        <InfiniteScroll
-          dataLength={sortedAnimes.length} // This is important field to render the next data
-          next={fetchNextPage}
-          hasMore={!!hasNextPage}
-          loader={<Loading isLoading={isFetching} />}
-          endMessage={<End enabled={sortedAnimes.length > 0} />}
-          scrollThreshold={0.95}
-          scrollableTarget="scrollableDiv"
-        >
-          <FollowingList animes={sortedAnimes} removeFollowing={removeFollowing} />
-        </InfiniteScroll>
+    <>
+      <Flex flexDir="column" alignItems="center">
+        {data && (
+          <>
+            <Text fontSize="xl">追蹤的動畫</Text>
+            <Text pb={2}>總共 {data?.pages[0].total} 套動畫</Text>
+            <InfiniteScroll
+              dataLength={animes.length} // This is important field to render the next data
+              next={fetchNextPage}
+              hasMore={!!hasNextPage}
+              loader={<Loading isLoading={isFetching} />}
+              endMessage={<End enabled={animes.length > 0} />}
+              scrollThreshold={0.95}
+              scrollableTarget="scrollableDiv"
+            >
+              <FollowingList animes={animes} removeFollowing={removeFollowing} disabled={isFetching} />
+            </InfiniteScroll>
+          </>
+        )}
+        {session && (!data || isFetching) ? <Loading isLoading={true} /> : null}
+      </Flex>
+      {!loading && !session && (
+        <Flex h="full" justifyContent="center" alignItems="center">
+          <Text alignSelf="center">請登入以追蹤動畫</Text>
+        </Flex>
       )}
-      {!following || !data ? <Loading isLoading={true} /> : null}
-    </Flex>
+    </>
   )
 }
 
@@ -86,9 +68,10 @@ const End = ({ enabled }: { enabled: boolean }) => {
 type followingListProps = {
   animes: any[]
   removeFollowing: (id: string) => Promise<void>
+  disabled: boolean
 }
 
-const FollowingList = ({ animes, removeFollowing }: followingListProps) => {
+const FollowingList = ({ animes, removeFollowing, disabled }: followingListProps) => {
   return (
     <Flex justifyContent="center">
       <Flex flexDir="column" w={600}>
@@ -107,7 +90,11 @@ const FollowingList = ({ animes, removeFollowing }: followingListProps) => {
             <Spacer />
             <IconButton
               aria-label="remove following"
+              title="取消追蹤"
+              bg="transparent"
+              _focus={{}}
               icon={<CloseIcon />}
+              disabled={disabled}
               onClick={() => removeFollowing(id)}
             ></IconButton>
           </Flex>

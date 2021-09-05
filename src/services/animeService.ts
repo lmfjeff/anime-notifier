@@ -70,8 +70,8 @@ export async function getAnimeById(request: any): Promise<any> {
   }
 }
 
-export async function getAnimesByIds(request: any): Promise<any> {
-  const { anime }: { anime: string[] } = request
+export async function getAnimesByIds(request: { anime: string[] }): Promise<any> {
+  const { anime } = request
   if (!anime || anime.length === 0) return { animes: [] }
   const keyArray = anime.map(id => ({ id }))
   const input: BatchGetCommandInput = {
@@ -81,7 +81,7 @@ export async function getAnimesByIds(request: any): Promise<any> {
   }
   const resp = await ddbDocClient.batchGet(input)
 
-  return { animes: resp.Responses?.Animes || null }
+  return { animes: resp.Responses?.Animes || [] }
 }
 
 // todo implement yup validation (server side / client side?)
