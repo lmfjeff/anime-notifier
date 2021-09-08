@@ -5,12 +5,14 @@ import { useQuery, useQueryClient } from 'react-query'
 import { useFollowingQuery } from '../hooks/useFollowingQuery'
 import { CloseIcon } from '@chakra-ui/icons'
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from 'next-auth/client'
+import { useRouter } from 'next/router'
 
 export default function Following() {
   const [session, loading] = useSession()
   const queryClient = useQueryClient()
+  const router = useRouter()
 
   const { data, fetchNextPage, hasNextPage, isFetching } = useFollowingQuery(!!session)
 
@@ -22,13 +24,18 @@ export default function Following() {
     await queryClient.invalidateQueries(['animes', 'following'])
   }
 
+  // useEffect(() => {
+  //   router.events.on('routeChangeComplete', () => {
+  //     window.scrollTo(0, 0)
+  //   })
+  // }, [router])
+
   return (
     <>
-      <Flex flexDir="column" alignItems="center">
+      <Flex flexDir="column" alignItems="center" w="full">
         {data && (
           <>
-            <Text fontSize="xl">追蹤的動畫</Text>
-            <Text pb={2}>總共 {data?.pages[0].total} 套動畫</Text>
+            <Text pb={5}>總共 {data?.pages[0].total} 套動畫</Text>
             <InfiniteScroll
               dataLength={animes.length} // This is important field to render the next data
               next={fetchNextPage}
@@ -73,33 +80,32 @@ type followingListProps = {
 
 const FollowingList = ({ animes, removeFollowing, disabled }: followingListProps) => {
   return (
-    <Flex justifyContent="center">
-      <Flex flexDir="column" w={600}>
-        {animes.map(({ id, title }) => (
-          <Flex
-            key={id}
-            px={3}
-            alignItems="center"
-            borderBottom="1px"
-            borderColor="gray.400"
-            _hover={{ bg: 'gray.300' }}
-          >
-            <Link href={`/anime/${id}`} passHref>
-              <Text as="a">{title}</Text>
-            </Link>
-            <Spacer />
-            <IconButton
-              aria-label="remove following"
-              title="取消追蹤"
-              bg="transparent"
-              _focus={{}}
-              icon={<CloseIcon />}
-              disabled={disabled}
-              onClick={() => removeFollowing(id)}
-            ></IconButton>
-          </Flex>
-        ))}
-      </Flex>
-    </Flex>
+    <>
+      {animes.map(({ id, title }) => (
+        <Flex
+          key={id}
+          px={3}
+          alignItems="center"
+          borderBottom="1px"
+          borderColor="gray.400"
+          _hover={{ bg: 'gray.300' }}
+          justifyContent="space-between"
+          w={['full', null, '550px']}
+        >
+          <Link href={`/anime/${id}`} passHref>
+            <Text as="a">{title}</Text>
+          </Link>
+          <IconButton
+            aria-label="remove following"
+            title="取消追蹤"
+            bg="transparent"
+            _focus={{}}
+            icon={<CloseIcon />}
+            disabled={disabled}
+            onClick={() => removeFollowing(id)}
+          ></IconButton>
+        </Flex>
+      ))}
+    </>
   )
 }

@@ -27,6 +27,6 @@ export function useFollowingQuery(enabled: boolean) {
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     refetchIntervalInBackground: false,
-    refetchOnMount: false,
+    refetchOnMount: true,
   })
 }

@@ -7,7 +7,6 @@ import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 import SeasonPicker from '../../../components/SeasonPicker'
 import AnimeList from '../../../components/AnimeList'
-import { useAnimesQuery } from '../../../hooks/useAnimesQuery'
 import { getAllAnimesBySeason } from '../../../services/animeService'
 import { month2Season } from '../../../utils/date'
 import AnimeSorter from '../../../components/AnimeSorter'
@@ -45,11 +44,9 @@ type AnimeListProps = {
 }
 
 const AnimeSeasonIndex = ({ resp, queryParams }: AnimeListProps) => {
-  const { animes, nextCursor } = resp
+  const { animes } = resp
   const router = useRouter()
   const [sort, setSort] = useState('weekly')
-
-  const { data, fetchNextPage, hasNextPage, isFetching } = useAnimesQuery(resp, queryParams)
 
   const fetchFollowing = async () => {
     const resp = await axios.get('/api/following')
@@ -75,24 +72,15 @@ const AnimeSeasonIndex = ({ resp, queryParams }: AnimeListProps) => {
     await getFollowingQuery.refetch()
   }
 
-  const toShowAnimes = data?.pages.map(({ data }) => data).flat() || []
-
   return (
     <>
-      {/* <Flex flexDir="column" align="center">
-        <div>List of Animes</div>
-      </Flex> */}
-
       <Flex justifyContent="center" alignItems="center" wrap="wrap">
         <SeasonPicker queryParams={queryParams} onSelectSeason={onSelectSeason} />
         <AnimeSorter sort={sort} setSort={setSort} />
       </Flex>
 
       <AnimeList
-        animes={toShowAnimes}
-        hasNextPage={!!hasNextPage}
-        fetchNextPage={fetchNextPage}
-        isFetching={isFetching}
+        animes={animes}
         followingAnimes={followingAnimes}
         addFollowing={addFollowing}
         removeFollowing={removeFollowing}

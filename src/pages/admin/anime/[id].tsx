@@ -46,6 +46,7 @@ export default function AnimeEdit({ resp }: { resp: any }) {
       <>
         <div>Edit Anime</div>
         <p>Title: {title}</p>
+        <p>Picture: {picture}</p>
         <p>alternative_titles: {alternative_titles.ja}</p>
         <p>startDate: {startDate}</p>
         <p>endDate: {endDate}</p>

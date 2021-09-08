@@ -1,32 +1,31 @@
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
-import { ChakraProvider } from '@chakra-ui/react'
+import { ChakraProvider, extendTheme } from '@chakra-ui/react'
 import { Layout } from '../components/Layout'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { Provider as AuthProvider } from 'next-auth/client'
 import { ProgressBar } from '../components/ProgressBar'
 import { useEffect } from 'react'
+import * as swHelper from '../utils/swHelper'
 
 const queryClient = new QueryClient()
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const theme = {
+    styles: {
+      global: {
+        // body: {
+        //   overflow: 'hidden',
+        // },
+      },
+    },
+  }
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js').then(
-          function (registration) {
-            console.log('Service Worker registration successful with scope: ', registration.scope)
-          },
-          function (err) {
-            console.log('Service Worker registration failed: ', err)
-          }
-        )
-      })
-    }
+    swHelper.register()
   }, [])
   return (
-    <ChakraProvider>
+    <ChakraProvider theme={extendTheme(theme)}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider session={pageProps.session}>
           <ProgressBar />

@@ -6,7 +6,7 @@ async function getAnimesBySeason(request: any): Promise<any> {
   const input: QueryCommandInput = {
     TableName: 'Animes',
     IndexName: 'YearSeasonIndex',
-    Limit: 30,
+    Limit: 100,
     ExpressionAttributeValues: {
       ':yearSeason': `${year}-${season}`,
     },
@@ -40,7 +40,6 @@ export async function getAllAnimesBySeason(request: any): Promise<any> {
   const resp = await getAnimesBySeason(request)
   return {
     animes: resp.Items,
-    nextCursor: resp.LastEvaluatedKey ? resp.LastEvaluatedKey : null,
   }
 }
 
