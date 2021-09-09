@@ -1,0 +1,22 @@
+@keyframes blink {
+  50% {
+    background: yellow;
+  }
+}
+
+.blink {
+  animation: blink 0.5s;
+  animation-iteration-count: 2;
+}
+
+/* correspond to height of Navbar */
+.title {
+  scroll-margin-top: 50px;
+}
+
+/* correspond to >=768px / >=large tablet / >=md */
+@media screen and (min-width: 48em) {
+  .title {
+    scroll-margin-top: 0px
+  }
+}

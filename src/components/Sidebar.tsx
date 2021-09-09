@@ -34,7 +34,6 @@ export const Sidebar = (props: Props) => {
       <Button as="b">Anime Notifier</Button>
       <SidebarButton url="/anime/season" text="番表" />
       <SidebarButton url="/following" text="追蹤" />
-      <SidebarButton url="/notification" text="Test Notify" />
       <Spacer />
       {loading ? (
         <Progress isIndeterminate />

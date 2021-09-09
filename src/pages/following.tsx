@@ -1,11 +1,11 @@
-import { Button, Center, Flex, IconButton, Spacer, Spinner, Text } from '@chakra-ui/react'
+import { Button, Center, Flex, IconButton, Spacer, Spinner, Text, Box } from '@chakra-ui/react'
 import axios from 'axios'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useQuery, useQueryClient } from 'react-query'
 import { useFollowingQuery } from '../hooks/useFollowingQuery'
 import { CloseIcon } from '@chakra-ui/icons'
 import Link from 'next/link'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from 'next-auth/client'
 import { useRouter } from 'next/router'
 
@@ -36,17 +36,18 @@ export default function Following() {
         {data && (
           <>
             <Text pb={5}>總共 {data?.pages[0].total} 套動畫</Text>
-            <InfiniteScroll
-              dataLength={animes.length} // This is important field to render the next data
-              next={fetchNextPage}
-              hasMore={!!hasNextPage}
-              loader={<Loading isLoading={isFetching} />}
-              endMessage={<End enabled={animes.length > 0} />}
-              scrollThreshold={0.95}
-              scrollableTarget="scrollableDiv"
-            >
-              <FollowingList animes={animes} removeFollowing={removeFollowing} disabled={isFetching} />
-            </InfiniteScroll>
+            <Box maxW={['full', null, '600px']} w={['full', null, '100%']}>
+              <InfiniteScroll
+                dataLength={animes.length} // This is important field to render the next data
+                next={fetchNextPage}
+                hasMore={!!hasNextPage}
+                loader={<Loading isLoading={isFetching} />}
+                endMessage={<End enabled={animes.length > 0} />}
+                scrollThreshold={0.95}
+              >
+                <FollowingList animes={animes} removeFollowing={removeFollowing} disabled={isFetching} />
+              </InfiniteScroll>
+            </Box>
           </>
         )}
         {session && (!data || isFetching) ? <Loading isLoading={true} /> : null}
@@ -90,7 +91,6 @@ const FollowingList = ({ animes, removeFollowing, disabled }: followingListProps
           borderColor="gray.400"
           _hover={{ bg: 'gray.300' }}
           justifyContent="space-between"
-          w={['full', null, '550px']}
         >
           <Link href={`/anime/${id}`} passHref>
             <Text as="a">{title}</Text>

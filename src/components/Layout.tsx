@@ -9,18 +9,18 @@ import { Sidebar } from './Sidebar'
 export const Layout: React.FC = ({ children }) => {
   const { isOpen, onToggle } = useDisclosure()
   return (
-    <>
+    <Flex minH="100vh" flexDir="column">
       <Navbar display={['flex', null, 'none']} handleToggle={onToggle} isOpen={isOpen} />
-      <Flex h={[null, null, 'full']} flexDir="row" bg="#f3f3f3">
+      <Flex h={[null, null, '100vh']} flexGrow={1} flexDir="row" bg="#f3f3f3">
         {isOpen ? (
           <Sidebar position={['fixed', null, null]} top="0" bottom="0" handleToggle={onToggle} isOpen={isOpen} />
         ) : null}
-        <Sidebar display={['none', null, 'flex']} position="sticky" top="0" h="100vh" />
+        <Sidebar display={['none', null, 'flex']} position="sticky" top="0" />
 
-        <Box id="scrollableDiv" flexGrow={1} p={5}>
+        <Box flexGrow={1} p={5} overflow="auto">
           {children}
         </Box>
       </Flex>
-    </>
+    </Flex>
   )
 }
