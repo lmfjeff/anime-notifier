@@ -6,10 +6,11 @@ import { Sidebar } from './Sidebar'
 type Props = FlexProps & {
   handleToggle: () => void
   isOpen: boolean
+  title?: string
 }
 
 export const Navbar = (props: Props) => {
-  const { handleToggle, isOpen, ...rest } = props
+  const { handleToggle, isOpen, title, ...rest } = props
   const Backdrop = () => {
     return (
       <Box
@@ -42,7 +43,7 @@ export const Navbar = (props: Props) => {
           _focus={{}}
           onClick={() => handleToggle()}
         />
-        <Text mx={3}>Anime Notifier</Text>
+        <Text mx={3}>{title || ''}</Text>
       </Flex>
     </>
   )

@@ -3,7 +3,7 @@ import axios from 'axios'
 import { GetStaticProps } from 'next'
 import { useRouter } from 'next/router'
 import { nth } from 'ramda'
-import React, { useState } from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
 import SeasonPicker from '../../../components/SeasonPicker'
 import AnimeList from '../../../components/AnimeList'
@@ -38,12 +38,12 @@ export async function getStaticPaths() {
   return { paths: [], fallback: 'blocking' }
 }
 
-type AnimeListProps = {
+type Props = {
   resp: any
   queryParams: any
 }
 
-const AnimeSeasonIndex = ({ resp, queryParams }: AnimeListProps) => {
+const AnimeSeasonIndex = ({ resp, queryParams }: Props) => {
   const { animes } = resp
   const router = useRouter()
   const [sort, setSort] = useState('weekly')

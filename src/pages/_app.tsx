@@ -29,7 +29,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <QueryClientProvider client={queryClient}>
         <AuthProvider session={pageProps.session}>
           <ProgressBar />
-          <Layout>
+          <Layout title="hahaTitles">
             <Component {...pageProps} />
           </Layout>
         </AuthProvider>

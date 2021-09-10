@@ -15,7 +15,11 @@ export async function getStaticPaths() {
   return { paths: [], fallback: 'blocking' }
 }
 
-export default function AnimeById({ resp }: { resp: any }) {
+type Props = {
+  resp: any
+}
+
+export default function AnimeById({ resp }: Props) {
   const { anime } = resp
   if (anime) {
     const {

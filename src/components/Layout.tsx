@@ -6,11 +6,11 @@ import { createBreakpoint } from 'react-use'
 import { Navbar } from './Navbar'
 import { Sidebar } from './Sidebar'
 
-export const Layout: React.FC = ({ children }) => {
+export const Layout: React.FC<{ title?: string }> = ({ children, title }) => {
   const { isOpen, onToggle } = useDisclosure()
   return (
     <Flex minH="100vh" flexDir="column">
-      <Navbar display={['flex', null, 'none']} handleToggle={onToggle} isOpen={isOpen} />
+      <Navbar display={['flex', null, 'none']} handleToggle={onToggle} isOpen={isOpen} title={title} />
       <Flex h={[null, null, '100vh']} flexGrow={1} flexDir="row" bg="#f3f3f3">
         {isOpen ? (
           <Sidebar position={['fixed', null, null]} top="0" bottom="0" handleToggle={onToggle} isOpen={isOpen} />
