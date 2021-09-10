@@ -5,11 +5,11 @@ import { useRouter } from 'next/router'
 import { nth } from 'ramda'
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
-import SeasonPicker from '../../../components/SeasonPicker'
-import AnimeList from '../../../components/AnimeList'
+import { AnimeList } from '../../../components/AnimeList'
 import { getAllAnimesBySeason } from '../../../services/animeService'
 import { month2Season } from '../../../utils/date'
-import AnimeSorter from '../../../components/AnimeSorter'
+import { AnimeSorter } from '../../../components/AnimeSorter'
+import { SeasonPicker } from '../../../components/SeasonPicker'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { path } = params as {
@@ -43,7 +43,9 @@ type Props = {
   queryParams: any
 }
 
-const AnimeSeasonIndex = ({ resp, queryParams }: Props) => {
+AnimeSeasonIndex.getTitle = '番表'
+
+export default function AnimeSeasonIndex({ resp, queryParams }: Props) {
   const { animes } = resp
   const router = useRouter()
   const [sort, setSort] = useState('weekly')
@@ -89,5 +91,3 @@ const AnimeSeasonIndex = ({ resp, queryParams }: Props) => {
     </>
   )
 }
-
-export default AnimeSeasonIndex

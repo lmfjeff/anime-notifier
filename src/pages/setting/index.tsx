@@ -6,6 +6,8 @@ import { getSession, useSession } from 'next-auth/client'
 import React from 'react'
 import { SettingPanel } from '../../components/SettingPanel'
 
+Account.getTitle = '設定'
+
 export default function Account() {
   const [session] = useSession()
 

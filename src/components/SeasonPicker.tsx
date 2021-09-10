@@ -7,7 +7,7 @@ type AnimeFilterProps = {
   onSelectSeason: (val: any) => void
 }
 
-const SeasonPicker = ({ queryParams, onSelectSeason }: AnimeFilterProps) => {
+export const SeasonPicker = ({ queryParams, onSelectSeason }: AnimeFilterProps) => {
   const { year, season } = queryParams
 
   const yearList = range(2000, 2023)
@@ -70,5 +70,3 @@ const SeasonPicker = ({ queryParams, onSelectSeason }: AnimeFilterProps) => {
     </Flex>
   )
 }
-
-export default SeasonPicker

@@ -19,6 +19,8 @@ type Props = {
   resp: any
 }
 
+AnimeById.getTitle = '動畫詳情'
+
 export default function AnimeById({ resp }: Props) {
   const { anime } = resp
   if (anime) {

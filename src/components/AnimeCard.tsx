@@ -15,7 +15,7 @@ type animeCardProps = {
 
 // const fallbackImage = path.resolve('image', 'hellomoto.png')
 
-const AnimeCard = ({ anime, followed, addFollowing, removeFollowing }: animeCardProps) => {
+export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing }: animeCardProps) => {
   const displayName = anime.title
   // todo change localhost to 'media.lmfjeff.com'
   const picture = anime.picture?.includes('localhost') ? anime.picture : ''
@@ -78,5 +78,3 @@ const AnimeCard = ({ anime, followed, addFollowing, removeFollowing }: animeCard
     </Box>
   )
 }
-
-export default AnimeCard

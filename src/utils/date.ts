@@ -35,7 +35,7 @@ export function jp2hk(anime: any) {
   return transformedAnime
 }
 
-export const transformAnimeLateNight = (anime: any) => {
+export function transformAnimeLateNight(anime: any) {
   if (!anime.dayOfWeek || !anime.time) return anime
   const day = parseWeekday(anime.dayOfWeek)
   if (day === -1) return anime

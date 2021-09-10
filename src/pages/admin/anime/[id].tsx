@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react'
 import axios from 'axios'
 import { GetStaticProps } from 'next'
-import AnimeForm from '../../../components/AnimeForm'
+import { AnimeForm } from '../../../components/AnimeForm'
 import { getAnimeById } from '../../../services/animeService'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {

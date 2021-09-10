@@ -1,20 +1,5 @@
-import {
-  Box,
-  Button,
-  SimpleGrid,
-  Stack,
-  Text,
-  Wrap,
-  Flex,
-  RadioGroup,
-  Radio,
-  TextProps,
-  BoxProps,
-} from '@chakra-ui/react'
-import { motion } from 'framer-motion'
-import { range } from 'ramda'
+import { Box, Text, Wrap, Flex, RadioGroup, Radio } from '@chakra-ui/react'
 import { useEffect, useRef, useState } from 'react'
-import InfiniteScroll from 'react-infinite-scroll-component'
 import {
   jp2hk,
   parseWeekday,
@@ -24,7 +9,7 @@ import {
   toWeekday,
   transformAnimeLateNight,
 } from '../utils/date'
-import AnimeCard from './AnimeCard'
+import { AnimeCard } from './AnimeCard'
 import styles from '../styles/AnimeList.module.css'
 
 type Props = {
@@ -37,7 +22,7 @@ type Props = {
 
 // todo lazy load the compact view
 
-const AnimeList = ({ animes, followingAnimes, addFollowing, removeFollowing, sort }: Props) => {
+export const AnimeList = ({ animes, followingAnimes, addFollowing, removeFollowing, sort }: Props) => {
   const isFollowed = (id: string) => {
     if (followingAnimes) {
       return followingAnimes.includes(id)
@@ -132,5 +117,3 @@ const AnimeList = ({ animes, followingAnimes, addFollowing, removeFollowing, sor
     </>
   )
 }
-
-export default AnimeList

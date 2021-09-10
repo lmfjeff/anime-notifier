@@ -9,6 +9,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from 'next-auth/client'
 import { useRouter } from 'next/router'
 
+Following.getTitle = '追蹤'
+
 export default function Following() {
   const [session, loading] = useSession()
   const queryClient = useQueryClient()

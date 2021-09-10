@@ -11,7 +11,7 @@ type SortButtonProps = {
   text: string
 }
 
-const AnimeSorter = ({ sort, setSort }: Props) => {
+export const AnimeSorter = ({ sort, setSort }: Props) => {
   const SortButton = ({ val, text }: SortButtonProps) => (
     <Button
       onClick={() => setSort(val)}
@@ -35,5 +35,3 @@ const AnimeSorter = ({ sort, setSort }: Props) => {
     </Flex>
   )
 }
-
-export default AnimeSorter

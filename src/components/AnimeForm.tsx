@@ -32,7 +32,7 @@ type Inputs = {
   submitFn: (a: any) => void
 }
 
-export default function AnimeForm({ anime, submitFn }: Inputs) {
+export const AnimeForm = ({ anime, submitFn }: Inputs) => {
   const {
     register,
     handleSubmit,

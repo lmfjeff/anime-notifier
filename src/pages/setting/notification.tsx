@@ -9,6 +9,8 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { SettingPanel } from '../../components/SettingPanel'
 import * as swHelper from '../../utils/swHelper'
 
+Notification.getTitle = '設定'
+
 export default function Notification() {
   const [session] = useSession()
 

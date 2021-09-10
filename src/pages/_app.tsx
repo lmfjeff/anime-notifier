@@ -6,12 +6,20 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { Provider as AuthProvider } from 'next-auth/client'
 import { ProgressBar } from '../components/ProgressBar'
-import { useEffect } from 'react'
+import { ReactElement, ReactNode, useEffect } from 'react'
 import * as swHelper from '../utils/swHelper'
+import { NextPage } from 'next'
 
-const queryClient = new QueryClient()
+type NextPageWithLayout = NextPage & {
+  getTitle: string
+}
 
-function MyApp({ Component, pageProps }: AppProps) {
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout
+}
+
+export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  const queryClient = new QueryClient()
   const theme = {
     styles: {
       global: {
@@ -24,18 +32,21 @@ function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     swHelper.register()
   }, [])
+  const getLayout = (page: ReactElement) => {
+    return <Layout title={Component.getTitle}>{page}</Layout>
+  }
   return (
     <ChakraProvider theme={extendTheme(theme)}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider session={pageProps.session}>
           <ProgressBar />
-          <Layout title="hahaTitles">
+          {/* <Layout title="hahaTitles">
             <Component {...pageProps} />
-          </Layout>
+          </Layout> */}
+          {getLayout(<Component {...pageProps} />)}
         </AuthProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </ChakraProvider>
   )
 }
-export default MyApp
