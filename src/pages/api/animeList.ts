@@ -5,7 +5,7 @@ import { getFollowing } from '../../services/followingService'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getSession({ req })
-  if (!session || !session.userId) throw 'not login'
+  if (!session || !session.userId) throw 'not login for animeList api'
 
   if (req.method === 'GET') {
     try {

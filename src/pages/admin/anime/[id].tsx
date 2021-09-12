@@ -1,19 +1,24 @@
 import { Box } from '@chakra-ui/react'
 import axios from 'axios'
-import { GetStaticProps } from 'next'
+import { GetServerSideProps, GetStaticProps } from 'next'
+import { getSession } from 'next-auth/client'
 import { AnimeForm } from '../../../components/AnimeForm'
 import { getAnimeById } from '../../../services/animeService'
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getServerSideProps: GetServerSideProps = async context => {
+  const session = await getSession(context)
+  if (!session || session?.user?.email !== process.env.ADMIN_EMAIL) {
+    return {
+      notFound: true,
+    }
+  }
+
+  const { params } = context
   const resp = await getAnimeById(params)
 
   return {
     props: { resp },
   }
-}
-
-export async function getStaticPaths() {
-  return { paths: [], fallback: 'blocking' }
 }
 
 export default function AnimeEdit({ resp }: { resp: any }) {

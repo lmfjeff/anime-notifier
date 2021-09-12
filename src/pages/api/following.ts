@@ -4,7 +4,7 @@ import { addFollowing, getFollowing, removeFollowing } from '../../services/foll
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getSession({ req })
-  if (!session || !session.userId) throw 'not login'
+  if (!session || !session.userId) throw 'not login for following api'
 
   if (req.method === 'GET') {
     try {

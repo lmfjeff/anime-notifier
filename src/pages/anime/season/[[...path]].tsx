@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Button, Flex } from '@chakra-ui/react'
 import axios from 'axios'
 import { GetStaticProps } from 'next'
 import { useRouter } from 'next/router'
@@ -10,6 +10,7 @@ import { getAllAnimesBySeason } from '../../../services/animeService'
 import { month2Season } from '../../../utils/date'
 import { AnimeSorter } from '../../../components/AnimeSorter'
 import { SeasonPicker } from '../../../components/SeasonPicker'
+import { useSession } from 'next-auth/client'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { path } = params as {
@@ -48,6 +49,7 @@ AnimeSeasonIndex.getTitle = '番表'
 export default function AnimeSeasonIndex({ resp, queryParams }: Props) {
   const { animes } = resp
   const router = useRouter()
+  const [session, loading] = useSession()
   const [sort, setSort] = useState('weekly')
 
   const fetchFollowing = async () => {
@@ -55,7 +57,7 @@ export default function AnimeSeasonIndex({ resp, queryParams }: Props) {
     const data = await resp.data
     return data
   }
-  const getFollowingQuery = useQuery('getFollowing', fetchFollowing)
+  const getFollowingQuery = useQuery('getFollowing', fetchFollowing, { enabled: !loading && !!session })
   const followingAnimes = getFollowingQuery.data?.anime || null
 
   const onSelectSeason = (val: { year: string; season: string }) => {
@@ -87,6 +89,7 @@ export default function AnimeSeasonIndex({ resp, queryParams }: Props) {
         addFollowing={addFollowing}
         removeFollowing={removeFollowing}
         sort={sort}
+        signedIn={!loading && !!session}
       />
     </>
   )

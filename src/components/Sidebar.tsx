@@ -1,11 +1,9 @@
 import { Button, Flex, FlexProps, Progress, Spacer, IconButton } from '@chakra-ui/react'
-import { StarIcon } from '@chakra-ui/icons'
 import React from 'react'
 import Link from 'next/link'
 import { signIn, signOut, useSession } from 'next-auth/client'
 import axios from 'axios'
 import { useRouter } from 'next/router'
-import { urlAlphabet } from 'nanoid'
 
 type Props = FlexProps & {
   handleToggle?: () => void
@@ -55,11 +53,13 @@ export const Sidebar = (props: Props) => {
   return (
     <Flex flexDirection="column" bg="#eaeaea" w={180} flexShrink={0} zIndex="modal" {...rest}>
       <Link href="/" passHref>
-        <IconButton aria-label="home" icon={<StarIcon />} />
+        <Button bg="gray.400" _hover={{}} _focus={{}} borderRadius="0" className="home">
+          Anime Notifier
+        </Button>
       </Link>
-
       <SidebarLink url="/anime/season" text="番表" />
       <SidebarLink url="/following" text="追蹤" />
+      <SidebarLink url="/admin" text="admin" />
       <Spacer />
       {loading ? (
         <Progress isIndeterminate />

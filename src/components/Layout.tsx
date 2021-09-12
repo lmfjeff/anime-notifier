@@ -11,13 +11,13 @@ export const Layout: React.FC<{ title?: string }> = ({ children, title }) => {
   return (
     <Flex minH="100vh" flexDir="column">
       <Navbar display={['flex', null, 'none']} handleToggle={onToggle} isOpen={isOpen} title={title} />
-      <Flex h={[null, null, '100vh']} flexGrow={1} flexDir="row" bg="#f3f3f3">
+      <Flex flexGrow={1} flexDir="row" bg="#f3f3f3">
         {isOpen ? (
           <Sidebar position={['fixed', null, null]} top="0" bottom="0" handleToggle={onToggle} isOpen={isOpen} />
         ) : null}
-        <Sidebar display={['none', null, 'flex']} position="sticky" top="0" />
+        <Sidebar display={['none', null, 'flex']} position="sticky" top="0" h="100vh" />
 
-        <Box flexGrow={1} p={5} overflow="auto">
+        <Box flexGrow={1} p={5}>
           {children}
         </Box>
       </Flex>

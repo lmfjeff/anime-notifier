@@ -11,11 +11,12 @@ type animeCardProps = {
   followed: boolean
   addFollowing: (title: string) => void
   removeFollowing: (title: string) => void
+  signedIn: boolean
 }
 
 // const fallbackImage = path.resolve('image', 'hellomoto.png')
 
-export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing }: animeCardProps) => {
+export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, signedIn }: animeCardProps) => {
   const displayName = anime.title
   // todo change localhost to 'media.lmfjeff.com'
   const picture = anime.picture?.includes('localhost') ? anime.picture : ''
@@ -61,16 +62,18 @@ export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing }: an
       >
         {displayName}
       </Text>
-      <IconButton
-        position="absolute"
-        top="0"
-        right="0"
-        aria-label="Following"
-        icon={<AddIcon />}
-        disabled={followed === null}
-        onClick={handleClick}
-        colorScheme={followed ? 'blue' : 'gray'}
-      />
+      {signedIn && (
+        <IconButton
+          position="absolute"
+          top="0"
+          right="0"
+          aria-label="Following"
+          icon={<AddIcon />}
+          disabled={followed === null}
+          onClick={handleClick}
+          colorScheme={followed ? 'blue' : 'gray'}
+        />
+      )}
       {/* todo remove admin link */}
       <Link href={`/admin/anime/${anime.id}`} passHref>
         <IconButton position="absolute" bottom="0" right="0" aria-label="Edit" icon={<EditIcon />} />

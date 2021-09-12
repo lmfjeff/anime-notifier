@@ -4,7 +4,7 @@ import { getSub, updateSub } from '../../services/subscribeService'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getSession({ req })
-  if (!session || !session.userId) throw 'not login'
+  if (!session || !session.userId) throw 'not login for setting api'
 
   if (req.method === 'GET') {
     try {

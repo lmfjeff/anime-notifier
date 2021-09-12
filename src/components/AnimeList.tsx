@@ -18,11 +18,12 @@ type Props = {
   addFollowing: (title: string) => void
   removeFollowing: (title: string) => void
   sort: string
+  signedIn: boolean
 }
 
 // todo lazy load the compact view
 
-export const AnimeList = ({ animes, followingAnimes, addFollowing, removeFollowing, sort }: Props) => {
+export const AnimeList = ({ animes, followingAnimes, addFollowing, removeFollowing, sort, signedIn }: Props) => {
   const isFollowed = (id: string) => {
     if (followingAnimes) {
       return followingAnimes.includes(id)
@@ -77,7 +78,7 @@ export const AnimeList = ({ animes, followingAnimes, addFollowing, removeFollowi
           </Flex>
         </RadioGroup>
       </Flex>
-      {/*  */}
+
       <Text>收錄動畫數: {tvAnimes.length} </Text>
       {sort === 'weekly' && (
         <>
@@ -94,6 +95,7 @@ export const AnimeList = ({ animes, followingAnimes, addFollowing, removeFollowi
                     followed={isFollowed(anime.id)}
                     addFollowing={addFollowing}
                     removeFollowing={removeFollowing}
+                    signedIn={signedIn}
                   />
                 ))}
               </Wrap>
@@ -110,6 +112,7 @@ export const AnimeList = ({ animes, followingAnimes, addFollowing, removeFollowi
               followed={isFollowed(anime.id)}
               addFollowing={addFollowing}
               removeFollowing={removeFollowing}
+              signedIn={signedIn}
             />
           ))}
         </Wrap>
