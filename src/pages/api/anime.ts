@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getAllAnimesBySeason, updateAnime } from '../../services/animeService'
+import { createAnime, getAllAnimesBySeason, updateAnime } from '../../services/animeService'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // if (req.method === 'GET') {
@@ -16,6 +16,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'PUT') {
     try {
       const resp = await updateAnime({ anime: req.body.anime })
+      return res.status(200).json(resp)
+    } catch (error) {
+      return res.status(400).json(error)
+    }
+  }
+
+  if (req.method === 'POST') {
+    try {
+      const resp = await createAnime({ anime: req.body.anime })
       return res.status(200).json(resp)
     } catch (error) {
       return res.status(400).json(error)

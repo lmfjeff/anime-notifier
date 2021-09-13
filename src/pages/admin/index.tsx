@@ -20,8 +20,11 @@ export default function Admin() {
   return (
     <VStack>
       <div>Admin Page</div>
-      <Link href="/admin/anime" passHref>
+      <Link href="/admin/anime/season" passHref>
         <Button colorScheme="cyan">Edit Animes</Button>
+      </Link>
+      <Link href="/admin/anime/create" passHref>
+        <Button colorScheme="cyan">Create Anime</Button>
       </Link>
       <Button colorScheme="cyan">Edit Users</Button>
     </VStack>

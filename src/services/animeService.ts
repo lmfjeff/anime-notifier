@@ -113,3 +113,8 @@ export async function updateAnime(request: any) {
   const resp = await ddbDocClient.update(input)
   return { resp }
 }
+
+export async function createAnime(request: any) {
+  // create nanoId()
+  return { message: 'under developed' }
+}

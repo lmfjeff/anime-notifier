@@ -1,32 +1,19 @@
-import { AspectRatio, Box, IconButton, Image as ChakraImage, Text } from '@chakra-ui/react'
-import { AddIcon, EditIcon } from '@chakra-ui/icons'
-import React, { useCallback } from 'react'
+import { IconButton } from '@chakra-ui/button'
+import { EditIcon } from '@chakra-ui/icons'
+import { AspectRatio, Box, Link, Text } from '@chakra-ui/layout'
+import React from 'react'
 import { anime } from '../types/anime'
-import Link from 'next/link'
-import { AnimeImage } from './AnimeImage'
 import { parseWeekday } from '../utils/date'
+import { AnimeImage } from './AnimeImage'
 
-type animeCardProps = {
+type Props = {
   anime: anime
-  followed: boolean
-  addFollowing: (title: string) => void
-  removeFollowing: (title: string) => void
-  signedIn: boolean
 }
 
-// const fallbackImage = path.resolve('image', 'hellomoto.png')
-
-export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, signedIn }: animeCardProps) => {
+export const AdminAnimeCard = ({ anime }: Props) => {
   const displayName = anime.title
   // todo change localhost to 'media.lmfjeff.com'
   const picture = anime.picture?.includes('localhost') ? anime.picture : ''
-  const handleClick = useCallback(() => {
-    if (followed) {
-      removeFollowing(anime.id)
-    } else {
-      addFollowing(anime.id)
-    }
-  }, [followed, removeFollowing, anime.id, addFollowing])
   const weekdayTc = ['日', '一', '二', '三', '四', '五', '六']
   return (
     <Box position="relative" w="160px" cursor="pointer">
@@ -62,18 +49,9 @@ export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, sign
       >
         {displayName}
       </Text>
-      {signedIn && (
-        <IconButton
-          position="absolute"
-          top="0"
-          right="0"
-          aria-label="Following"
-          icon={<AddIcon />}
-          disabled={followed === null}
-          onClick={handleClick}
-          colorScheme={followed ? 'blue' : 'gray'}
-        />
-      )}
+      <Link href={`/admin/anime/${anime.id}`} passHref>
+        <IconButton position="absolute" bottom="0" right="0" aria-label="Edit" icon={<EditIcon />} />
+      </Link>
     </Box>
   )
 }

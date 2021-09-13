@@ -1,16 +1,15 @@
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
+import { weekdayOption } from '../constants/animeOption'
 
 dayjs.extend(customParseFormat)
 
 export function parseWeekday(s: string) {
-  const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-  return dayOfWeek.indexOf(s)
+  return weekdayOption.indexOf(s)
 }
 
 export function toWeekday(n: number) {
-  const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-  return dayOfWeek[n]
+  return weekdayOption[n]
 }
 
 export function sortDay(a: any, b: any) {

@@ -7,9 +7,11 @@ import {
   FormLabel,
   Input,
   useFormControl,
+  Select,
 } from '@chakra-ui/react'
 import React from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
+import { sourceOption, statusOption, typeOption, weekdayOption } from '../constants/animeOption'
 
 type Inputs = {
   // anime: {
@@ -34,37 +36,124 @@ type Inputs = {
 
 export const AnimeForm = ({ anime, submitFn }: Inputs) => {
   const {
+    id,
+    yearSeason,
+    title,
+    picture,
+    alternative_titles,
+    startDate,
+    endDate,
+    summary,
+    genres,
+    type,
+    status,
+    dayOfWeek,
+    time,
+    source,
+    studios,
+  } = anime
+
+  console.log()
+
+  const {
     register,
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
   } = useForm()
   const onSubmit = (anime: any) => {
-    submitFn(anime)
+    // submitFn(anime)
+    console.log(anime)
   }
 
-  const formControl = (key: string, val: string) => (
-    <FormControl isInvalid={!!errors[key]} key={key}>
-      <FormLabel htmlFor={key}>{key}</FormLabel>
-      <Input id={key} {...register(key)} defaultValue={val} />
-      <FormErrorMessage>{errors[key] && errors[key].message}</FormErrorMessage>
-    </FormControl>
-  )
+  type ItemProps = {
+    animeKey: string
+  }
+  const Item: React.FC<ItemProps> = ({ animeKey, children }) => {
+    return (
+      <FormControl isInvalid={!!errors[animeKey]} id={animeKey}>
+        <FormLabel>{animeKey}</FormLabel>
+        {children}
+        <FormErrorMessage>{errors[animeKey] && errors[animeKey].message}</FormErrorMessage>
+      </FormControl>
+    )
+  }
 
   // console.log(watch('name'))
 
   // form control: isInvalid, input required
 
   return (
-    <Container border="1px" borderRadius={5} borderColor="gray" p={5}>
+    <Container border="1px" borderRadius={5} borderColor="gray" p={5} maxW="container.sm">
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* {Object.entries(anime).map(([key, val]) =>
-          typeof val === 'string' && (key === 'title' || 'summary') ? formControl(key, val) : null
-        )} */}
-        {formControl('id', anime.id)}
-        {formControl('title', anime.title)}
-        {formControl('summary', anime.summary)}
-        {formControl('yearSeason', anime.yearSeason)}
+        <Item animeKey="yearSeason">
+          <Input defaultValue={yearSeason} {...register('yearSeason')} />
+        </Item>
+
+        <Item animeKey="title">
+          <Input defaultValue={title} {...register('title')} />
+        </Item>
+
+        <Item animeKey="picture">
+          <Input defaultValue={picture} {...register('picture')} />
+        </Item>
+
+        <Item animeKey="startDate">
+          <Input defaultValue={startDate} {...register('startDate')} />
+        </Item>
+
+        <Item animeKey="endDate">
+          <Input defaultValue={endDate} {...register('endDate')} />
+        </Item>
+
+        <Item animeKey="summary">
+          <Input as="textarea" h="200px" defaultValue={summary} {...register('summary')} />
+        </Item>
+
+        <Item animeKey="type">
+          <Select placeholder=" " defaultValue={type} {...register('type')}>
+            {typeOption.map(val => (
+              <option key={val} value={val}>
+                {val}
+              </option>
+            ))}
+          </Select>
+        </Item>
+
+        <Item animeKey="status">
+          <Select placeholder=" " defaultValue={status} {...register('status')}>
+            {statusOption.map(val => (
+              <option key={val} value={val}>
+                {val}
+              </option>
+            ))}
+          </Select>
+        </Item>
+
+        <Item animeKey="dayOfWeek">
+          <Select placeholder=" " defaultValue={dayOfWeek} {...register('dayOfWeek')}>
+            {weekdayOption.map(val => (
+              <option key={val} value={val}>
+                {val}
+              </option>
+            ))}
+          </Select>
+        </Item>
+
+        <Item animeKey="time">
+          <Input defaultValue={time} {...register('time')} />
+        </Item>
+
+        <Item animeKey="source">
+          <Select placeholder=" " defaultValue={source} {...register('source')}>
+            {sourceOption.map(val => (
+              <option key={val} value={val}>
+                {val}
+              </option>
+            ))}
+          </Select>
+        </Item>
+
         <Button mt={4} colorScheme="teal" isLoading={isSubmitting} type="submit">
           Submit
         </Button>

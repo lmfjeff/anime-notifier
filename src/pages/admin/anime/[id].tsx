@@ -21,28 +21,12 @@ export const getServerSideProps: GetServerSideProps = async context => {
   }
 }
 
-export default function AnimeEdit({ resp }: { resp: any }) {
+export default function AnimeEditPage({ resp }: { resp: any }) {
   const { anime } = resp
-  const {
-    id,
-    yearSeason,
-    title,
-    picture,
-    alternative_titles,
-    startDate,
-    endDate,
-    summary,
-    genres,
-    type,
-    status,
-    dayOfWeek,
-    time,
-    source,
-    studios,
-  } = anime
+  const { id } = anime
 
   const submitUpdate = async (anime: any) => {
-    const resp = await axios.put('/api/anime', { anime })
+    await axios.put('/api/anime', { anime: { ...anime, id } })
   }
 
   // editable, form control, input, formik, react hook form, react final form
@@ -50,29 +34,20 @@ export default function AnimeEdit({ resp }: { resp: any }) {
     return (
       <>
         <div>Edit Anime</div>
-        <p>Title: {title}</p>
-        <p>Picture: {picture}</p>
+        {/*
         <p>alternative_titles: {alternative_titles.ja}</p>
-        <p>startDate: {startDate}</p>
-        <p>endDate: {endDate}</p>
-        <p>summary: {summary}</p>
         <p>
           genres:{' '}
           {genres.map((genre: any) => (
             <span key={genre}>{genre}, </span>
           ))}
         </p>
-        <p>type: {type}</p>
-        <p>status: {status}</p>
-        <p>dayOfWeek: {dayOfWeek}</p>
-        <p>time: {time}</p>
-        <p>source: {source}</p>
         <p>
           studios:{' '}
           {studios.map((studio: any) => (
             <span key={studio}>{studio}, </span>
           ))}
-        </p>
+        </p> */}
         <AnimeForm anime={anime} submitFn={submitUpdate} />
       </>
     )
