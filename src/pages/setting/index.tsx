@@ -10,6 +10,7 @@ Account.getTitle = '設定'
 
 export default function Account() {
   const [session] = useSession()
+  // user.name, image, expires, userId
 
   if (!session)
     return (
@@ -23,14 +24,9 @@ export default function Account() {
       <Flex justifyContent="center" alignItems="center">
         <Flex flexDir="column" w="300px" p={5}>
           <Box mb={5}>
-            <Text mb={2}>Email:</Text>
+            <Text mb={2}>連結的 Google 電郵:</Text>
             <Input value={session.user?.email || ''} bg="white" isDisabled _disabled={{}} />
           </Box>
-          {/* <Text>Name: {session.user?.name || 'null'}</Text>
-          <Text>Image:</Text>
-          <Image src={session.user?.image || ''} alt="" width={10} />
-          <Text>Session Expiration: {session.expires || 'null'}</Text>
-          <Text>Session Expiration: {session.userId || 'null'}</Text> */}
         </Flex>
       </Flex>
     )

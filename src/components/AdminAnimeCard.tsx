@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button'
-import { EditIcon } from '@chakra-ui/icons'
+import { CloseIcon, EditIcon } from '@chakra-ui/icons'
 import { AspectRatio, Box, Link, Text } from '@chakra-ui/layout'
 import React from 'react'
 import { anime } from '../types/anime'
@@ -8,9 +8,10 @@ import { AnimeImage } from './AnimeImage'
 
 type Props = {
   anime: anime
+  deleteAnime: (id: string) => Promise<void>
 }
 
-export const AdminAnimeCard = ({ anime }: Props) => {
+export const AdminAnimeCard = ({ anime, deleteAnime }: Props) => {
   const displayName = anime.title
   // todo change localhost to 'media.lmfjeff.com'
   const picture = anime.picture?.includes('localhost') ? anime.picture : ''
@@ -49,8 +50,17 @@ export const AdminAnimeCard = ({ anime }: Props) => {
       >
         {displayName}
       </Text>
+      <IconButton
+        onClick={() => deleteAnime(anime.id)}
+        position="absolute"
+        top="0"
+        right="0"
+        aria-label="Delete"
+        icon={<CloseIcon />}
+        title="刪除"
+      />
       <Link href={`/admin/anime/${anime.id}`} passHref>
-        <IconButton position="absolute" bottom="0" right="0" aria-label="Edit" icon={<EditIcon />} />
+        <IconButton title="編輯" position="absolute" bottom="0" right="0" aria-label="Edit" icon={<EditIcon />} />
       </Link>
     </Box>
   )

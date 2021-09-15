@@ -53,7 +53,16 @@ export const Sidebar = (props: Props) => {
   return (
     <Flex flexDirection="column" bg="#eaeaea" w={180} flexShrink={0} zIndex="modal" {...rest}>
       <Link href="/" passHref>
-        <Button bg="gray.400" _hover={{}} _focus={{}} borderRadius="0" className="home">
+        <Button
+          bg="gray.400"
+          _hover={{}}
+          _focus={{}}
+          borderRadius="0"
+          className="home"
+          onClick={() => {
+            handleToggle && handleToggle()
+          }}
+        >
           Anime Notifier
         </Button>
       </Link>

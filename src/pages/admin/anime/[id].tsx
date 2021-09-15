@@ -21,7 +21,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
   }
 }
 
-export default function AnimeEditPage({ resp }: { resp: any }) {
+export default function AnimeEditById({ resp }: { resp: any }) {
   const { anime } = resp
   const { id } = anime
 

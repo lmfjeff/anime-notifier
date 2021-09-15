@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { createAnime, getAllAnimesBySeason, updateAnime } from '../../services/animeService'
+import { createAnime, deleteAnime, getAllAnimesBySeason, updateAnime } from '../../services/animeService'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // if (req.method === 'GET') {
@@ -13,6 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // }
 
   // todo implement yup validation for anime object
+  // todo check admin email for the action
   if (req.method === 'PUT') {
     try {
       const resp = await updateAnime({ anime: req.body.anime })
@@ -25,6 +26,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'POST') {
     try {
       const resp = await createAnime({ anime: req.body.anime })
+      return res.status(200).json(resp)
+    } catch (error) {
+      return res.status(400).json(error)
+    }
+  }
+
+  if (req.method === 'DELETE') {
+    try {
+      const resp = await deleteAnime({ id: req.query.id })
       return res.status(200).json(resp)
     } catch (error) {
       return res.status(400).json(error)

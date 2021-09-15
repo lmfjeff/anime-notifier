@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const { page } = req.query
       const index = parseInt(page as string)
-      const response = await getAnimesByIds({ anime: resp.anime.slice(index, index + 50) })
+      const response = await getAnimesByIds({ anime: resp.anime.reverse().slice(index, index + 50) })
 
       const sortedAnimes = response.animes.sort((a: any, b: any) => resp.anime.indexOf(a.id) - resp.anime.indexOf(b.id))
 

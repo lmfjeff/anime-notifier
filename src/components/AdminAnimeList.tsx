@@ -5,9 +5,10 @@ import { AdminAnimeCard } from './AdminAnimeCard'
 
 type Props = {
   animes: any[]
+  deleteAnime: (id: string) => Promise<void>
 }
 
-export const AdminAnimeList = ({ animes }: Props) => {
+export const AdminAnimeList = ({ animes, deleteAnime }: Props) => {
   const sortedAnimes = [
     { day: '星期日', animes: new Array() },
     { day: '星期一', animes: new Array() },
@@ -41,7 +42,7 @@ export const AdminAnimeList = ({ animes }: Props) => {
           </Text>
           <Wrap overflow="hidden" justify={['center', null, 'start']}>
             {dayAnimes.animes.map((anime: any) => (
-              <AdminAnimeCard key={anime.id} anime={anime} />
+              <AdminAnimeCard key={anime.id} anime={anime} deleteAnime={deleteAnime} />
             ))}
           </Wrap>
         </Box>

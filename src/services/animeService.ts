@@ -1,6 +1,15 @@
 import { ddbDocClient } from './ddbDocClient'
-import { QueryCommandInput, GetCommandInput, UpdateCommandInput, BatchGetCommandInput } from '@aws-sdk/lib-dynamodb'
+import {
+  QueryCommandInput,
+  GetCommandInput,
+  UpdateCommandInput,
+  BatchGetCommandInput,
+  PutCommandInput,
+  DeleteCommandInput,
+} from '@aws-sdk/lib-dynamodb'
+import { nanoid } from 'nanoid'
 
+// todo try catch all error
 async function getAnimesBySeason(request: any): Promise<any> {
   const { year, season, nextCursor } = request
   const input: QueryCommandInput = {
@@ -115,6 +124,25 @@ export async function updateAnime(request: any) {
 }
 
 export async function createAnime(request: any) {
-  // create nanoId()
-  return { message: 'under developed' }
+  const { anime } = request
+  const now = new Date()
+
+  const input: PutCommandInput = {
+    TableName: 'Animes',
+    Item: { ...anime, id: nanoid(), createdAt: now.toISOString(), updatedAt: now.toISOString() },
+  }
+
+  // console.log(input)
+  const resp = await ddbDocClient.put(input)
+  return { resp }
+}
+
+export async function deleteAnime(request: any) {
+  const { id } = request
+  const input: DeleteCommandInput = {
+    TableName: 'Animes',
+    Key: { id },
+  }
+  const resp = await ddbDocClient.delete(input)
+  return { resp }
 }

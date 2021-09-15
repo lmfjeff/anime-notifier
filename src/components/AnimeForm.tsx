@@ -62,8 +62,8 @@ export const AnimeForm = ({ anime, submitFn }: Inputs) => {
     formState: { errors, isSubmitting },
   } = useForm()
   const onSubmit = (anime: any) => {
-    // submitFn(anime)
-    console.log(anime)
+    submitFn(anime)
+    // console.log(anime)
   }
 
   type ItemProps = {

@@ -12,6 +12,13 @@ export const AnimeImage: React.FC<ImageProps> = ({ onLoad, src, onError, ...prop
   }
 
   return (
-    <ChakraImage {...props} src={src} onLoad={handleImageLoad} onError={handleError} fallbackSrc={fallbackImage.src} />
+    <ChakraImage
+      {...props}
+      src={src}
+      onLoad={handleImageLoad}
+      onError={handleError}
+      fallbackSrc={fallbackImage.src}
+      // loading="lazy"
+    />
   )
 }

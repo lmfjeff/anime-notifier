@@ -64,7 +64,7 @@ export default function Notification() {
           {!initializing ? (
             <>
               <Box mb={5}>
-                <Text mb={2}>Enable Notification:</Text>
+                <Text mb={2}>允許推送通知:</Text>
                 <Switch
                   aria-label="Enable Notification"
                   // defaultChecked={isSubscribed}
@@ -79,9 +79,9 @@ export default function Notification() {
               {/* <Button onClick={() => console.log(sub)}>see sub</Button>
               <Button onClick={() => console.log(isSubscribed)}>see issub</Button> */}
               <Box mb={5}>
-                <Text mb={2}>Test:</Text>
+                <Text mb={2}>測試:</Text>
                 <Button onClick={sendTestNotification} colorScheme="blue" isDisabled={!isSubscribed}>
-                  Send Test Notification
+                  發出測試通知
                 </Button>
               </Box>
             </>

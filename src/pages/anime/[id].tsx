@@ -44,15 +44,13 @@ export default function AnimeById({ resp }: Props) {
     return (
       <>
         <Flex wrap="wrap" justifyContent="center" alignItems="flex-start">
-          <Box w="300px" minWidth="300px" mb={5}>
-            <AspectRatio ratio={3 / 4}>
-              <AnimeImage src={picture} alt="" borderRadius={2} boxShadow="0 0 3px gray" />
-            </AspectRatio>
-          </Box>
+          <AspectRatio w="300px" ratio={3 / 4} mb={5}>
+            <AnimeImage src={picture} alt="" borderRadius={2} boxShadow="0 0 3px gray" />
+          </AspectRatio>
           <Box flexGrow={5} mx={5} width="350px" mb={5}>
             <Text fontSize="2xl">{title}</Text>
             <Text fontSize="sm" color="gray">
-              {alternative_titles.ja}
+              {alternative_titles?.ja}
             </Text>
             <Text my={5}>{summary}</Text>
             <Text my={3}>季度: {yearSeason}</Text>
@@ -60,7 +58,7 @@ export default function AnimeById({ resp }: Props) {
               逢 {dayOfWeek} {time}
             </Text>
             <Flex wrap="wrap">
-              {genres.map((genre: any) => (
+              {genres?.map((genre: any) => (
                 <Text key={genre} mr={5} p={1.5} fontSize="smaller" bg="blue.200">
                   {genre}
                 </Text>

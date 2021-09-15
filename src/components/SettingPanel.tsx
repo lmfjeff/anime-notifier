@@ -5,23 +5,29 @@ import React from 'react'
 
 export const SettingPanel: React.FC = ({ children }) => {
   const router = useRouter()
-  const tabList = ['Account', 'Notification']
+  type tabProps = {
+    url: string
+    text: string
+  }
+  const SettingTab = ({ url, text }: tabProps) => {
+    return (
+      <Button
+        _active={{ bg: 'blue.500' }}
+        colorScheme="blackAlpha"
+        borderRadius="0"
+        minW="120px"
+        isActive={router.asPath === url}
+        onClick={() => router.push(url)}
+      >
+        {text}
+      </Button>
+    )
+  }
   return (
     <Box>
       <HStack justify="center" spacing="0" flexWrap="wrap" my={5}>
-        {tabList.map((tab, index) => (
-          <Button
-            key={tab}
-            isActive={router.asPath === (index === 0 ? '/setting' : `/setting/${tab.toLowerCase()}`)}
-            _active={{ bg: 'blue.500' }}
-            colorScheme="blackAlpha"
-            borderRadius="0"
-            onClick={() => router.push(index === 0 ? '/setting' : `/setting/${tab.toLowerCase()}`)}
-            minW="120px"
-          >
-            {tab}
-          </Button>
-        ))}
+        <SettingTab url="/setting" text="帳號" />
+        <SettingTab url="/setting/notification" text="通知" />
       </HStack>
       {children}
     </Box>

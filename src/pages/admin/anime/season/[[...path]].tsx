@@ -1,4 +1,5 @@
 import { Flex } from '@chakra-ui/layout'
+import axios from 'axios'
 import { GetServerSideProps } from 'next'
 import { getSession } from 'next-auth/client'
 import { useRouter } from 'next/router'
@@ -52,12 +53,16 @@ export default function AdminAnimeSeasonPage({ resp, queryParams }: Props) {
   const onSelectSeason = (val: { year: string; season: string }) => {
     router.push(`/admin/anime/season/${val.year}/${val.season}`)
   }
+  const deleteAnime = async (id: string) => {
+    await axios.delete('/api/anime', { params: { id } })
+    window.location.reload()
+  }
   return (
     <>
       <Flex justifyContent="center" alignItems="center" wrap="wrap">
         <SeasonPicker queryParams={queryParams} onSelectSeason={onSelectSeason} />
       </Flex>
-      <AdminAnimeList animes={animes} />
+      <AdminAnimeList animes={animes} deleteAnime={deleteAnime} />
     </>
   )
 }
