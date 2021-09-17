@@ -1,26 +1,50 @@
 import { HamburgerIcon } from '@chakra-ui/icons'
-import { Box, Button, Container, Flex, IconButton, Text, useDisclosure } from '@chakra-ui/react'
+import { Box, Button, Container, Flex, IconButton, Text, useDisclosure, Portal } from '@chakra-ui/react'
+import { AnimatePresence } from 'framer-motion'
 import { useSession } from 'next-auth/client'
 import React, { useState } from 'react'
 import { createBreakpoint } from 'react-use'
+import { Backdrop } from './Backdrop'
+import { LoginModal } from './LoginModal'
 import { Navbar } from './Navbar'
 import { Sidebar } from './Sidebar'
 
 export const Layout: React.FC<{ title?: string }> = ({ children, title }) => {
   const { isOpen, onToggle } = useDisclosure()
-  return (
-    <Flex minH="100vh" flexDir="column">
-      <Navbar display={['flex', null, 'none']} handleToggle={onToggle} isOpen={isOpen} title={title} />
-      <Flex flexGrow={1} flexDir="row" bg="#f3f3f3">
-        {isOpen ? (
-          <Sidebar position={['fixed', null, null]} top="0" bottom="0" handleToggle={onToggle} isOpen={isOpen} />
-        ) : null}
-        <Sidebar display={['none', null, 'flex']} position="sticky" top="0" h="100vh" />
 
-        <Box flexGrow={1} p={5}>
-          {children}
-        </Box>
+  const [modalOpen, setModalOpen] = useState(false)
+  const closeModal = () => setModalOpen(false)
+  const openModal = () => setModalOpen(true)
+
+  return (
+    <>
+      <Flex minH="100vh" flexDir="column">
+        <Navbar display={['flex', null, 'none']} handleToggle={onToggle} title={title} />
+        <Flex flexGrow={1} flexDir="row" bg="#f3f3f3">
+          <Sidebar display={['none', null, 'flex']} position="sticky" top="0" h="100vh" openModal={openModal} />
+          <Box flexGrow={1} p={5}>
+            {children}
+          </Box>
+        </Flex>
       </Flex>
-    </Flex>
+
+      {isOpen && (
+        <Backdrop onClick={onToggle}>
+          <Sidebar
+            position={['fixed', null, null]}
+            top="0"
+            left="0"
+            h="full"
+            handleToggle={onToggle}
+            isOpen={isOpen}
+            openModal={openModal}
+          />
+        </Backdrop>
+      )}
+
+      {/* <AnimatePresence initial={false} exitBeforeEnter={true}> */}
+      {modalOpen && <LoginModal handleClose={closeModal} />}
+      {/* </AnimatePresence> */}
+    </>
   )
 }

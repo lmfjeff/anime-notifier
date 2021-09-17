@@ -8,6 +8,7 @@ import { useRouter } from 'next/router'
 type Props = FlexProps & {
   handleToggle?: () => void
   isOpen?: boolean
+  openModal?: () => void
 }
 
 type ButtonProps = {
@@ -17,7 +18,7 @@ type ButtonProps = {
 }
 
 export const Sidebar = (props: Props) => {
-  const { handleToggle, isOpen, ...rest } = props
+  const { handleToggle, isOpen, openModal, ...rest } = props
   const [session, loading] = useSession()
   const router = useRouter()
 
@@ -51,7 +52,7 @@ export const Sidebar = (props: Props) => {
     )
 
   return (
-    <Flex flexDirection="column" bg="#eaeaea" w={180} flexShrink={0} zIndex="modal" {...rest}>
+    <Flex flexDirection="column" bg="#eaeaea" w={180} flexShrink={0} {...rest}>
       <Link href="/" passHref>
         <Button
           bg="gray.400"
@@ -69,12 +70,21 @@ export const Sidebar = (props: Props) => {
       <SidebarLink url="/anime/season" text="番表" />
       <SidebarLink url="/following" text="追蹤" />
       <SidebarLink url="/admin" text="admin" />
+
       <Spacer />
       {loading ? (
         <Progress isIndeterminate />
       ) : (
         <>
-          {!session && <SidebarLink text="登入" onClick={() => signIn('google')} />}
+          {!session && (
+            <SidebarLink
+              text="登入"
+              onClick={() => {
+                handleToggle && handleToggle()
+                openModal && openModal()
+              }}
+            />
+          )}
           {session && (
             <>
               <SidebarLink url="/setting" text="設定" />
