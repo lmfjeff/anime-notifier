@@ -11,6 +11,8 @@ import { month2Season } from '../../../utils/date'
 import { AnimeSorter } from '../../../components/AnimeSorter'
 import { SeasonPicker } from '../../../components/SeasonPicker'
 import { useSession } from 'next-auth/client'
+import { HtmlHead } from '../../../components/HtmlHead'
+import { seasonTcOption } from '../../../constants/animeOption'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { path } = params as {
@@ -51,6 +53,8 @@ export default function AnimeSeasonIndex({ resp, queryParams }: Props) {
   const router = useRouter()
   const [session, loading] = useSession()
   const [sort, setSort] = useState('weekly')
+  const { year, season } = queryParams
+  const title = `${year}年${seasonTcOption[season] || ''}`
 
   const fetchFollowing = async () => {
     const resp = await axios.get('/api/following')
@@ -78,6 +82,7 @@ export default function AnimeSeasonIndex({ resp, queryParams }: Props) {
 
   return (
     <>
+      <HtmlHead title={title} />
       <Flex justifyContent="center" alignItems="center" wrap="wrap">
         <SeasonPicker queryParams={queryParams} onSelectSeason={onSelectSeason} />
         <AnimeSorter sort={sort} setSort={setSort} />

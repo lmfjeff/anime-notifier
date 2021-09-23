@@ -6,6 +6,7 @@ import axios from 'axios'
 import { GetServerSideProps } from 'next'
 import { getSession, useSession } from 'next-auth/client'
 import React, { useCallback, useEffect, useState } from 'react'
+import { HtmlHead } from '../../components/HtmlHead'
 import { SettingPanel } from '../../components/SettingPanel'
 import * as swHelper from '../../utils/swHelper'
 
@@ -59,37 +60,40 @@ export default function Notification() {
 
   const NotificationPanel = () => {
     return (
-      <Flex justifyContent="center" alignItems="center">
-        <Flex flexDir="column" w="300px" p={5}>
-          {!initializing ? (
-            <>
-              <Box mb={5}>
-                <Text mb={2}>允許推送通知:</Text>
-                <Switch
-                  aria-label="Enable Notification"
-                  // defaultChecked={isSubscribed}
-                  isChecked={isSubscribed}
-                  onChange={() => {
-                    handleToggle()
-                  }}
-                  isDisabled={loading}
-                />
-                {loading && <Spinner />}
-              </Box>
-              {/* <Button onClick={() => console.log(sub)}>see sub</Button>
-              <Button onClick={() => console.log(isSubscribed)}>see issub</Button> */}
-              <Box mb={5}>
-                <Text mb={2}>測試:</Text>
-                <Button onClick={sendTestNotification} colorScheme="blue" isDisabled={!isSubscribed}>
-                  發出測試通知
-                </Button>
-              </Box>
-            </>
-          ) : (
-            <Spinner />
-          )}
+      <>
+        <HtmlHead title="設定" />
+        <Flex justifyContent="center" alignItems="center">
+          <Flex flexDir="column" w="300px" p={5}>
+            {!initializing ? (
+              <>
+                <Box mb={5}>
+                  <Text mb={2}>允許推送通知:</Text>
+                  <Switch
+                    aria-label="Enable Notification"
+                    // defaultChecked={isSubscribed}
+                    isChecked={isSubscribed}
+                    onChange={() => {
+                      handleToggle()
+                    }}
+                    isDisabled={loading}
+                  />
+                  {loading && <Spinner />}
+                </Box>
+                {/* <Button onClick={() => console.log(sub)}>see sub</Button>
+                <Button onClick={() => console.log(isSubscribed)}>see issub</Button> */}
+                <Box mb={5}>
+                  <Text mb={2}>測試:</Text>
+                  <Button onClick={sendTestNotification} colorScheme="blue" isDisabled={!isSubscribed}>
+                    發出測試通知
+                  </Button>
+                </Box>
+              </>
+            ) : (
+              <Spinner />
+            )}
+          </Flex>
         </Flex>
-      </Flex>
+      </>
     )
   }
 

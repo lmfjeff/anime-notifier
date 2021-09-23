@@ -8,6 +8,7 @@ import Link from 'next/link'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from 'next-auth/client'
 import { useRouter } from 'next/router'
+import { HtmlHead } from '../components/HtmlHead'
 
 Following.getTitle = '追蹤'
 
@@ -34,6 +35,7 @@ export default function Following() {
 
   return (
     <>
+      <HtmlHead title="追蹤的動畫" />
       <Flex flexDir="column" alignItems="center" w="full">
         {data && (
           <>

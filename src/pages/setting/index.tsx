@@ -4,6 +4,7 @@ import { Box, Flex, Text } from '@chakra-ui/layout'
 import { GetServerSideProps } from 'next'
 import { getSession, useSession } from 'next-auth/client'
 import React from 'react'
+import { HtmlHead } from '../../components/HtmlHead'
 import { SettingPanel } from '../../components/SettingPanel'
 
 Account.getTitle = '設定'
@@ -33,9 +34,12 @@ export default function Account() {
   }
 
   return (
-    <SettingPanel>
-      <AccountInfoPanel />
-    </SettingPanel>
+    <>
+      <HtmlHead title="設定" />
+      <SettingPanel>
+        <AccountInfoPanel />
+      </SettingPanel>
+    </>
   )
 }
 

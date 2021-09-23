@@ -1,6 +1,7 @@
 import { AspectRatio, Box, Container, Flex, Table, Tbody, Td, Text, Tr } from '@chakra-ui/react'
 import { GetStaticProps } from 'next'
 import { AnimeImage } from '../../components/AnimeImage'
+import { HtmlHead } from '../../components/HtmlHead'
 import {
   seasonTcOption,
   sourceTcOption,
@@ -52,6 +53,7 @@ export default function AnimeById({ resp }: Props) {
     const [year, season] = yearSeason?.split('-') || []
     return (
       <>
+        <HtmlHead title={title} description={summary || ''} />
         <Flex wrap="wrap" justifyContent="center" alignItems="flex-start">
           <AspectRatio w="300px" ratio={3 / 4} mb={5}>
             <AnimeImage src={picture || ''} alt="" borderRadius={2} boxShadow="0 0 3px gray" />
