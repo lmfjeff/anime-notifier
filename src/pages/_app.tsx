@@ -28,6 +28,12 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         // },
       },
     },
+    fonts: {
+      body: 'Noto Sans HK',
+      heading: 'Noto Sans HK',
+      mono: 'Noto Sans HK',
+      yomogi: 'Yomogi',
+    },
   }
   useEffect(() => {
     swHelper.register()

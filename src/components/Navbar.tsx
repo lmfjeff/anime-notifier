@@ -12,7 +12,7 @@ export const Navbar = (props: Props) => {
 
   return (
     <>
-      <Flex minHeight="50px" position="sticky" top="0" bg="gray.300" alignItems="center" {...rest}>
+      <Flex minHeight="50px" position="sticky" top="0" left="0" w="full" bg="gray.300" alignItems="center" {...rest}>
         <IconButton
           aria-label="Hamburger Menu"
           icon={<HamburgerIcon />}

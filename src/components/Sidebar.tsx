@@ -22,14 +22,20 @@ export const Sidebar = (props: Props) => {
   const [session, loading] = useSession()
   const router = useRouter()
 
+  const checkActive = (url: string) => {
+    const reg = new RegExp('^' + url)
+    return reg.test(router.asPath)
+  }
+
   const SidebarLink = ({ url, text, onClick }: ButtonProps) =>
     url ? (
       <Link href={url} passHref>
         <Button
           as="a"
-          isActive={router.asPath.includes(url)}
+          isActive={checkActive(url)}
           borderRadius="none"
           bg="#eaeaea"
+          fontWeight="normal"
           _hover={{ bg: 'blue.200' }}
           _active={{ bg: 'blue.200' }}
           onClick={() => {
@@ -43,6 +49,7 @@ export const Sidebar = (props: Props) => {
       <Button
         borderRadius="none"
         bg="#eaeaea"
+        fontWeight="normal"
         _hover={{ bg: 'blue.200' }}
         _active={{ bg: 'blue.200' }}
         onClick={onClick}
@@ -59,7 +66,7 @@ export const Sidebar = (props: Props) => {
           _hover={{}}
           _focus={{}}
           borderRadius="0"
-          className="home"
+          fontFamily="yomogi"
           onClick={() => {
             handleToggle && handleToggle()
           }}

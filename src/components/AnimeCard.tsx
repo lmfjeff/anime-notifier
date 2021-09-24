@@ -29,39 +29,39 @@ export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, sign
   }, [followed, removeFollowing, anime.id, addFollowing])
   const weekdayTc = ['日', '一', '二', '三', '四', '五', '六']
   return (
-    <Box position="relative" w="160px" cursor="pointer">
+    <Box position="relative" w="160px">
       <Link href={`/anime/${anime.id}`} passHref>
         <Box as="a">
           <AspectRatio ratio={1}>
             <AnimeImage src={picture} alt="" borderRadius={2} boxShadow="0 0 3px gray" />
           </AspectRatio>
+          <Box
+            position="absolute"
+            top="0"
+            textShadow="0 0 3px black"
+            color="white"
+            fontWeight="semibold"
+            bg="blue.200"
+            px={1}
+            borderRadius={2}
+            textAlign="center"
+          >
+            <Text fontSize="md">{anime.dayOfWeek ? weekdayTc[parseWeekday(anime.dayOfWeek)] : '不定'}</Text>
+            <Text fontSize="smaller">{anime.time || '無時間'}</Text>
+          </Box>
+          <Text
+            noOfLines={2}
+            position="absolute"
+            bottom="0"
+            textShadow="0 0 6px black"
+            color="white"
+            fontSize="lg"
+            fontWeight="semibold"
+          >
+            {displayName}
+          </Text>
         </Box>
       </Link>
-      <Box
-        position="absolute"
-        top="0"
-        textShadow="0 0 3px black"
-        color="white"
-        fontWeight="semibold"
-        bg="blue.200"
-        px={1}
-        borderRadius={2}
-        textAlign="center"
-      >
-        <Text fontSize="md">{anime.dayOfWeek ? weekdayTc[parseWeekday(anime.dayOfWeek)] : '不定'}</Text>
-        <Text fontSize="smaller">{anime.time || '無時間'}</Text>
-      </Box>
-      <Text
-        noOfLines={2}
-        position="absolute"
-        bottom="0"
-        textShadow="0 0 6px black"
-        color="white"
-        fontSize="lg"
-        fontWeight="semibold"
-      >
-        {displayName}
-      </Text>
       {signedIn && (
         <IconButton
           position="absolute"

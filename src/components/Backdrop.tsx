@@ -1,11 +1,11 @@
 import React from 'react'
-import { motion } from 'framer-motion'
+import { motion, HTMLMotionProps } from 'framer-motion'
 import { Flex, FlexProps } from '@chakra-ui/layout'
 import { Portal } from '@chakra-ui/portal'
 
 const MotionFlex = motion<FlexProps>(Flex)
 
-export const Backdrop: React.FC<FlexProps> = ({ children, onClick }) => {
+export const Backdrop: React.FC<FlexProps> = ({ children, onClick, zIndex }) => {
   return (
     <Portal>
       <MotionFlex
@@ -21,6 +21,7 @@ export const Backdrop: React.FC<FlexProps> = ({ children, onClick }) => {
         // initial={{ opacity: 0 }}
         // animate={{ opacity: 1 }}
         // exit={{ opacity: 0 }}
+        zIndex={zIndex}
       >
         {children}
       </MotionFlex>

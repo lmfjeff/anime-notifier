@@ -1,5 +1,5 @@
 import { Button, IconButton } from '@chakra-ui/button'
-import { Box, Flex, FlexProps, Spacer, Text } from '@chakra-ui/layout'
+import { Box, BoxProps, Flex, FlexProps, Spacer, Text } from '@chakra-ui/layout'
 import { motion, Variant, Variants } from 'framer-motion'
 import { signIn } from 'next-auth/client'
 import React from 'react'
@@ -10,7 +10,7 @@ import { CloseIcon } from '@chakra-ui/icons'
 
 type Props = {
   handleClose: () => void
-}
+} & BoxProps
 
 const MotionFlex = motion<FlexProps>(Flex)
 
@@ -34,9 +34,9 @@ const dropIn: Variants = {
   },
 }
 
-export const LoginModal = ({ handleClose }: Props) => {
+export const LoginModal: React.FC<Props> = ({ handleClose, zIndex }) => {
   return (
-    <Backdrop onClick={handleClose}>
+    <Backdrop onClick={handleClose} zIndex={zIndex}>
       <MotionFlex
         background="#FFFFFF"
         h="400px"

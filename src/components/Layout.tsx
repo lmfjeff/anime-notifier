@@ -1,5 +1,5 @@
 import { HamburgerIcon } from '@chakra-ui/icons'
-import { Box, Button, Container, Flex, IconButton, Text, useDisclosure, Portal } from '@chakra-ui/react'
+import { Box, Container, Flex, IconButton, Text, useDisclosure, Portal, Button } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useSession } from 'next-auth/client'
 import React, { useState } from 'react'
@@ -19,7 +19,8 @@ export const Layout: React.FC<{ title?: string }> = ({ children, title }) => {
   return (
     <>
       <Flex minH="100vh" flexDir="column">
-        <Navbar display={['flex', null, 'none']} handleToggle={onToggle} title={title} />
+        <Navbar display={['flex', null, 'none']} handleToggle={onToggle} title={title} zIndex="1" />
+
         <Flex flexGrow={1} flexDir="row" bg="#f3f3f3">
           <Sidebar display={['none', null, 'flex']} position="sticky" top="0" h="100vh" openModal={openModal} />
           <Box flexGrow={1} p={5}>
@@ -29,7 +30,7 @@ export const Layout: React.FC<{ title?: string }> = ({ children, title }) => {
       </Flex>
 
       {isOpen && (
-        <Backdrop onClick={onToggle}>
+        <Backdrop onClick={onToggle} zIndex="1">
           <Sidebar
             position={['fixed', null, null]}
             top="0"
@@ -43,7 +44,7 @@ export const Layout: React.FC<{ title?: string }> = ({ children, title }) => {
       )}
 
       {/* <AnimatePresence initial={false} exitBeforeEnter={true}> */}
-      {modalOpen && <LoginModal handleClose={closeModal} />}
+      {modalOpen && <LoginModal handleClose={closeModal} zIndex="1" />}
       {/* </AnimatePresence> */}
     </>
   )

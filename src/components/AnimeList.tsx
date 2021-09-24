@@ -1,4 +1,4 @@
-import { Box, Text, Wrap, Flex, RadioGroup, Radio } from '@chakra-ui/react'
+import { Box, Text, Wrap, Flex, RadioGroup, Radio, BoxProps } from '@chakra-ui/react'
 import { useEffect, useRef, useState } from 'react'
 import {
   jp2hk,
@@ -10,7 +10,7 @@ import {
   transformAnimeLateNight,
 } from '../utils/date'
 import { AnimeCard } from './AnimeCard'
-import styles from '../styles/AnimeList.module.css'
+import { motion } from 'framer-motion'
 
 type Props = {
   animes: any[]
@@ -67,38 +67,47 @@ export const AnimeList = ({ animes, followingAnimes, addFollowing, removeFollowi
 
   return (
     <>
-      <Flex justifyContent="center">
-        <RadioGroup onChange={scrollTo}>
-          <Flex flexWrap="wrap">
-            {reorderAnime.map((dayAnimes, n) => (
-              <Radio key={n} value={n} size="md" mx={2} my={1}>
-                {dayAnimes.day.replace('星期', '')}
-              </Radio>
-            ))}
-          </Flex>
-        </RadioGroup>
-      </Flex>
-
       <Text>收錄動畫數: {tvAnimes.length} </Text>
       {sort === 'weekly' && (
         <>
-          {reorderAnime.map((dayAnimes, n) => (
-            <Box key={dayAnimes.day} my={4} ref={el => (weekdayRef.current[n] = el!!)} className={styles.title}>
-              <Text fontSize="2xl" display="inline-block" className={n === activeN ? styles.blink : ''}>
-                {dayAnimes.day} {n === 0 && '(今日)'}
-              </Text>
-              <Wrap overflow="hidden" justify={['center', null, 'start']}>
-                {dayAnimes.animes.map((anime: any) => (
-                  <AnimeCard
-                    key={anime.id}
-                    anime={anime}
-                    followed={isFollowed(anime.id)}
-                    addFollowing={addFollowing}
-                    removeFollowing={removeFollowing}
-                    signedIn={signedIn}
-                  />
+          <Flex justifyContent="center">
+            <RadioGroup onChange={scrollTo}>
+              <Flex flexWrap="wrap">
+                {reorderAnime.map((dayAnimes, n) => (
+                  <Radio key={n} value={n} size="md" mx={2} my={1}>
+                    {dayAnimes.day.replace('星期', '')}
+                  </Radio>
                 ))}
-              </Wrap>
+              </Flex>
+            </RadioGroup>
+          </Flex>
+          {reorderAnime.map((dayAnimes, n) => (
+            <Box
+              key={dayAnimes.day}
+              my={4}
+              ref={el => (weekdayRef.current[n] = el!!)}
+              sx={{ scrollMarginTop: [50, 50, 0] }}
+            >
+              <motion.div
+                animate={activeN === n ? { backgroundColor: [null, '#f0ff0080', '#f0ff0080', '#ff00'] } : {}}
+                transition={{ repeat: 1, duration: 0.5, times: [0, 0.33, 0.66, 1] }}
+              >
+                <Text fontSize="2xl" display="inline-block">
+                  {dayAnimes.day} {n === 0 && '(今日)'}
+                </Text>
+                <Wrap overflow="hidden" justify={['center', null, 'start']}>
+                  {dayAnimes.animes.map((anime: any) => (
+                    <AnimeCard
+                      key={anime.id}
+                      anime={anime}
+                      followed={isFollowed(anime.id)}
+                      addFollowing={addFollowing}
+                      removeFollowing={removeFollowing}
+                      signedIn={signedIn}
+                    />
+                  ))}
+                </Wrap>
+              </motion.div>
             </Box>
           ))}
         </>
