@@ -22,7 +22,7 @@ async function getAnimesBySeason(request: any): Promise<any> {
     KeyConditionExpression: 'yearSeason = :yearSeason',
     ...(nextCursor ? { ExclusiveStartKey: JSON.parse(nextCursor) } : {}),
     ProjectionExpression:
-      'id,yearSeason,title,picture,dayOfWeek,#time,genres,alternative_titles,#type,#status,#source,malId',
+      'id,yearSeason,title,picture,alternative_titles,genres,#type,#status,dayOfWeek,#time,#source,malId',
     ExpressionAttributeNames: {
       '#time': 'time',
       '#type': 'type',
@@ -72,7 +72,7 @@ export async function getAnimeById(request: any): Promise<any> {
         '#source': 'source',
       },
       ProjectionExpression:
-        'id,yearSeason,title,picture,alternative_titles,startDate,endDate,summary,genres,#type,#status,dayOfWeek,#time,#source,studios',
+        'id,yearSeason,title,picture,alternative_titles,startDate,endDate,summary,genres,#type,#status,dayOfWeek,#time,#source,studios,malId',
     }
     const resp = await ddbDocClient.get(input)
     if (resp.Item) {
@@ -114,7 +114,7 @@ export async function getAnimesByIds(request: { anime: string[] }): Promise<any>
 }
 
 // todo implement yup validation (server side / client side?)
-export async function updateAnime(request: any) {
+export async function updateAnime(request: any): Promise<any> {
   try {
     const { anime } = request
     const now = new Date()
@@ -149,7 +149,7 @@ export async function updateAnime(request: any) {
   }
 }
 
-export async function createAnime(request: any) {
+export async function createAnime(request: any): Promise<any> {
   try {
     const { anime } = request
     const now = new Date()
@@ -168,7 +168,7 @@ export async function createAnime(request: any) {
   }
 }
 
-export async function deleteAnime(request: any) {
+export async function deleteAnime(request: any): Promise<any> {
   try {
     const { id } = request
     const input: DeleteCommandInput = {
@@ -180,5 +180,34 @@ export async function deleteAnime(request: any) {
   } catch (error) {
     console.log(error)
     return {}
+  }
+}
+
+export async function getAnimeByMalId(request: any): Promise<any> {
+  try {
+    const { malId } = request
+
+    const input: QueryCommandInput = {
+      TableName: 'Animes',
+      IndexName: 'MalIdIndex',
+      Limit: 1,
+      ExpressionAttributeValues: {
+        ':malId': malId,
+      },
+      KeyConditionExpression: 'malId = :malId',
+      ProjectionExpression:
+        'id,yearSeason,title,picture,alternative_titles,startDate,endDate,summary,genres,#type,#status,dayOfWeek,#time,#source,studios,malId',
+      ExpressionAttributeNames: {
+        '#time': 'time',
+        '#type': 'type',
+        '#status': 'status',
+        '#source': 'source',
+      },
+    }
+
+    const resp = await ddbDocClient.query(input)
+    return resp
+  } catch (error) {
+    console.log(error)
   }
 }
