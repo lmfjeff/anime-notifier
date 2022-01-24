@@ -57,7 +57,6 @@ async function updateFollowingByList(userId: string, animeList: string[]): Promi
   }
 }
 
-// todo check whether the added anime is valid anime id (exist in db)?
 export async function addFollowing(req: any): Promise<any> {
   try {
     const { anime, userId } = req

@@ -13,15 +13,14 @@ type Props = {
 
 export const AdminAnimeCard = ({ anime, deleteAnime }: Props) => {
   const displayName = anime.title
-  // todo change localhost to 'media.lmfjeff.com'
-  const picture = anime.picture?.includes('localhost') ? anime.picture : ''
+
   const weekdayTc = ['日', '一', '二', '三', '四', '五', '六']
   return (
     <Box position="relative" w="160px" cursor="pointer">
       <Link href={`/anime/${anime.id}`} passHref>
         <Box as="a">
           <AspectRatio ratio={1}>
-            <AnimeImage src={picture} alt="" borderRadius={2} boxShadow="0 0 3px gray" />
+            <AnimeImage src={anime.picture || ''} alt="" borderRadius={2} boxShadow="0 0 3px gray" />
           </AspectRatio>
         </Box>
       </Link>

@@ -17,6 +17,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   return {
     props: { resp },
+    revalidate: 3600,
   }
 }
 
@@ -51,6 +52,7 @@ export default function AnimeById({ resp }: Props) {
       studios,
     } = anime
     const [year, season] = yearSeason?.split('-') || []
+
     return (
       <>
         <HtmlHead title={title} description={summary || ''} />

@@ -23,7 +23,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
   }
 
   const now = new Date()
-  const nowMonth = now.getMonth()
+  const nowMonth = now.getMonth() + 1
 
   const year = nth(0, path || []) || now.getFullYear().toString()
   const season = nth(1, path || []) || month2Season(nowMonth)

@@ -9,6 +9,10 @@ import jwt from 'next-auth/jwt'
 const serviceConfigOptions: ServiceConfigurationOptions = {
   region: process.env.DYNAMODB_REGION,
   endpoint: process.env.DYNAMODB_ENDPOINT,
+  // credentials: {
+  //   accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+  //   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+  // },
 }
 
 // For more information on each option (and a full list of options) go to

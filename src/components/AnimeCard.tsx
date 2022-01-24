@@ -18,8 +18,7 @@ type animeCardProps = {
 
 export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, signedIn }: animeCardProps) => {
   const displayName = anime.title
-  // todo change localhost to 'media.lmfjeff.com'
-  const picture = anime.picture?.includes('localhost') ? anime.picture : ''
+
   const handleClick = useCallback(() => {
     if (followed) {
       removeFollowing(anime.id)
@@ -33,7 +32,7 @@ export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, sign
       <Link href={`/anime/${anime.id}`} passHref>
         <Box as="a">
           <AspectRatio ratio={1}>
-            <AnimeImage src={picture} alt="" borderRadius={2} boxShadow="0 0 3px gray" />
+            <AnimeImage src={anime.picture || ''} alt="" borderRadius={2} boxShadow="0 0 3px gray" />
           </AspectRatio>
           <Box
             position="absolute"

@@ -76,7 +76,9 @@ export const Sidebar = (props: Props) => {
       </Link>
       <SidebarLink url="/anime/season" text="番表" />
       <SidebarLink url="/following" text="追蹤" />
-      <SidebarLink url="/admin" text="admin" />
+      <SidebarLink url="/faq" text="FAQ" />
+      {/* REMOVE AFTER TESTING */}
+      {/* <SidebarLink url="/admin" text="ADMIN" /> */}
 
       <Spacer />
       {loading ? (
