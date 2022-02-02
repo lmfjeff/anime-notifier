@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import { weekdayOption } from '../constants/animeOption'
+import { weekdayOption, seasonOption } from '../constants/animeOption'
 
 dayjs.extend(customParseFormat)
 
@@ -71,4 +71,15 @@ export function month2Season(n: number): string | undefined {
     season = 'autumn'
   }
   return season
+}
+
+// convert yearSeason to array of past 3 season
+// e.g. '2022-spring' -> ['2021-summer', '2021-autumn', '2022-winter']
+export function past3Seasons(season: string): string[] {
+  const [yr, sn] = season.split('-')
+  const lastYr = (parseInt(yr) - 1).toString()
+  const thisSeasonNum = seasonOption.indexOf(sn)
+  const lastYrSeason = seasonOption.slice(thisSeasonNum + 1)
+  const thisYrSeason = seasonOption.slice(0, thisSeasonNum)
+  return [...lastYrSeason.map(el => lastYr + '-' + el), ...thisYrSeason.map(el => yr + '-' + el)]
 }
