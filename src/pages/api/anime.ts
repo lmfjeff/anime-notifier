@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { createAnime, deleteAnime, getAllAnimesBySeason, updateAnime } from '../../services/animeService'
+import { getSession } from 'next-auth/client'
+import { createAnime, deleteAnime, updateAnime } from '../../services/animeService'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // if (req.method === 'GET') {
@@ -12,8 +13,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   //   }
   // }
 
-  // todo implement yup validation for anime object
-  // todo check admin email for the action
+  const session = await getSession({ req })
+  if (!session || session?.user?.email !== process.env.ADMIN_EMAIL) {
+    return res.status(401).json({ message: 'not admin' })
+  }
+
   if (req.method === 'PUT') {
     try {
       const resp = await updateAnime({ anime: req.body.anime })
