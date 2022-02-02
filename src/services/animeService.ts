@@ -8,6 +8,61 @@ import {
   DeleteCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { nanoid } from 'nanoid'
+import { past3Seasons } from '../utils/date'
+
+// include only animes currently_airing in past 3 season, filter out this season currently_airing
+async function getAnimesByStatus(request: any): Promise<any> {
+  const { year, season, nextCursor } = request
+  const input: QueryCommandInput = {
+    TableName: 'Animes',
+    IndexName: 'StatusIndex',
+    Limit: 100,
+    ExpressionAttributeValues: {
+      ':status': 'currently_airing',
+    },
+    KeyConditionExpression: '#status = :status',
+    ...(nextCursor ? { ExclusiveStartKey: JSON.parse(nextCursor) } : {}),
+    ProjectionExpression:
+      'id,yearSeason,title,picture,alternative_titles,genres,#type,#status,dayOfWeek,#time,#source,malId',
+    ExpressionAttributeNames: {
+      '#time': 'time',
+      '#type': 'type',
+      '#status': 'status',
+      '#source': 'source',
+    },
+  }
+  const resp = await ddbDocClient.query(input)
+  if (!resp.LastEvaluatedKey || !resp.Items) {
+    // No more
+    return resp
+  }
+  const { Items: nextItems, ...rest } = await getAnimesByStatus({
+    ...request,
+    nextCursor: JSON.stringify(resp.LastEvaluatedKey),
+  })
+  return {
+    Items: [...resp.Items, ...(nextItems ?? [])],
+    ...rest,
+  }
+}
+
+export async function getAllAnimesByStatus(request: any): Promise<any> {
+  const { year, season } = request
+  const yearSeason = `${year}-${season}`
+  try {
+    const resp = await getAnimesByStatus(request)
+    // only retrive current_airing animes of past 3 seasons
+    const filteredAnimes = resp.Items.filter((el: any) => past3Seasons(yearSeason).includes(el.yearSeason))
+    return {
+      animes: filteredAnimes,
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      animes: [],
+    }
+  }
+}
 
 // todo try catch all error
 async function getAnimesBySeason(request: any): Promise<any> {
