@@ -1,12 +1,12 @@
 import Head from 'next/head'
 import React from 'react'
 
-type Props = {
+type HeadProps = {
   title: string
   description?: string
 }
 
-export const HtmlHead = ({ title, description }: Props) => {
+export const HtmlHead = ({ title, description }: HeadProps) => {
   return (
     <Head>
       <title>{title}</title>
