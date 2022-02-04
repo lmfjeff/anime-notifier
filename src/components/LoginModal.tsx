@@ -8,7 +8,7 @@ import { FcGoogle } from 'react-icons/fc'
 import { Icon } from '@chakra-ui/react'
 import { CloseIcon } from '@chakra-ui/icons'
 
-type Props = {
+type LoginModalProps = {
   handleClose: () => void
 } & BoxProps
 
@@ -24,9 +24,6 @@ const dropIn: Variants = {
     scale: 1,
     transition: {
       duration: 0.2,
-      //   type: 'spring',
-      //   damping: 25,
-      //   stiffness: 500,
     },
   },
   exit: {
@@ -34,7 +31,7 @@ const dropIn: Variants = {
   },
 }
 
-export const LoginModal: React.FC<Props> = ({ handleClose, zIndex }) => {
+export const LoginModal: React.FC<LoginModalProps> = ({ handleClose, zIndex }) => {
   return (
     <Backdrop onClick={handleClose} zIndex={zIndex}>
       <MotionFlex
@@ -68,9 +65,7 @@ export const LoginModal: React.FC<Props> = ({ handleClose, zIndex }) => {
           onClick={() => signIn('google')}
           leftIcon={<Icon as={FcGoogle} bg="transparant" boxSize="24px" />}
         >
-          <Text color="gray" isTruncated>
-            使用 Google 帳戶登入
-          </Text>
+          <Text color="gray">使用 Google 帳戶登入</Text>
         </Button>
         <Spacer />
         <Text alignSelf="flex-end" fontSize="xs">

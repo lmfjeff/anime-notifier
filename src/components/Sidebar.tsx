@@ -1,33 +1,32 @@
 import { Button, Flex, FlexProps, Progress, Spacer, IconButton } from '@chakra-ui/react'
 import React from 'react'
 import Link from 'next/link'
-import { signIn, signOut, useSession } from 'next-auth/client'
-import axios from 'axios'
+import { signOut, useSession } from 'next-auth/client'
 import { useRouter } from 'next/router'
 
-type Props = FlexProps & {
-  handleToggle?: () => void
-  isOpen?: boolean
-  openModal?: () => void
+type SideBarProps = FlexProps & {
+  toggleSidebar?: () => void
+  openLoginModal?: () => void
 }
 
-type ButtonProps = {
+type SidebarLinkProps = {
   url?: string
   text: string
   onClick?: () => void
 }
 
-export const Sidebar = (props: Props) => {
-  const { handleToggle, isOpen, openModal, ...rest } = props
-  const [session, loading] = useSession()
-  const router = useRouter()
+export const Sidebar = (props: SideBarProps) => {
+  const { toggleSidebar, openLoginModal, ...rest } = props
 
+  const [session, loading] = useSession()
+
+  const router = useRouter()
   const checkActive = (url: string) => {
     const reg = new RegExp('^' + url)
     return reg.test(router.asPath)
   }
 
-  const SidebarLink = ({ url, text, onClick }: ButtonProps) =>
+  const SidebarLink = ({ url, text, onClick }: SidebarLinkProps) =>
     url ? (
       <Link href={url} passHref>
         <Button
@@ -39,7 +38,7 @@ export const Sidebar = (props: Props) => {
           _hover={{ bg: 'blue.200' }}
           _active={{ bg: 'blue.200' }}
           onClick={() => {
-            handleToggle && handleToggle()
+            toggleSidebar && toggleSidebar()
           }}
         >
           {text}
@@ -58,22 +57,27 @@ export const Sidebar = (props: Props) => {
       </Button>
     )
 
+  const HomeLink = () => (
+    <Link href="/" passHref>
+      <Button
+        as="a"
+        bg="gray.400"
+        _hover={{}}
+        _focus={{}}
+        borderRadius="0"
+        fontFamily="yomogi"
+        onClick={() => {
+          toggleSidebar && toggleSidebar()
+        }}
+      >
+        Anime Notifier
+      </Button>
+    </Link>
+  )
+
   return (
     <Flex flexDirection="column" bg="#eaeaea" w={180} flexShrink={0} {...rest}>
-      <Link href="/" passHref>
-        <Button
-          bg="gray.400"
-          _hover={{}}
-          _focus={{}}
-          borderRadius="0"
-          fontFamily="yomogi"
-          onClick={() => {
-            handleToggle && handleToggle()
-          }}
-        >
-          Anime Notifier
-        </Button>
-      </Link>
+      <HomeLink />
       <SidebarLink url="/anime/season" text="番表" />
       <SidebarLink url="/following" text="追蹤" />
       <SidebarLink url="/faq" text="FAQ" />
@@ -89,8 +93,8 @@ export const Sidebar = (props: Props) => {
             <SidebarLink
               text="登入"
               onClick={() => {
-                handleToggle && handleToggle()
-                openModal && openModal()
+                toggleSidebar && toggleSidebar()
+                openLoginModal && openLoginModal()
               }}
             />
           )}
@@ -98,13 +102,6 @@ export const Sidebar = (props: Props) => {
             <>
               <SidebarLink url="/setting" text="設定" />
               <SidebarLink text="登出" onClick={() => signOut()} />
-              {/* <SidebarLink url="/admin" text="Admin" />
-              <SidebarLink url="/home" text="Home" />
-              <Button>Profile</Button>
-              <Button>Notification</Button>
-              <Button>User</Button>
-              <Button>Theme</Button>
-              <Button>Help</Button> */}
             </>
           )}
         </>
