@@ -7,20 +7,18 @@ type NavbarProps = FlexProps & {
   title?: string
 }
 
-export const Navbar = (props: NavbarProps) => {
-  const { handleToggle, title, ...rest } = props
-
+export const Navbar = ({ handleToggle, title, ...rest }: NavbarProps) => {
   return (
     <>
       <Flex minHeight="50px" position="sticky" top="0" left="0" w="full" bg="gray.300" alignItems="center" {...rest}>
         <IconButton
-          aria-label="Menu"
-          icon={<HamburgerIcon />}
           bg="transparent"
           w="50px"
           h="50px"
           _focus={{}}
           onClick={() => handleToggle()}
+          icon={<HamburgerIcon />}
+          aria-label="menu"
         />
         <Text mx={3}>{title || ''}</Text>
       </Flex>

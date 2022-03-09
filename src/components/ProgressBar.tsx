@@ -26,17 +26,7 @@ export const ProgressBar = () => {
   )
   return isOpen ? (
     <Portal>
-      <Progress
-        size="xs"
-        isIndeterminate
-        top="0"
-        position="fixed"
-        left="0"
-        w="full"
-        zIndex="overlay"
-        // colorScheme=""
-        // bg=""
-      />
+      <Progress size="xs" isIndeterminate top="0" position="fixed" left="0" w="full" zIndex="overlay" />
     </Portal>
   ) : null
 }

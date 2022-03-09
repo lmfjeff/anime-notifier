@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useCallback } from 'react'
 import { useInfiniteQuery } from 'react-query'
+import { FollowingListResponse } from '../types/api'
 
 export function useFollowingQuery(enabled: boolean) {
   const queryKey = ['animes', 'following']
@@ -9,8 +10,7 @@ export function useFollowingQuery(enabled: boolean) {
     const params = {
       page: pageParam,
     }
-    const resp = await axios.get('/api/animeList', { params })
-    const data = resp.data
+    const { data } = (await axios.get('/api/followingList', { params })) as { data: FollowingListResponse }
     return {
       animes: data.animes,
       total: data.total,
@@ -19,14 +19,9 @@ export function useFollowingQuery(enabled: boolean) {
   }, [])
 
   return useInfiniteQuery(queryKey, fetchAnimeList, {
-    getNextPageParam: (lastPage, pages) => {
+    getNextPageParam: lastPage => {
       return lastPage.nextCursor < lastPage.total ? lastPage.nextCursor : undefined
     },
-    enabled: enabled,
-    refetchInterval: false,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: false,
-    refetchIntervalInBackground: false,
-    refetchOnMount: true,
+    enabled,
   })
 }

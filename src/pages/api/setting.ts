@@ -1,28 +1,29 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getSession } from 'next-auth/client'
+import { getSession } from 'next-auth/react'
 import { getSub, updateSub } from '../../services/subscribeService'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getSession({ req })
-  if (!session || !session.userId) throw 'not login for setting api'
+  const { userId } = session as { userId?: string }
+  if (!session || !userId) return res.status(401).end()
 
   if (req.method === 'GET') {
     try {
-      const resp = await getSub({ userId: session.userId })
-      return res.status(200).json(resp)
+      const { sub } = await getSub({ userId: userId })
+      res.status(200).json({ sub })
     } catch (error) {
-      return res.status(400).json(error)
+      res.status(400).json(error)
     }
   }
 
   if (req.method === 'POST') {
     try {
-      const resp = await updateSub({ sub: req.body.sub, userId: session.userId })
-      return res.status(200).json(resp)
+      const { sub } = await updateSub({ sub: req.body?.sub, userId })
+      res.status(200).json({ sub })
     } catch (error) {
-      return res.status(400).json(error)
+      res.status(400).json(error)
     }
   }
 
-  return res.status(405).end()
+  res.status(405).end()
 }

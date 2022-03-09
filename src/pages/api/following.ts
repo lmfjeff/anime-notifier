@@ -1,37 +1,44 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getSession } from 'next-auth/client'
+import { getSession } from 'next-auth/react'
+import { getAnimeById } from '../../services/animeService'
 import { addFollowing, getFollowing, removeFollowing } from '../../services/followingService'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getSession({ req })
-  if (!session || !session.userId) throw 'not login for following api'
+  const { userId } = session as { userId?: string }
+  if (!session || !userId) return res.status(401).end()
 
   if (req.method === 'GET') {
     try {
-      const resp = await getFollowing({ userId: session.userId })
-      return res.status(200).json(resp)
+      const { animeIds } = await getFollowing({ userId })
+      res.status(200).json({ animeIds })
     } catch (error) {
-      return res.status(400).json(error)
+      res.status(400).json(error)
     }
   }
 
   if (req.method === 'POST') {
     try {
-      const resp = await addFollowing({ anime: req.body.anime, userId: session.userId })
-      return res.status(200).json(resp)
+      const { animeId } = req.body
+      const { anime } = await getAnimeById({ id: animeId })
+      if (anime === null) return res.status(400).json({ message: 'anime id not exist' })
+
+      await addFollowing({ animeId, userId })
+      res.status(200).end()
     } catch (error) {
-      return res.status(400).json(error)
+      res.status(400).json(error)
     }
   }
 
   if (req.method === 'DELETE') {
     try {
-      const resp = await removeFollowing({ anime: req.query.anime, userId: session.userId })
-      return res.status(200).json(resp)
+      const { animeId } = req.query as { animeId: string }
+      await removeFollowing({ animeId, userId })
+      res.status(200).end()
     } catch (error) {
-      return res.status(400).json(error)
+      res.status(400).json(error)
     }
   }
 
-  return res.status(405).end()
+  res.status(405).end()
 }

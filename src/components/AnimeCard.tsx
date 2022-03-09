@@ -1,78 +1,81 @@
-import { AspectRatio, Box, IconButton, Image as ChakraImage, Text } from '@chakra-ui/react'
-import { AddIcon, EditIcon } from '@chakra-ui/icons'
-import React, { useCallback } from 'react'
-import { anime } from '../types/anime'
+import { AspectRatio, Box, Icon, IconButton, Image as ChakraImage, Text } from '@chakra-ui/react'
+import { AddIcon, EditIcon, StarIcon } from '@chakra-ui/icons'
+import { FaRegStar, FaStar } from 'react-icons/fa'
+import React from 'react'
 import Link from 'next/link'
 import { AnimeImage } from './AnimeImage'
-import { parseWeekday } from '../utils/date'
+import { AnimeOverview } from '../types/anime'
+import { weekdayTcOption } from '../constants/animeOption'
 
-type animeCardProps = {
-  anime: anime
+type AnimeCardProps = {
+  anime: AnimeOverview
   followed: boolean
-  addFollowing: (title: string) => void
-  removeFollowing: (title: string) => void
+  addFollowing: (id: string) => Promise<void>
+  removeFollowing: (id: string) => Promise<void>
   signedIn: boolean
 }
 
-// const fallbackImage = path.resolve('image', 'hellomoto.png')
-
-export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, signedIn }: animeCardProps) => {
+export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, signedIn }: AnimeCardProps) => {
   const displayName = anime.title
 
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     if (followed) {
       removeFollowing(anime.id)
     } else {
       addFollowing(anime.id)
     }
-  }, [followed, removeFollowing, anime.id, addFollowing])
-  const weekdayTc = ['日', '一', '二', '三', '四', '五', '六']
+  }
   return (
-    <Box position="relative" w="160px">
-      <Link href={`/anime/${anime.id}`} passHref>
-        <Box as="a">
-          <AspectRatio ratio={1}>
-            <AnimeImage src={anime.picture || ''} alt="" borderRadius={2} boxShadow="0 0 3px gray" />
-          </AspectRatio>
-          <Box
-            position="absolute"
-            top="0"
-            textShadow="0 0 3px black"
-            color="white"
-            fontWeight="semibold"
-            bg="blue.200"
-            px={1}
-            borderRadius={2}
-            textAlign="center"
-          >
-            <Text fontSize="md">{anime.dayOfWeek ? weekdayTc[parseWeekday(anime.dayOfWeek)] : '不定'}</Text>
-            <Text fontSize="smaller">{anime.time || '無時間'}</Text>
-          </Box>
-          <Text
-            noOfLines={2}
-            position="absolute"
-            bottom="0"
-            textShadow="0 0 6px black"
-            color="white"
-            fontSize="lg"
-            fontWeight="semibold"
-          >
-            {displayName}
-          </Text>
-        </Box>
-      </Link>
-      {signedIn && (
-        <IconButton
+    <Link href={`/anime/${anime.id}`} passHref>
+      <Box as="a" position="relative" w="160px">
+        <AspectRatio ratio={1}>
+          <AnimeImage src={anime.picture || ''} alt={displayName} borderRadius={2} boxShadow="0 0 3px gray" />
+        </AspectRatio>
+        <Box
           position="absolute"
           top="0"
-          right="0"
-          aria-label="Following"
-          icon={<AddIcon />}
-          disabled={followed === null}
-          onClick={handleClick}
-          colorScheme={followed ? 'blue' : 'gray'}
-        />
-      )}
-    </Box>
+          textShadow="0 0 3px black"
+          color="white"
+          fontWeight="semibold"
+          bg="blue.200"
+          px={1}
+          borderRadius={2}
+          textAlign="center"
+        >
+          <Text fontSize="md">
+            {weekdayTcOption[anime.dayOfWeek || '']
+              ? weekdayTcOption[anime.dayOfWeek || '']?.replace('星期', '')
+              : '未知'}
+          </Text>
+          <Text fontSize="smaller">{anime.time || '無時間'}</Text>
+        </Box>
+        <Text
+          noOfLines={2}
+          position="absolute"
+          bottom="0"
+          textShadow="0 0 6px black"
+          color="white"
+          fontSize="lg"
+          fontWeight="semibold"
+        >
+          {displayName}
+        </Text>
+        {signedIn && (
+          <IconButton
+            position="absolute"
+            top="0"
+            right="0"
+            disabled={followed === null}
+            onClick={e => {
+              e.preventDefault()
+              handleClick()
+            }}
+            icon={<Icon as={followed ? FaStar : FaRegStar} boxSize={'22px'} />}
+            title={followed ? '取消追蹤' : '追蹤'}
+            aria-label={followed ? 'unfollow' : 'follow'}
+          />
+        )}
+      </Box>
+    </Link>
   )
 }

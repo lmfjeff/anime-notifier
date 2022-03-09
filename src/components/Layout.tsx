@@ -15,9 +15,11 @@ export const Layout: React.FC<{ title?: string }> = ({ children, title }) => {
   return (
     <>
       <Flex minH="100vh" flexDir="column">
+        {/* mobile/tablet navbar with hamburger */}
         <Navbar display={['flex', null, 'none']} handleToggle={toggleSidebar} title={title} zIndex="1" />
 
         <Flex flexGrow={1} flexDir="row" bg="#f3f3f3">
+          {/* desktop sidebar */}
           <Sidebar
             display={['none', null, 'flex']}
             position="sticky"
@@ -31,6 +33,7 @@ export const Layout: React.FC<{ title?: string }> = ({ children, title }) => {
         </Flex>
       </Flex>
 
+      {/* mobile hamburger sidebar */}
       {isSidebarOpen && (
         <Backdrop onClick={toggleSidebar} zIndex="1">
           <Sidebar

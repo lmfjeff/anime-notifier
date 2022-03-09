@@ -11,8 +11,10 @@ export const AnimeImage: React.FC<ImageProps> = ({ onLoad, src, onError, ...prop
     onError && onError(event)
   }
 
-  // todo change includes to 'media.lmfjeff.com'
+  // todo change includes to 'cdn.example.com'
   const picture = src?.includes('myanimelist') ? src : ''
+
+  // todo add loading image (along with fallback image)
 
   return (
     <ChakraImage

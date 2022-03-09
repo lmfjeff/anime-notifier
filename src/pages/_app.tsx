@@ -4,7 +4,7 @@ import { ChakraProvider, extendTheme } from '@chakra-ui/react'
 import { Layout } from '../components/Layout'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
-import { Provider as AuthProvider } from 'next-auth/client'
+import { SessionProvider } from 'next-auth/react'
 import { ProgressBar } from '../components/ProgressBar'
 import { useEffect } from 'react'
 import * as swHelper from '../utils/swHelper'
@@ -18,8 +18,8 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout
 }
 
-export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
-  const queryClient = new QueryClient()
+export default function MyApp({ Component, pageProps: { session, ...pageProps } }: AppPropsWithLayout) {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false } } })
 
   const theme = {
     fonts: {
@@ -37,12 +37,12 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   return (
     <ChakraProvider theme={extendTheme(theme)}>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider session={pageProps.session}>
+        <SessionProvider session={session}>
           <ProgressBar />
           <Layout title={Component.getTitle}>
             <Component {...pageProps} />
           </Layout>
-        </AuthProvider>
+        </SessionProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </ChakraProvider>

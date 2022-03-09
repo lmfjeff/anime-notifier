@@ -1,7 +1,7 @@
 import { Button, IconButton } from '@chakra-ui/button'
 import { Box, BoxProps, Flex, FlexProps, Spacer, Text } from '@chakra-ui/layout'
 import { motion, Variant, Variants } from 'framer-motion'
-import { signIn } from 'next-auth/client'
+import { signIn } from 'next-auth/react'
 import React from 'react'
 import { Backdrop } from './Backdrop'
 import { FcGoogle } from 'react-icons/fc'
@@ -50,11 +50,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({ handleClose, zIndex }) =
         exit="exit"
       >
         <IconButton
-          onClick={handleClose}
           alignSelf="flex-end"
-          aria-label="Close"
-          icon={<CloseIcon />}
           bg="transparent"
+          onClick={handleClose}
+          icon={<CloseIcon />}
+          title="關閉"
+          aria-label="close"
         />
         <Text fontSize="2xl" mb={5}>
           登入

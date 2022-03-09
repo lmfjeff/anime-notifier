@@ -1,7 +1,7 @@
 import { Button } from '@chakra-ui/button'
 import { Flex, VStack } from '@chakra-ui/layout'
 import { GetServerSideProps } from 'next'
-import { getSession } from 'next-auth/client'
+import { getSession } from 'next-auth/react'
 import Link from 'next/link'
 
 export const getServerSideProps: GetServerSideProps = async context => {
@@ -26,7 +26,6 @@ export default function Admin() {
       <Link href="/admin/anime/create" passHref>
         <Button colorScheme="cyan">Create Anime</Button>
       </Link>
-      <Button colorScheme="cyan">Edit Users</Button>
     </VStack>
   )
 }

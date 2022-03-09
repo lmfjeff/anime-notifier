@@ -6,32 +6,27 @@ import { useFollowingQuery } from '../hooks/useFollowingQuery'
 import { CloseIcon } from '@chakra-ui/icons'
 import Link from 'next/link'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { HtmlHead } from '../components/HtmlHead'
+import { FollowingAnime } from '../types/anime'
 
-Following.getTitle = '追蹤'
+FollowingPage.getTitle = '追蹤'
 
-export default function Following() {
-  const [session, loading] = useSession()
+export default function FollowingPage() {
+  const { data: session, status } = useSession()
+  const loading = status === 'loading'
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   const { data, fetchNextPage, hasNextPage, isFetching } = useFollowingQuery(!!session)
 
   const animes = data?.pages.map(({ animes }) => animes).flat() || []
 
-  // todo use react-query useMutation + optimistic update
+  // todo optimistic update, no need to unvalidate whole query if followed many
   const removeFollowing = async (id: string) => {
-    await axios.delete('/api/following', { params: { anime: id } })
+    await axios.delete('/api/following', { params: { animeId: id } })
     await queryClient.invalidateQueries(['animes', 'following'])
   }
-
-  // useEffect(() => {
-  //   router.events.on('routeChangeComplete', () => {
-  //     window.scrollTo(0, 0)
-  //   })
-  // }, [router])
 
   return (
     <>
@@ -77,38 +72,41 @@ const End = ({ enabled }: { enabled: boolean }) => {
   ) : null
 }
 
-type followingListProps = {
-  animes: any[]
+type FollowingListProps = {
+  animes: FollowingAnime[]
   removeFollowing: (id: string) => Promise<void>
   disabled: boolean
 }
 
-const FollowingList = ({ animes, removeFollowing, disabled }: followingListProps) => {
+const FollowingList = ({ animes, removeFollowing, disabled }: FollowingListProps) => {
   return (
     <>
       {animes.map(({ id, title }) => (
-        <Flex
-          key={id}
-          px={3}
-          alignItems="center"
-          borderBottom="1px"
-          borderColor="gray.400"
-          _hover={{ bg: 'gray.300' }}
-          justifyContent="space-between"
-        >
-          <Link href={`/anime/${id}`} passHref>
-            <Text as="a">{title}</Text>
-          </Link>
-          <IconButton
-            aria-label="remove following"
-            title="取消追蹤"
-            bg="transparent"
-            _focus={{}}
-            icon={<CloseIcon />}
-            disabled={disabled}
-            onClick={() => removeFollowing(id)}
-          ></IconButton>
-        </Flex>
+        <Link href={`/anime/${id}`} passHref key={id}>
+          <Flex
+            px={3}
+            alignItems="center"
+            borderBottom="1px"
+            borderColor="gray.400"
+            _hover={{ bg: 'gray.300' }}
+            justifyContent="space-between"
+            as="a"
+          >
+            <Text>{title}</Text>
+            <IconButton
+              bg="transparent"
+              _focus={{}}
+              disabled={disabled}
+              onClick={e => {
+                e.preventDefault()
+                removeFollowing(id)
+              }}
+              icon={<CloseIcon />}
+              aria-label="unfollow"
+              title="取消追蹤"
+            ></IconButton>
+          </Flex>
+        </Link>
       ))}
     </>
   )

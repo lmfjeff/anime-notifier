@@ -1,17 +1,22 @@
-import { Image } from '@chakra-ui/image'
 import { Input } from '@chakra-ui/input'
 import { Box, Flex, Text } from '@chakra-ui/layout'
 import { GetServerSideProps } from 'next'
-import { getSession, useSession } from 'next-auth/client'
+import { getSession, useSession } from 'next-auth/react'
 import React from 'react'
 import { HtmlHead } from '../../components/HtmlHead'
-import { SettingPanel } from '../../components/SettingPanel'
+import { SettingPanelTab } from '../../components/SettingPanelTab'
+
+export const getServerSideProps: GetServerSideProps = async context => {
+  const session = await getSession(context)
+  return {
+    props: { session },
+  }
+}
 
 Account.getTitle = '設定'
 
 export default function Account() {
-  const [session] = useSession()
-  // user.name, image, expires, userId
+  const { data: session } = useSession()
 
   if (!session)
     return (
@@ -20,32 +25,16 @@ export default function Account() {
       </Flex>
     )
 
-  const AccountInfoPanel = () => {
-    return (
-      <Flex justifyContent="center" alignItems="center">
-        <Flex flexDir="column" w="300px" p={5}>
-          <Box mb={5}>
-            <Text mb={2}>連結的 Google 電郵:</Text>
-            <Input value={session.user?.email || ''} bg="white" isDisabled _disabled={{}} />
-          </Box>
-        </Flex>
-      </Flex>
-    )
-  }
-
   return (
     <>
       <HtmlHead title="設定" />
-      <SettingPanel>
-        <AccountInfoPanel />
-      </SettingPanel>
+      <SettingPanelTab />
+      <Flex flexDir="column" alignItems={'center'} gap={3}>
+        <Flex w="300px" flexDir="column" gap={3}>
+          <Text>連結的 Google 電郵:</Text>
+          <Input defaultValue={session?.user?.email || ''} bg="white" isDisabled _disabled={{}} />
+        </Flex>
+      </Flex>
     </>
   )
-}
-
-export const getServerSideProps: GetServerSideProps = async context => {
-  const session = await getSession(context)
-  return {
-    props: { session },
-  }
 }

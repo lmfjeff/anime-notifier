@@ -6,6 +6,7 @@ type HeadProps = {
   description?: string
 }
 
+// todo adding other meta
 export const HtmlHead = ({ title, description }: HeadProps) => {
   return (
     <Head>
