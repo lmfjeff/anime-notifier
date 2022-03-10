@@ -3,20 +3,22 @@ import axios from 'axios'
 import { GetStaticProps } from 'next'
 import { useRouter } from 'next/router'
 import { nth } from 'ramda'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useQuery } from 'react-query'
 import { AnimeList } from '../../../components/AnimeList'
-import { getAllAnimesBySeason } from '../../../services/animeService'
-import { month2Season } from '../../../utils/date'
+import { getAnimesBySeason, getAnimesByStatus } from '../../../services/animeService'
+import { jp2hk, month2Season, sortTime, transformAnimeLateNight } from '../../../utils/date'
 import { AnimeSorter } from '../../../components/AnimeSorter'
 import { SeasonPicker } from '../../../components/SeasonPicker'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import { HtmlHead } from '../../../components/HtmlHead'
 import { seasonTcOption } from '../../../constants/animeOption'
+import { AnimeOverview } from '../../../types/anime'
+import { GetAnimesBySeasonRequest } from '../../../types/api'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { path } = params as {
-    path?: any[]
+    path?: [year: string | undefined, season: string | undefined]
   }
 
   const now = new Date()
@@ -30,10 +32,20 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     season,
   }
 
-  const resp = await getAllAnimesBySeason(queryParams)
+  let animes: AnimeOverview[]
+
+  // if visit this season, get this season's anime & past 3 seasons' currently_airing anime
+  if (year === now.getFullYear().toString() && season === month2Season(nowMonth)) {
+    const { animes: animesByStatus } = await getAnimesByStatus(queryParams)
+    const { animes: animesBySeason } = await getAnimesBySeason(queryParams)
+    animes = [...animesByStatus, ...animesBySeason]
+  } else {
+    const { animes: animesBySeason } = await getAnimesBySeason(queryParams)
+    animes = animesBySeason
+  }
 
   return {
-    props: { resp, queryParams },
+    props: { animes, queryParams },
     revalidate: 3600,
   }
 }
@@ -42,56 +54,68 @@ export async function getStaticPaths() {
   return { paths: [], fallback: 'blocking' }
 }
 
-type Props = {
-  resp: any
-  queryParams: any
+type AnimeSeasonPageProps = {
+  animes: AnimeOverview[]
+  queryParams: GetAnimesBySeasonRequest
 }
 
-AnimeSeasonIndex.getTitle = '番表'
+AnimeSeasonPage.getTitle = '番表'
 
-export default function AnimeSeasonIndex({ resp, queryParams }: Props) {
-  const { animes } = resp
+export default function AnimeSeasonPage({ animes, queryParams }: AnimeSeasonPageProps) {
   const router = useRouter()
-  const [session, loading] = useSession()
+  const { data: session, status } = useSession()
+  const loading = status === 'loading'
   const [sort, setSort] = useState('weekly')
   const { year, season } = queryParams
-  const title = `${year}年${seasonTcOption[season] || ''}`
+  const title = season ? `${year}年${seasonTcOption[season]}` : ''
 
   const fetchFollowing = async () => {
-    const resp = await axios.get('/api/following')
-    const data = await resp.data
+    const { data } = await axios.get('/api/following')
     return data
   }
-  const getFollowingQuery = useQuery('getFollowing', fetchFollowing, { enabled: !loading && !!session })
-  const followingAnimes = getFollowingQuery.data?.anime || null
+  const { data: followingData, refetch: followingRefetch } = useQuery('getFollowing', fetchFollowing, {
+    enabled: !loading && !!session,
+  })
+  const followingAnimeIds = followingData?.animeIds
 
-  const onSelectSeason = (val: { year: string; season: string }) => {
-    router.push(`/anime/season/${val.year}/${val.season}`)
-  }
-
+  // todo optimistic update
   const addFollowing = async (id: string) => {
     await axios.post('/api/following', {
-      anime: id,
+      animeId: id,
     })
-    await getFollowingQuery.refetch()
+    await followingRefetch()
   }
 
   const removeFollowing = async (id: string) => {
-    await axios.delete('/api/following', { params: { anime: id } })
-    await getFollowingQuery.refetch()
+    await axios.delete('/api/following', { params: { animeId: id } })
+    await followingRefetch()
   }
+
+  const onSelectSeason = (val: GetAnimesBySeasonRequest) => {
+    const { year, season } = val
+    const url = year && season ? `${year}/${season}` : ''
+    router.push(`/anime/season/${url}`)
+  }
+
+  // todo adding hide for unpopular (admin privilege)
+  const filterByHide = (el: any) => el.hide !== true
+
+  const tvAnimes: AnimeOverview[] = useMemo(
+    () => animes.filter(filterByHide).map(jp2hk).map(transformAnimeLateNight).sort(sortTime),
+    [animes]
+  )
 
   return (
     <>
       <HtmlHead title={title} />
-      <Flex justifyContent="center" alignItems="center" wrap="wrap">
+      <Flex justifyContent="center" alignItems="center" wrap="wrap" gap={2}>
         <SeasonPicker queryParams={queryParams} onSelectSeason={onSelectSeason} />
         <AnimeSorter sort={sort} setSort={setSort} />
       </Flex>
 
       <AnimeList
-        animes={animes}
-        followingAnimes={followingAnimes}
+        animes={tvAnimes}
+        followingAnimeIds={followingAnimeIds}
         addFollowing={addFollowing}
         removeFollowing={removeFollowing}
         sort={sort}
