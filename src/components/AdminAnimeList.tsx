@@ -1,47 +1,44 @@
 import { Box, Text, Wrap } from '@chakra-ui/layout'
-import React from 'react'
-import { jp2hk, parseWeekday, reorderByDate, sortTime, transformAnimeLateNight } from '../utils/date'
+import dayjs from 'dayjs'
+import React, { useMemo } from 'react'
+import { weekdayOption, weekdayTcOption } from '../constants/animeOption'
+import { AnimeOverview } from '../types/anime'
+import { parseWeekday, reorderByDate, reorderIndexFromSunday } from '../utils/date'
 import { AdminAnimeCard } from './AdminAnimeCard'
 
-type Props = {
-  animes: any[]
+type AdminAnimeListProps = {
+  animes: AnimeOverview[]
   deleteAnime: (id: string) => Promise<void>
 }
 
-export const AdminAnimeList = ({ animes, deleteAnime }: Props) => {
-  const sortedAnimes = [
-    { day: '星期日', animes: new Array() },
-    { day: '星期一', animes: new Array() },
-    { day: '星期二', animes: new Array() },
-    { day: '星期三', animes: new Array() },
-    { day: '星期四', animes: new Array() },
-    { day: '星期五', animes: new Array() },
-    { day: '星期六', animes: new Array() },
-    { day: '星期未定/不定', animes: new Array() },
-  ]
+export const AdminAnimeList = ({ animes, deleteAnime }: AdminAnimeListProps) => {
+  const now = dayjs()
+  const hour = now.hour()
+  const day = now.day()
 
-  const transformedAnimes = animes.map(jp2hk).map(transformAnimeLateNight).sort(sortTime)
-
-  transformedAnimes.forEach((anime: any) => {
-    if (parseWeekday(anime.dayOfWeek) === -1) {
-      sortedAnimes[7].animes.push(anime)
-    } else {
-      sortedAnimes[parseWeekday(anime.dayOfWeek)].animes.push(anime)
-    }
-  })
-
-  const reorderAnime = reorderByDate(sortedAnimes)
+  const animesByDayReordered = useMemo(() => {
+    const animesByDay: AnimeOverview[][] = [[], [], [], [], [], [], [], []]
+    animes.forEach(anime => {
+      if (parseWeekday(anime.dayOfWeek) === -1) {
+        animesByDay[7].push(anime)
+      } else {
+        animesByDay[parseWeekday(anime.dayOfWeek)].push(anime)
+      }
+    })
+    const tmp = reorderByDate(animesByDay, hour, day)
+    return tmp
+  }, [animes, day, hour])
 
   return (
     <>
-      <Text>收錄動畫數: {transformedAnimes.length} </Text>
-      {reorderAnime.map((dayAnimes, n) => (
-        <Box key={dayAnimes.day} my={4}>
+      <Text>收錄動畫數: {animes.length} </Text>
+      {animesByDayReordered.map((dayAnimes, n) => (
+        <Box key={n} my={4}>
           <Text fontSize="2xl" display="inline-block">
-            {dayAnimes.day} {n === 0 && '(今日)'}
+            {weekdayTcOption[weekdayOption[reorderIndexFromSunday(n)]]} {n === 0 && '(今日)'}
           </Text>
           <Wrap overflow="hidden" justify={['center', null, 'start']}>
-            {dayAnimes.animes.map((anime: any) => (
+            {dayAnimes.map((anime: any) => (
               <AdminAnimeCard key={anime.id} anime={anime} deleteAnime={deleteAnime} />
             ))}
           </Wrap>
