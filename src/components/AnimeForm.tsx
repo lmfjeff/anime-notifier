@@ -1,162 +1,76 @@
-import {
-  Button,
-  Container,
-  FormControl,
-  FormErrorMessage,
-  FormHelperText,
-  FormLabel,
-  Input,
-  useFormControl,
-  Select,
-} from '@chakra-ui/react'
+import { Button, Container, Text } from '@chakra-ui/react'
 import React from 'react'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { sourceOption, statusOption, typeOption, weekdayOption } from '../constants/animeOption'
+import { anyTrue } from '../utils/utils'
+import { filter, pick, isEmpty } from 'ramda'
+import { SelectInput, StringArrayInput, StringInput } from './AnimeFormInput'
 
-type Inputs = {
-  // anime: {
-  //   yearSeason: string
-  //   title: string
-  //   picture: string
-  //   alternative_titles: { [key: string]: any }
-  //   startDate: string
-  //   endDate: string
-  //   summary: string
-  //   genres: string[]
-  //   type: string
-  //   status: string
-  //   dayOfWeek: string
-  //   time: string
-  //   source: string
-  //   studios: string[]
-  // }
-  anime: { [key: string]: any }
-  submitFn: (a: any) => void
+type AnimeFormProps = {
+  anime: Record<string, any>
+  submitFn: (anime: Record<string, any>) => Promise<void>
 }
 
-export const AnimeForm = ({ anime, submitFn }: Inputs) => {
-  const {
-    id,
-    yearSeason,
-    title,
-    picture,
-    alternative_titles,
-    startDate,
-    endDate,
-    summary,
-    genres,
-    type,
-    status,
-    dayOfWeek,
-    time,
-    source,
-    studios,
-  } = anime
-
-  console.log()
+export const AnimeForm = ({ anime, submitFn }: AnimeFormProps) => {
+  const { id } = anime
 
   const {
     register,
     handleSubmit,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm()
-  const onSubmit = (anime: any) => {
-    submitFn(anime)
-    // console.log(anime)
+    formState: { errors, isSubmitting, dirtyFields },
+    control,
+  } = useForm({ defaultValues: anime })
+
+  const onSubmit = (data: Record<string, any>) => {
+    // if edit, only send modified field
+    if (id) {
+      const df = filter(anyTrue, dirtyFields)
+      const updateItem = pick(Object.keys(df), data)
+      // if no change, return
+      if (isEmpty(updateItem)) {
+        return
+      }
+      submitFn({ ...updateItem, id })
+    } else {
+      // if create, send all data
+      submitFn(data)
+    }
   }
 
-  type ItemProps = {
-    animeKey: string
-  }
-  const Item: React.FC<ItemProps> = ({ animeKey, children }) => {
-    return (
-      <FormControl isInvalid={!!errors[animeKey]} id={animeKey}>
-        <FormLabel>{animeKey}</FormLabel>
-        {children}
-        <FormErrorMessage>{errors[animeKey] && errors[animeKey].message}</FormErrorMessage>
-      </FormControl>
-    )
-  }
+  const customInputProps = { register, errors }
+  const customStringInputProps = { register, errors, control }
 
-  // console.log(watch('name'))
-
-  // form control: isInvalid, input required
+  // todo dirty field highlight
+  // todo adding hint for string input
 
   return (
-    <Container border="1px" borderRadius={5} borderColor="gray" p={5} maxW="container.sm">
+    <Container border="1px" borderRadius={5} borderColor="gray" p={5} maxW="container.md">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Item animeKey="yearSeason">
-          <Input defaultValue={yearSeason} {...register('yearSeason')} />
-        </Item>
+        <StringInput label="yearSeason" required="year season is required" {...customInputProps} />
+        <StringInput label="title" required="title is required" {...customInputProps} />
+        <StringInput label="picture" {...customInputProps} />
+        <SelectInput label="type" options={typeOption} required="type is required" {...customInputProps} />
+        <SelectInput label="status" options={statusOption} required="status is required" {...customInputProps} />
+        <SelectInput label="dayOfWeek" options={weekdayOption.slice(0, -1)} {...customInputProps} />
+        <StringInput label="time" {...customInputProps} />
 
-        <Item animeKey="title">
-          <Input defaultValue={title} {...register('title')} />
-        </Item>
-
-        <Item animeKey="picture">
-          <Input defaultValue={picture} {...register('picture')} />
-        </Item>
-
-        <Item animeKey="startDate">
-          <Input defaultValue={startDate} {...register('startDate')} />
-        </Item>
-
-        <Item animeKey="endDate">
-          <Input defaultValue={endDate} {...register('endDate')} />
-        </Item>
-
-        <Item animeKey="summary">
-          <Input as="textarea" h="200px" defaultValue={summary} {...register('summary')} />
-        </Item>
-
-        <Item animeKey="type">
-          <Select placeholder=" " defaultValue={type} {...register('type')}>
-            {typeOption.map(val => (
-              <option key={val} value={val}>
-                {val}
-              </option>
-            ))}
-          </Select>
-        </Item>
-
-        <Item animeKey="status">
-          <Select placeholder=" " defaultValue={status} {...register('status')}>
-            {statusOption.map(val => (
-              <option key={val} value={val}>
-                {val}
-              </option>
-            ))}
-          </Select>
-        </Item>
-
-        <Item animeKey="dayOfWeek">
-          <Select placeholder=" " defaultValue={dayOfWeek} {...register('dayOfWeek')}>
-            {weekdayOption.map(val => (
-              <option key={val} value={val}>
-                {val}
-              </option>
-            ))}
-          </Select>
-        </Item>
-
-        <Item animeKey="time">
-          <Input defaultValue={time} {...register('time')} />
-        </Item>
-
-        <Item animeKey="source">
-          <Select placeholder=" " defaultValue={source} {...register('source')}>
-            {sourceOption.map(val => (
-              <option key={val} value={val}>
-                {val}
-              </option>
-            ))}
-          </Select>
-        </Item>
-
-        <Button mt={4} colorScheme="teal" isLoading={isSubmitting} type="submit">
+        <StringInput label="alternative_titles.en" {...customInputProps} />
+        <StringInput label="alternative_titles.ja" {...customInputProps} />
+        <StringArrayInput
+          label="alternative_titles.synonyms"
+          required="cannot be empty string"
+          {...customStringInputProps}
+        />
+        <StringInput label="startDate" {...customInputProps} />
+        <StringInput label="endDate" {...customInputProps} />
+        <StringInput label="summary" as={'textarea'} h={'200px'} {...customInputProps} />
+        <StringArrayInput label="genres" required="cannot be empty string" {...customStringInputProps} />
+        <SelectInput label="source" options={sourceOption} {...customInputProps} />
+        <StringArrayInput label="studios" required="cannot be empty string" {...customStringInputProps} />
+        <Button mt={4} mb={2} isLoading={isSubmitting} type="submit" bg={'white'} disabled={isEmpty(dirtyFields)}>
           Submit
         </Button>
+        {isEmpty(dirtyFields) && <Text fontSize={'x-small'}>Change field to submit</Text>}
       </form>
     </Container>
   )
