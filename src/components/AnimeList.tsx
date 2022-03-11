@@ -20,11 +20,12 @@ type WeekdayButtonProps = {
   text: string
   day: number
   scrollTo: (n: number) => Promise<void>
+  today: number
 }
 
-const WeekdayButton = ({ text, day, scrollTo }: WeekdayButtonProps) => {
+const WeekdayButton = ({ text, day, scrollTo, today }: WeekdayButtonProps) => {
   return (
-    <Button bg={'white'} m={1} onClick={() => scrollTo(day)}>
+    <Button bg={'white'} m={1} onClick={() => scrollTo(day)} boxShadow={today === day ? '0 0 3px black' : ''}>
       {text.replace('星期', '')}
     </Button>
   )
@@ -67,7 +68,7 @@ export const AnimeList = ({
   const [activeN, setActiveN] = useState<number>()
 
   const scrollTo = async (n: number) => {
-    const num = reorderIndexFromToday(n)
+    const num = reorderIndexFromToday(n, hour, day)
     weekdayRef.current[num].scrollIntoView()
     setActiveN(num)
     await new Promise(resolve => setTimeout(resolve, 1000))
@@ -83,8 +84,8 @@ export const AnimeList = ({
             <Text mx={3} fontSize={'lg'}>
               跳到:
             </Text>
-            {weekdayOption.map((day, n) => (
-              <WeekdayButton key={n} day={n} text={weekdayTcOption[day]} scrollTo={scrollTo} />
+            {weekdayOption.map((val, n) => (
+              <WeekdayButton key={n} day={n} text={weekdayTcOption[val]} scrollTo={scrollTo} today={day} />
             ))}
           </Flex>
           {animesByDayReordered.map((dayAnimes, n) => (
@@ -94,7 +95,7 @@ export const AnimeList = ({
                 transition={{ repeat: 1, duration: 0.5, times: [0, 0.33, 0.66, 1] }}
               >
                 <Text fontSize="2xl" display="inline-block">
-                  {weekdayTcOption[weekdayOption[reorderIndexFromSunday(n)]]} {n === 0 && '(今日)'}
+                  {weekdayTcOption[weekdayOption[reorderIndexFromSunday(n, hour, day)]]} {n === 0 && '(今日)'}
                 </Text>
                 <Wrap overflow="hidden" justify={['center', null, 'start']}>
                   {dayAnimes.map((anime: any) => (

@@ -1,14 +1,16 @@
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { weekdayOption, seasonOption } from '../constants/animeOption'
+import { GetAnimesBySeasonRequest } from '../types/api'
 
 dayjs.extend(customParseFormat)
 
-export function parseWeekday(s: string) {
+export function parseWeekday(s?: string | null): number {
+  if (!s) return -1
   return weekdayOption.indexOf(s)
 }
 
-export function toWeekday(n: number) {
+function toWeekday(n: number): string {
   return weekdayOption[n]
 }
 
@@ -24,9 +26,10 @@ export function sortTime(a: any, b: any) {
   return a.time > b.time ? 1 : -1
 }
 
-export function jp2hk(anime: any) {
+export function jp2hk(anime: any): any {
   if (!anime.time || !anime.dayOfWeek) return anime
   const day = parseWeekday(anime.dayOfWeek)
+  if (day === -1) return anime
   const time = dayjs(anime.time, 'HH:mm').day(day)
   const transformedTime = time.subtract(1, 'hour')
   const transformedDay = toWeekday(transformedTime.day())
@@ -34,12 +37,12 @@ export function jp2hk(anime: any) {
   return transformedAnime
 }
 
-export function transformAnimeLateNight(anime: any) {
+export function transformAnimeLateNight(anime: any): any {
   if (!anime.dayOfWeek || !anime.time) return anime
   const day = parseWeekday(anime.dayOfWeek)
   if (day === -1) return anime
   const time = dayjs(anime.time, 'HH:mm').day(day)
-  if (time.hour() >= 0 && time.hour() <= 3) {
+  if (time.hour() <= 5) {
     const transformedTime = `${time.hour() + 24}:${time.format('mm')}`
     const transformedDay = toWeekday(time.subtract(1, 'day').day())
     const transformedAnime = { ...anime, time: transformedTime, dayOfWeek: transformedDay }
@@ -48,12 +51,27 @@ export function transformAnimeLateNight(anime: any) {
   return anime
 }
 
-export function reorderByDate(animes: any[]) {
-  const shift = dayjs().day()
+export function reorderByDate(animes: any[], hour: number, day: number): any[] {
+  const today = hour <= 5 ? day - 1 : day
   const unknown = animes.pop()
-  const shifted = animes.slice(0, shift)
-  const remained = animes.slice(shift)
+  const shifted = animes.slice(0, today)
+  const remained = animes.slice(today)
   return [...remained, ...shifted, unknown]
+}
+
+// if input 2 (二), today is 四, [0,1,2,3,4,5,6] -> [4,5,6,0,1,2,3], output index will be 5
+export function reorderIndexFromToday(index: number, hour: number, day: number): number {
+  if (index === 7) return index
+  const today = hour <= 5 ? day - 1 : day
+  const newIndex = index - today
+  return newIndex < 0 ? newIndex + 7 : newIndex >= 7 ? newIndex - 7 : newIndex
+}
+
+export function reorderIndexFromSunday(index: number, hour: number, day: number): number {
+  if (index === 7) return index
+  const today = hour <= 5 ? day - 1 : day
+  const newIndex = index + today
+  return newIndex < 0 ? newIndex + 7 : newIndex >= 7 ? newIndex - 7 : newIndex
 }
 
 export function month2Season(n: number): string | undefined {
@@ -73,13 +91,29 @@ export function month2Season(n: number): string | undefined {
   return season
 }
 
-// convert yearSeason to array of past 3 season
+export function pastSeason({ year, season }: GetAnimesBySeasonRequest): GetAnimesBySeasonRequest {
+  const seasonIndex = seasonOption.indexOf(season || '')
+  return seasonIndex === 0
+    ? { year: (parseInt(year || '') - 1).toString(), season: seasonOption[seasonOption.length - 1] }
+    : { year, season: seasonOption[seasonIndex - 1] }
+}
+
+export function nextSeason({ year, season }: GetAnimesBySeasonRequest): GetAnimesBySeasonRequest {
+  const seasonIndex = seasonOption.indexOf(season || '')
+  return seasonIndex === seasonOption.length - 1
+    ? { year: (parseInt(year || '') + 1).toString(), season: seasonOption[0] }
+    : { year, season: seasonOption[seasonIndex + 1] }
+}
+
+// convert yearSeason to array of past N seasons
 // e.g. '2022-spring' -> ['2021-summer', '2021-autumn', '2022-winter']
-export function past3Seasons(season: string): string[] {
+export function pastSeasons(season: string, numOfSeason: number): string[] {
   const [yr, sn] = season.split('-')
-  const lastYr = (parseInt(yr) - 1).toString()
-  const thisSeasonNum = seasonOption.indexOf(sn)
-  const lastYrSeason = seasonOption.slice(thisSeasonNum + 1)
-  const thisYrSeason = seasonOption.slice(0, thisSeasonNum)
-  return [...lastYrSeason.map(el => lastYr + '-' + el), ...thisYrSeason.map(el => yr + '-' + el)]
+  const lastSeason = pastSeason({ year: yr, season: sn })
+  const lastSeasonString = `${lastSeason.year}-${lastSeason.season}`
+  if (numOfSeason === 1) {
+    return [lastSeasonString]
+  } else {
+    return [...pastSeasons(lastSeasonString, numOfSeason - 1), lastSeasonString]
+  }
 }
