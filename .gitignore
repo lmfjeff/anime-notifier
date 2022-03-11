@@ -33,7 +33,5 @@ yarn-error.log*
 # vercel
 .vercel
 
-/docker
-/test
+# localstack dynamodb data
 /tmp
-/public/image

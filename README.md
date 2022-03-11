@@ -1,58 +1,90 @@
-# Used Package
+# Anime Notifier
 
-Typescript: type check
-Next: Server side rendering, routing, serverless function
-next-auth: authentiction, google oauth
-react: frontend, state, hook
-chakra: ui
-aws dynamodb: nosql database
+This is the repository for a seasonal anime website built with Next.js
 
-react-query: fetching, caching, pagination of database data
-react-use: useLifecycles hook
-image-type: identify image type
-dayjs
-ramda
-nanoid
+## Website Feature
 
-eslint, prettier: format, error check
+- Visitors can view lists of airing animes sorted by day of week
+- Users can follow animes they are watching
 
-## Procedures
+## Feature to be implemented
 
----deploy local aws---
-`docker-compose up -d`
+- add voting feature
+- add daily notification of followed animes
+- use own bucket & cloudfront to serve anime pictures
+- cache by cloudflare cdn
+- add pwa feature: offline cache, installable
 
-`docker-compose -f "docker-compose-localstack.yaml" up -d`
-`docker-compose -f "docker-compose-localstack.yaml" down`
+## Technical choice
 
----dynamodb---
-`aws dynamodb create-table --table-name Music --attribute-definitions AttributeName=Artist,AttributeType=S AttributeName=SongTitle,AttributeType=S --key-schema AttributeName=Artist,KeyType=HASH AttributeName=SongTitle,KeyType=RANGE --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1  --endpoint-url http://localhost:4566`
+| **Package**                     | **Usage**                                    |
+| ------------------------------- | -------------------------------------------- |
+| Typescript                      | type check                                   |
+| Next.js                         | Server side rendering, routing, backend, api |
+| AWS Dynamodb                    | nosql database                               |
+| Next-auth                       | authentiction, google oauth                  |
+| React                           | frontend, state, hook                        |
+| react-query                     | react hook for data fetching, caching        |
+| Chakra UI                       | react component library                      |
+| react-hook-form                 | react component                              |
+| react-infinite-scroll-component | react component                              |
 
-`aws dynamodb list-tables --endpoint-url http://localhost:4566`
+## Development
 
-`aws dynamodb describe-table --table-name Animes  --endpoint-url http://localhost:4566`
+### Setup local environment
 
-`aws dynamodb delete-table --table-name Animes  --endpoint-url http://localhost:4566`
+- Deploy local aws dynamodb by localstack docker image:
 
-`set DYNAMO_ENDPOINT=http://localhost:4566`
-`dynamodb-admin`
+  ```bash
+  docker-compose up -d
+  docker-compose down
+  ```
 
----s3---
-`aws s3api create-bucket --bucket music-bucket --region us-east-1  --endpoint-url http://localhost:4566`
+- Create table in dynamodb / anime data structure
+  - Table Name: Anime
+  - Partition key: id (created by nanoid)
+  - Global Secondary Indexes: 
+    - YearSeasonIndex
+      - Partition key: yearSeason
+      - for querying anime by season
+    - MalIdIndex
+      - Partition key: malId
+      - for querying anime when importing anime infomation from MAL
+    - StatusIndex
+      - Partition key: status
+      - for querying anime by airing status
+  - Anime Properties:
+    - title, picture, dayOfWeek, time, startDate, endDate, summary, genres, etc.
 
-`aws s3api put-object --bucket music-bucket --key hyouka1.png --body hyouka1.png --endpoint-url http://localhost:4566`
+- Fetching anime data from 3rd party api
+  - Deploy bot regularly to update anime data from 3rd party api, e.g.myanimelist
+  - And fetch chinese name of the animes, e.g. acgsecrets.hk
+  
+### Start local development
 
-`aws s3api get-object --bucket music-bucket --key hyouka1.png abc.png --endpoint-url http://localhost:4566`
+create .env.local, fill up the environment variables
 
-`aws s3api list-buckets --endpoint-url http://localhost:4566`
+```bash
+npm install
+npm run dev
+```
 
-`aws s3api list-objects-v2 --bucket anime --endpoint-url http://localhost:4566`
+View dynamodb data using dynamodb-admin:
 
---- fetching mal api & acgsecrets.hk (2019-2021) ---
-./mal/
-getAuth.ts => getToken.ts / refreshToken.ts
-malToLocal.ts: fetch animes info from mal api to local file (2019-2021)
-importData.ts: create anime items in dynamodb
+```bash
+set DYNAMO_ENDPOINT=http://localhost:4566 && dynamodb-admin
+```
 
-./acg/
-parse.ts: fetch animes info from acgsecrets.hk to local file (2019-2021)
-modifyDb.ts: modify title & summary of animes in dynamodb using malId
+### Next.js deployment in AWS EC2
+
+- launch ec2, allow port 80/443
+- get elastic ip for ec2 instance
+- ssh as root, install nvm, install node 16, install pm2
+- change aws dynamodb endpoint in .env.local
+- filezilla ssh, transfer source file to ec2 (include build file if ec2 instance is low-spec)
+- ssh, change file owner and group to root
+- change NEXTAUTH_URL in .env.local, config gcp oauth domain
+- npm install, install/config/start nginx
+- (npm run build), pm2 npm start
+- change DNS record, point domain to elastic ip
+- certbot enable https, cron job renew
