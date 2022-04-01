@@ -35,7 +35,7 @@ export const AdminAnimeList = ({ animes, deleteAnime }: AdminAnimeListProps) => 
       {animesByDayReordered.map((dayAnimes, n) => (
         <Box key={n} my={4}>
           <Text fontSize="2xl" display="inline-block">
-            {weekdayTcOption[weekdayOption[reorderIndexFromSunday(n)]]} {n === 0 && '(今日)'}
+            {weekdayTcOption[weekdayOption[reorderIndexFromSunday(n, hour, day)]]} {n === 0 && '(今日)'}
           </Text>
           <Wrap overflow="hidden" justify={['center', null, 'start']}>
             {dayAnimes.map((anime: any) => (

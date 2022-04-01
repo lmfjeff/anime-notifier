@@ -80,7 +80,6 @@ set DYNAMO_ENDPOINT=http://localhost:4566 && dynamodb-admin
 - launch ec2, allow port 80/443
 - get elastic ip for ec2 instance
 - ssh as root, install nvm, install node 16, install pm2
-- change aws dynamodb endpoint in .env.local
 - filezilla ssh, transfer source file to ec2 (include build file if ec2 instance is low-spec)
 - ssh, change file owner and group to root
 - change NEXTAUTH_URL in .env.local, config gcp oauth domain
