@@ -12,6 +12,7 @@ import { nanoid } from 'nanoid'
 import { pastSeasons } from '../utils/date'
 import { AnimeDetailResponse, AnimeListResponse, GetAnimesBySeasonRequest } from '../types/api'
 import { AnimeDetail, AnimeOverview, FollowingAnime } from '../types/anime'
+import dayjs from 'dayjs'
 
 export async function getAnimesByStatus(request: GetAnimesBySeasonRequest): Promise<AnimeListResponse> {
   const { year, season } = request
@@ -38,7 +39,7 @@ async function _getAnimesByStatus(nextCursor?: string): Promise<QueryCommandOutp
     },
     KeyConditionExpression: '#status = :status',
     ...(nextCursor ? { ExclusiveStartKey: JSON.parse(nextCursor) } : {}),
-    ProjectionExpression: 'id,yearSeason,title,picture,#type,#status,dayOfWeek,#time',
+    ProjectionExpression: 'id,yearSeason,title,picture,#type,#status,dayOfWeek,#time,hide',
     ExpressionAttributeNames: {
       '#time': 'time',
       '#type': 'type',
@@ -75,7 +76,7 @@ async function _getAnimesBySeason(request: GetAnimesBySeasonRequest, nextCursor?
     },
     KeyConditionExpression: 'yearSeason = :yearSeason',
     ...(nextCursor ? { ExclusiveStartKey: JSON.parse(nextCursor) } : {}),
-    ProjectionExpression: 'id,yearSeason,title,picture,#type,#status,dayOfWeek,#time',
+    ProjectionExpression: 'id,yearSeason,title,picture,#type,#status,dayOfWeek,#time,hide',
     ExpressionAttributeNames: {
       '#time': 'time',
       '#type': 'type',
@@ -123,7 +124,7 @@ export async function getAnimesByIds(request: { animeIds: string[] }): Promise<{
 // todo implement yup validation (server side / client side?)
 export async function updateAnime(request: { anime: AnimeDetail }): Promise<void> {
   const { anime } = request
-  const now = new Date()
+  const now = dayjs()
 
   let update_expression = 'set #updatedAt = :updatedAt,'
   let expression_attribute_names: Record<string, string> = { '#updatedAt': 'updatedAt' }
@@ -151,7 +152,7 @@ export async function updateAnime(request: { anime: AnimeDetail }): Promise<void
 
 export async function createAnime(request: { anime: AnimeDetail }): Promise<void> {
   const { anime } = request
-  const now = new Date()
+  const now = dayjs()
 
   const input: PutCommandInput = {
     TableName: 'Animes',

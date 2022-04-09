@@ -1,4 +1,4 @@
-import { Button, Flex } from '@chakra-ui/react'
+import { Button, Flex, Text } from '@chakra-ui/react'
 import axios from 'axios'
 import { GetStaticProps } from 'next'
 import { useRouter } from 'next/router'
@@ -15,16 +15,18 @@ import { HtmlHead } from '../../../components/HtmlHead'
 import { seasonTcOption } from '../../../constants/animeOption'
 import { AnimeOverview } from '../../../types/anime'
 import { GetAnimesBySeasonRequest } from '../../../types/api'
+import dayjs from 'dayjs'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { path } = params as {
     path?: [year: string | undefined, season: string | undefined]
   }
 
-  const now = new Date()
-  const nowMonth = now.getMonth() + 1
+  const now = dayjs()
+  const genTime = now.format('YYYY-MM-DD HH:mm:ss [GMT]ZZ')
+  const nowMonth = now.month() + 1
 
-  const year = nth(0, path || []) || now.getFullYear().toString()
+  const year = nth(0, path || []) || now.year().toString()
   const season = nth(1, path || []) || month2Season(nowMonth)
 
   const queryParams = {
@@ -35,7 +37,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   let animes: AnimeOverview[]
 
   // if visit this season, get this season's anime & past 3 seasons' currently_airing anime
-  if (year === now.getFullYear().toString() && season === month2Season(nowMonth)) {
+  if (year === now.year().toString() && season === month2Season(nowMonth)) {
     const { animes: animesByStatus } = await getAnimesByStatus(queryParams)
     const { animes: animesBySeason } = await getAnimesBySeason(queryParams)
     animes = [...animesByStatus, ...animesBySeason]
@@ -45,7 +47,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   }
 
   return {
-    props: { animes, queryParams },
+    props: { animes, queryParams, genTime },
     revalidate: 3600,
   }
 }
@@ -57,11 +59,12 @@ export async function getStaticPaths() {
 type AnimeSeasonPageProps = {
   animes: AnimeOverview[]
   queryParams: GetAnimesBySeasonRequest
+  genTime: string
 }
 
 AnimeSeasonPage.getTitle = '番表'
 
-export default function AnimeSeasonPage({ animes, queryParams }: AnimeSeasonPageProps) {
+export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeSeasonPageProps) {
   const router = useRouter()
   const { data: session, status } = useSession()
   const loading = status === 'loading'
@@ -97,7 +100,7 @@ export default function AnimeSeasonPage({ animes, queryParams }: AnimeSeasonPage
     router.push(`/anime/season/${url}`)
   }
 
-  // todo adding hide for unpopular (admin privilege)
+  // filter out anime hidden by admin
   const filterByHide = (el: any) => el.hide !== true
 
   const tvAnimes: AnimeOverview[] = useMemo(
@@ -121,6 +124,11 @@ export default function AnimeSeasonPage({ animes, queryParams }: AnimeSeasonPage
         sort={sort}
         signedIn={!loading && !!session}
       />
+      <Flex justifyContent="flex-end">
+        <Text fontSize="xs" color="gray">
+          Update : {genTime}
+        </Text>
+      </Flex>
     </>
   )
 }

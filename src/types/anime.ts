@@ -15,6 +15,8 @@ export type AnimeOverview = {
   dayOfWeek: string | null
   // e.g. 22:15
   time: string | null
+  // hide from user
+  hide: boolean | null
 }
 
 export type AnimeDetail = AnimeOverview & {

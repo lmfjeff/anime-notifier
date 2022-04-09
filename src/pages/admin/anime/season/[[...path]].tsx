@@ -1,6 +1,7 @@
 import { Flex } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
 import axios from 'axios'
+import dayjs from 'dayjs'
 import { GetServerSideProps } from 'next'
 import { getSession } from 'next-auth/react'
 import Link from 'next/link'
@@ -26,10 +27,10 @@ export const getServerSideProps: GetServerSideProps = async context => {
     path?: [year: string | undefined, season: string | undefined]
   }
 
-  const now = new Date()
-  const nowMonth = now.getMonth() + 1
+  const now = dayjs()
+  const nowMonth = now.month() + 1
 
-  const year = nth(0, path || []) || now.getFullYear().toString()
+  const year = nth(0, path || []) || now.year().toString()
   const season = nth(1, path || []) || month2Season(nowMonth)
 
   const queryParams = {
@@ -40,7 +41,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
   let animes: AnimeOverview[]
 
   // if visit this season, get this season's anime & past 3 seasons' currently_airing anime
-  if (year === now.getFullYear().toString() && season === month2Season(nowMonth)) {
+  if (year === now.year().toString() && season === month2Season(nowMonth)) {
     const { animes: animesByStatus } = await getAnimesByStatus(queryParams)
     const { animes: animesBySeason } = await getAnimesBySeason(queryParams)
     animes = [...animesByStatus, ...animesBySeason]
@@ -70,6 +71,11 @@ export default function AdminAnimeSeasonPage({ animes, queryParams }: AdminAnime
     router.reload()
   }
 
+  const hideAnime = async (id: string, hide: boolean) => {
+    await axios.put('/api/animeEdit', { anime: { id, hide } })
+    router.reload()
+  }
+
   const onSelectSeason = (val: GetAnimesBySeasonRequest) => {
     const { year, season } = val
     const url = year && season ? `${year}/${season}` : ''
@@ -89,7 +95,7 @@ export default function AdminAnimeSeasonPage({ animes, queryParams }: AdminAnime
         </Link>
         <SeasonPicker queryParams={queryParams} onSelectSeason={onSelectSeason} />
       </Flex>
-      <AdminAnimeList animes={tvAnimes} deleteAnime={deleteAnime} />
+      <AdminAnimeList animes={tvAnimes} deleteAnime={deleteAnime} hideAnime={hideAnime} />
     </>
   )
 }

@@ -1,5 +1,5 @@
 import { IconButton } from '@chakra-ui/button'
-import { CloseIcon, EditIcon } from '@chakra-ui/icons'
+import { EditIcon, DeleteIcon, ViewOffIcon, ViewIcon } from '@chakra-ui/icons'
 import { AspectRatio, Box, Text } from '@chakra-ui/layout'
 import Link from 'next/link'
 import React from 'react'
@@ -10,16 +10,23 @@ import { AnimeImage } from './AnimeImage'
 type AdminAnimeCardProps = {
   anime: AnimeOverview
   deleteAnime: (id: string) => Promise<void>
+  hideAnime: (id: string, hide: boolean) => Promise<void>
 }
 
-export const AdminAnimeCard = ({ anime, deleteAnime }: AdminAnimeCardProps) => {
+export const AdminAnimeCard = ({ anime, deleteAnime, hideAnime }: AdminAnimeCardProps) => {
   const displayName = anime.title
 
   return (
     <Link href={`/anime/${anime.id}`} passHref>
       <Box as="a" position="relative" w="160px">
         <AspectRatio ratio={1}>
-          <AnimeImage src={anime.picture || ''} alt={displayName} borderRadius={2} boxShadow="0 0 3px gray" />
+          <AnimeImage
+            src={anime.picture || ''}
+            alt={displayName}
+            borderRadius={2}
+            boxShadow="0 0 3px gray"
+            opacity={anime.hide ? '0.5' : '1'}
+          />
         </AspectRatio>
         <Box
           position="absolute"
@@ -50,18 +57,26 @@ export const AdminAnimeCard = ({ anime, deleteAnime }: AdminAnimeCardProps) => {
         >
           {displayName}
         </Text>
-        <IconButton
-          onClick={e => {
-            e.preventDefault()
-            deleteAnime(anime.id)
-          }}
-          position="absolute"
-          top="0"
-          right="0"
-          icon={<CloseIcon />}
-          title="刪除"
-          aria-label="delete"
-        />
+        <Box position="absolute" top="0" right="0">
+          <IconButton
+            onClick={e => {
+              e.preventDefault()
+              hideAnime(anime.id, !anime.hide)
+            }}
+            icon={anime.hide ? <ViewIcon /> : <ViewOffIcon />}
+            title={anime.hide ? '顯示' : '隱藏'}
+            aria-label={anime.hide ? 'show' : 'hide'}
+          />
+          <IconButton
+            onClick={e => {
+              e.preventDefault()
+              deleteAnime(anime.id)
+            }}
+            icon={<DeleteIcon />}
+            title="刪除"
+            aria-label="delete"
+          />
+        </Box>
         <Link href={`/admin/anime/${anime.id}`} passHref>
           <IconButton position="absolute" bottom="0" right="0" icon={<EditIcon />} title="編輯" aria-label="edit" />
         </Link>

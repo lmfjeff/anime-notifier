@@ -9,9 +9,10 @@ import { AdminAnimeCard } from './AdminAnimeCard'
 type AdminAnimeListProps = {
   animes: AnimeOverview[]
   deleteAnime: (id: string) => Promise<void>
+  hideAnime: (id: string, hide: boolean) => Promise<void>
 }
 
-export const AdminAnimeList = ({ animes, deleteAnime }: AdminAnimeListProps) => {
+export const AdminAnimeList = ({ animes, deleteAnime, hideAnime }: AdminAnimeListProps) => {
   const now = dayjs()
   const hour = now.hour()
   const day = now.day()
@@ -39,7 +40,7 @@ export const AdminAnimeList = ({ animes, deleteAnime }: AdminAnimeListProps) => 
           </Text>
           <Wrap overflow="hidden" justify={['center', null, 'start']}>
             {dayAnimes.map((anime: any) => (
-              <AdminAnimeCard key={anime.id} anime={anime} deleteAnime={deleteAnime} />
+              <AdminAnimeCard key={anime.id} anime={anime} deleteAnime={deleteAnime} hideAnime={hideAnime} />
             ))}
           </Wrap>
         </Box>

@@ -1,4 +1,5 @@
 import { AspectRatio, Box, Container, Flex, Table, Tbody, Td, Text, Tr } from '@chakra-ui/react'
+import dayjs from 'dayjs'
 import { GetStaticProps } from 'next'
 import { AnimeImage } from '../../components/AnimeImage'
 import { HtmlHead } from '../../components/HtmlHead'
@@ -18,6 +19,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { id } = params as { id: string }
 
   const { anime } = await getAnimeById({ id })
+  const genTime = dayjs().format('YYYY-MM-DD HH:mm:ss [GMT]ZZ')
 
   if (!anime)
     return {
@@ -25,7 +27,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     }
 
   return {
-    props: { anime },
+    props: { anime, genTime },
     revalidate: 3600,
   }
 }
@@ -36,11 +38,12 @@ export async function getStaticPaths() {
 
 type AnimeDetailPageProps = {
   anime: AnimeDetail
+  genTime: string
 }
 
 AnimeDetailPage.getTitle = '動畫詳情'
 
-export default function AnimeDetailPage({ anime }: AnimeDetailPageProps) {
+export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps) {
   const tvAnime: AnimeDetail = transformAnimeLateNight(jp2hk(anime))
   const {
     yearSeason,
@@ -64,10 +67,10 @@ export default function AnimeDetailPage({ anime }: AnimeDetailPageProps) {
     <>
       <HtmlHead title={title} description={summary || ''} />
       <Flex wrap="wrap" justifyContent="center" alignItems="flex-start" gap={5}>
-        <AspectRatio w="300px" ratio={3 / 4}>
+        <AspectRatio w={['250px', '300px', null]} ratio={3 / 4}>
           <AnimeImage src={picture || ''} alt={title} borderRadius={2} boxShadow="0 0 3px gray" />
         </AspectRatio>
-        <Box flexGrow={5} w="350px">
+        <Box flexGrow={1} w={['250px', '400px', null]}>
           <Text fontSize="2xl">{title}</Text>
           <Text fontSize="sm" color="gray">
             {alternative_titles?.ja || ''}
@@ -87,7 +90,7 @@ export default function AnimeDetailPage({ anime }: AnimeDetailPageProps) {
             ))}
           </Flex>
         </Box>
-        <Table variant="simple" colorScheme="blackAlpha" w="300px" flexGrow={1}>
+        <Table variant="simple" colorScheme="blackAlpha" w={['250px', '300px', null]} flexGrow={1}>
           <Tbody>
             <Tr>
               <Td>種類</Td>
@@ -120,6 +123,11 @@ export default function AnimeDetailPage({ anime }: AnimeDetailPageProps) {
             </Tr>
           </Tbody>
         </Table>
+      </Flex>
+      <Flex justifyContent="flex-end" mt={5}>
+        <Text fontSize="xs" color="gray">
+          Update : {genTime}
+        </Text>
       </Flex>
     </>
   )

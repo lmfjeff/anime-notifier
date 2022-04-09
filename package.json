@@ -6,9 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "create-table": "ts-node test/AnimeCreateTable.ts",
-    "import-data": "ts-node test/AnimeImportData.ts"
+    "lint": "next lint"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.53.0",
