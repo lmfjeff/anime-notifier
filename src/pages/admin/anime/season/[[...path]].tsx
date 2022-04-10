@@ -1,7 +1,6 @@
 import { Flex } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
 import axios from 'axios'
-import dayjs from 'dayjs'
 import { GetServerSideProps } from 'next'
 import { getSession } from 'next-auth/react'
 import Link from 'next/link'
@@ -13,7 +12,7 @@ import { SeasonPicker } from '../../../../components/SeasonPicker'
 import { getAnimesBySeason, getAnimesByStatus } from '../../../../services/animeService'
 import { AnimeOverview } from '../../../../types/anime'
 import { GetAnimesBySeasonRequest } from '../../../../types/api'
-import { jp2hk, month2Season, sortTime, transformAnimeLateNight } from '../../../../utils/date'
+import { gethkNow, jp2hk, month2Season, sortTime, transformAnimeLateNight } from '../../../../utils/date'
 
 export const getServerSideProps: GetServerSideProps = async context => {
   const session = await getSession(context)
@@ -27,7 +26,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     path?: [year: string | undefined, season: string | undefined]
   }
 
-  const now = dayjs()
+  const now = gethkNow()
   const nowMonth = now.month() + 1
 
   const year = nth(0, path || []) || now.year().toString()

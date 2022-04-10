@@ -1,5 +1,4 @@
 import { AspectRatio, Box, Container, Flex, Table, Tbody, Td, Text, Tr } from '@chakra-ui/react'
-import dayjs from 'dayjs'
 import { GetStaticProps } from 'next'
 import { AnimeImage } from '../../components/AnimeImage'
 import { HtmlHead } from '../../components/HtmlHead'
@@ -13,13 +12,13 @@ import {
 } from '../../constants/animeOption'
 import { getAnimeById } from '../../services/animeService'
 import { AnimeDetail } from '../../types/anime'
-import { jp2hk, transformAnimeLateNight } from '../../utils/date'
+import { gethkNow, jp2hk, transformAnimeLateNight } from '../../utils/date'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { id } = params as { id: string }
 
   const { anime } = await getAnimeById({ id })
-  const genTime = dayjs().format('YYYY-MM-DD HH:mm:ss [GMT]ZZ')
+  const genTime = gethkNow().format('YYYY-MM-DD HH:mm:ss [GMT]ZZ')
 
   if (!anime)
     return {

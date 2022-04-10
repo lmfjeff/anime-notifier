@@ -1,9 +1,16 @@
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
 import { weekdayOption, seasonOption } from '../constants/animeOption'
 import { GetAnimesBySeasonRequest } from '../types/api'
-
 dayjs.extend(customParseFormat)
+dayjs.extend(utc)
+dayjs.extend(timezone)
+
+export function gethkNow(): Dayjs {
+  return dayjs().tz('Asia/Hong_Kong')
+}
 
 export function parseWeekday(s?: string | null): number {
   if (!s) return -1

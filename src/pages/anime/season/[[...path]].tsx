@@ -7,7 +7,7 @@ import React, { useMemo, useState } from 'react'
 import { useQuery } from 'react-query'
 import { AnimeList } from '../../../components/AnimeList'
 import { getAnimesBySeason, getAnimesByStatus } from '../../../services/animeService'
-import { jp2hk, month2Season, sortTime, transformAnimeLateNight } from '../../../utils/date'
+import { gethkNow, jp2hk, month2Season, sortTime, transformAnimeLateNight } from '../../../utils/date'
 import { AnimeSorter } from '../../../components/AnimeSorter'
 import { SeasonPicker } from '../../../components/SeasonPicker'
 import { useSession } from 'next-auth/react'
@@ -15,14 +15,13 @@ import { HtmlHead } from '../../../components/HtmlHead'
 import { seasonTcOption } from '../../../constants/animeOption'
 import { AnimeOverview } from '../../../types/anime'
 import { GetAnimesBySeasonRequest } from '../../../types/api'
-import dayjs from 'dayjs'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { path } = params as {
     path?: [year: string | undefined, season: string | undefined]
   }
 
-  const now = dayjs()
+  const now = gethkNow()
   const genTime = now.format('YYYY-MM-DD HH:mm:ss [GMT]ZZ')
   const nowMonth = now.month() + 1
 

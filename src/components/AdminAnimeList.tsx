@@ -1,9 +1,8 @@
 import { Box, Text, Wrap } from '@chakra-ui/layout'
-import dayjs from 'dayjs'
 import React, { useMemo } from 'react'
 import { weekdayOption, weekdayTcOption } from '../constants/animeOption'
 import { AnimeOverview } from '../types/anime'
-import { parseWeekday, reorderByDate, reorderIndexFromSunday } from '../utils/date'
+import { gethkNow, parseWeekday, reorderByDate, reorderIndexFromSunday } from '../utils/date'
 import { AdminAnimeCard } from './AdminAnimeCard'
 
 type AdminAnimeListProps = {
@@ -13,7 +12,7 @@ type AdminAnimeListProps = {
 }
 
 export const AdminAnimeList = ({ animes, deleteAnime, hideAnime }: AdminAnimeListProps) => {
-  const now = dayjs()
+  const now = gethkNow()
   const hour = now.hour()
   const day = now.day()
 

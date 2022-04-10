@@ -1,11 +1,17 @@
-import { Box, Text, Wrap, Flex, RadioGroup, Radio, BoxProps, Button } from '@chakra-ui/react'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { parseWeekday, reorderByDate, reorderIndexFromSunday, reorderIndexFromToday, sortDay } from '../utils/date'
-import { AnimeCard } from './AnimeCard'
+import { Box, Button, Flex, Text, Wrap } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import { AnimeOverview } from '../types/anime'
+import { useMemo, useRef, useState } from 'react'
 import { weekdayOption, weekdayTcOption } from '../constants/animeOption'
-import dayjs from 'dayjs'
+import { AnimeOverview } from '../types/anime'
+import {
+  gethkNow,
+  parseWeekday,
+  reorderByDate,
+  reorderIndexFromSunday,
+  reorderIndexFromToday,
+  sortDay,
+} from '../utils/date'
+import { AnimeCard } from './AnimeCard'
 
 type AnimeListProps = {
   animes: AnimeOverview[]
@@ -46,7 +52,7 @@ export const AnimeList = ({
     } else return false
   }
 
-  const now = dayjs()
+  const now = gethkNow()
   const hour = now.hour()
   const day = now.day()
 

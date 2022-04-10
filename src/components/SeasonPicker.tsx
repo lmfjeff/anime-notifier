@@ -1,11 +1,10 @@
 import { Button, Flex, Grid, Icon, IconButton, Popover, PopoverContent, PopoverTrigger, Select } from '@chakra-ui/react'
-import dayjs from 'dayjs'
 import { range } from 'ramda'
 import React, { useState } from 'react'
 import { AiFillCaretLeft, AiFillCaretRight } from 'react-icons/ai'
 import { seasonOption, seasonTcOption } from '../constants/animeOption'
 import { GetAnimesBySeasonRequest } from '../types/api'
-import { nextSeason, pastSeason } from '../utils/date'
+import { gethkNow, nextSeason, pastSeason } from '../utils/date'
 
 type SeasonPickerProps = {
   queryParams: GetAnimesBySeasonRequest
@@ -48,7 +47,7 @@ export const SeasonPicker = ({ queryParams, onSelectSeason }: SeasonPickerProps)
   const { year, season } = queryParams
   const [selectedYear, setSelectedYear] = useState(year)
 
-  const yearList = range(2020, dayjs().year() + 1)
+  const yearList = range(2020, gethkNow().year() + 1)
     .map(number => number.toString())
     .reverse()
 
