@@ -12,6 +12,14 @@ export function gethkNow(): Dayjs {
   return dayjs().tz('Asia/Hong_Kong')
 }
 
+export function formatTimeDetailed(time: Dayjs): string {
+  return time.format('YYYY-MM-DD HH:mm:ss [GMT]ZZ')
+}
+
+export function parseToDayjs(timeString: string): Dayjs {
+  return dayjs(timeString)
+}
+
 export function parseWeekday(s?: string | null): number {
   if (!s) return -1
   return weekdayOption.indexOf(s)

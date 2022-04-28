@@ -17,6 +17,10 @@ export type AnimeOverview = {
   time: string | null
   // hide from user
   hide: boolean | null
+  // iso string
+  createdAt: string
+  // iso string
+  updatedAt: string
 }
 
 export type AnimeDetail = AnimeOverview & {

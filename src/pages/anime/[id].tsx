@@ -12,13 +12,12 @@ import {
 } from '../../constants/animeOption'
 import { getAnimeById } from '../../services/animeService'
 import { AnimeDetail } from '../../types/anime'
-import { gethkNow, jp2hk, transformAnimeLateNight } from '../../utils/date'
+import { formatTimeDetailed, jp2hk, parseToDayjs, transformAnimeLateNight } from '../../utils/date'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { id } = params as { id: string }
 
   const { anime } = await getAnimeById({ id })
-  const genTime = gethkNow().format('YYYY-MM-DD HH:mm:ss [GMT]ZZ')
 
   if (!anime)
     return {
@@ -26,7 +25,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     }
 
   return {
-    props: { anime, genTime },
+    props: { anime },
     revalidate: 3600,
   }
 }
@@ -59,6 +58,7 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
     time,
     source,
     studios,
+    updatedAt,
   } = tvAnime
   const [year, season] = yearSeason?.split('-') || []
 
@@ -125,7 +125,7 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
       </Flex>
       <Flex justifyContent="flex-end" mt={5}>
         <Text fontSize="xs" color="gray">
-          Update : {genTime}
+          Last updated: {formatTimeDetailed(parseToDayjs(updatedAt))}
         </Text>
       </Flex>
     </>
