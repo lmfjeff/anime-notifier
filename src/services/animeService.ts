@@ -170,3 +170,30 @@ export async function deleteAnime(request: { id: string }): Promise<void> {
   }
   await ddbDocClient.delete(input)
 }
+
+export async function getAnimeByMalId(request: { malId: string }): Promise<AnimeDetailResponse> {
+  const { malId } = request
+
+  const input: QueryCommandInput = {
+    TableName: 'Animes',
+    IndexName: 'MalIdIndex',
+    Limit: 1,
+    ExpressionAttributeValues: {
+      ':malId': malId,
+    },
+    KeyConditionExpression: 'malId = :malId',
+    ProjectionExpression:
+      'id,yearSeason,title,picture,alternative_titles,startDate,endDate,summary,genres,#type,#status,dayOfWeek,#time,#source,studios,malId',
+    ExpressionAttributeNames: {
+      '#time': 'time',
+      '#type': 'type',
+      '#status': 'status',
+      '#source': 'source',
+    },
+  }
+
+  const resp = await ddbDocClient.query(input)
+  return {
+    anime: (resp.Items?.[0] as AnimeDetail) || null,
+  }
+}

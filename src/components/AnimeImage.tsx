@@ -12,7 +12,10 @@ export const AnimeImage: React.FC<ImageProps> = ({ onLoad, src, onError, ...prop
   }
 
   // todo change includes to 'cdn.example.com'
-  const picture = src?.includes('myanimelist') ? src : ''
+  // const regex = new RegExp(/^[A-Z0-9]*\.(jpg|png|gif|jpeg)$/, 'g')
+  const regex = new RegExp(/^img\/[A-Za-z0-9_-]*\.(jpg|jpeg|png|webp|avif)/, 'g')
+  const cdnHost = process.env.NEXT_PUBLIC_CDN_HOST
+  const picture = src?.includes('http') ? src : regex.test(src || '') ? `https://${cdnHost}/${src}` : ''
 
   // todo add loading image (along with fallback image)
 

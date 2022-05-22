@@ -38,6 +38,7 @@ export type AnimeDetail = AnimeOverview & {
   // e.g. original / light novel / manga / game
   source: string | null
   studios: string[]
+  malId: string
 }
 
 export type FollowingAnime = {

@@ -87,3 +87,11 @@ set DYNAMO_ENDPOINT=http://localhost:4566 && dynamodb-admin
 - (npm run build), pm2 npm start
 - change DNS record, point domain to elastic ip
 - certbot enable https, cron job renew
+
+### Update build
+- ssh, sudo su, stop pm2
+- change file owner to ec2-user
+- remove old .next & other necessary files
+- fillzilla new .next & other necessary files to ec2
+- change file owner to root
+- pm2 restart
