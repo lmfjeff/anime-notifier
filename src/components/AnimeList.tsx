@@ -75,10 +75,10 @@ export const AnimeList = ({
 
   const scrollTo = async (n: number) => {
     const num = reorderIndexFromToday(n, hour, day)
-    weekdayRef.current[num].scrollIntoView()
+    weekdayRef.current[num]?.scrollIntoView()
     setActiveN(num)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setActiveN(undefined)
+    // await new Promise(resolve => setTimeout(resolve, 1000))
+    // setActiveN(undefined)
   }
 
   return (
@@ -94,12 +94,21 @@ export const AnimeList = ({
               <WeekdayButton key={n} day={n} text={weekdayTcOption[val]} scrollTo={scrollTo} today={day} />
             ))}
           </Flex>
-          {animesByDayReordered.map((dayAnimes, n) => (
-            <Box key={n} my={4} ref={el => (weekdayRef.current[n] = el!!)} sx={{ scrollMarginTop: [50, 50, 0] }}>
-              <motion.div
-                animate={activeN === n ? { backgroundColor: [null, '#f0ff0080', '#f0ff0080', '#ff00'] } : {}}
-                transition={{ repeat: 1, duration: 0.5, times: [0, 0.33, 0.66, 1] }}
+          {animesByDayReordered.map((dayAnimes, n) => {
+            if (dayAnimes.length === 0) return null
+            return (
+              <Box
+                key={n}
+                my={4}
+                ref={el => (weekdayRef.current[n] = el!!)}
+                sx={{ scrollMarginTop: [50, 50, 0] }}
+                backgroundColor={activeN === n ? '#f0ff0080' : undefined}
               >
+                {/* <motion.div
+                  animate={activeN === n ? { backgroundColor: [null, '#f0ff0080', '#f0ff0080', '#ff00'] } : {}}
+                  transition={{ repeat: 1, duration: 0.5, times: [0, 0.33, 0.66, 1] }}
+                >
+                </motion.div> */}
                 <Text fontSize="2xl" display="inline-block">
                   {weekdayTcOption[weekdayOption[reorderIndexFromSunday(n, hour, day)]]} {n === 0 && '(今日)'}
                 </Text>
@@ -115,9 +124,9 @@ export const AnimeList = ({
                     />
                   ))}
                 </Wrap>
-              </motion.div>
-            </Box>
-          ))}
+              </Box>
+            )
+          })}
         </>
       )}
       {sort === 'compact' && (
