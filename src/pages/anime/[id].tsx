@@ -59,6 +59,7 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
     source,
     studios,
     updatedAt,
+    numEpisodes,
   } = tvAnime
   const [year, season] = yearSeason?.split('-') || []
 
@@ -106,6 +107,10 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
             <Tr>
               <Td>結束</Td>
               <Td isNumeric>{endDate || '未知'}</Td>
+            </Tr>
+            <Tr>
+              <Td>集數</Td>
+              <Td isNumeric>{numEpisodes || '未知'}</Td>
             </Tr>
             <Tr>
               <Td>改編</Td>

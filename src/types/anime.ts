@@ -38,6 +38,7 @@ export type AnimeDetail = AnimeOverview & {
   // e.g. original / light novel / manga / game
   source: string | null
   studios: string[]
+  numEpisodes: number
   malId: string
 }
 

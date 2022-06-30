@@ -183,7 +183,7 @@ export async function getAnimeByMalId(request: { malId: string }): Promise<Anime
     },
     KeyConditionExpression: 'malId = :malId',
     ProjectionExpression:
-      'id,yearSeason,title,picture,alternative_titles,startDate,endDate,summary,genres,#type,#status,dayOfWeek,#time,#source,studios,malId',
+      'id,yearSeason,title,picture,alternative_titles,startDate,endDate,summary,genres,#type,#status,dayOfWeek,#time,#source,studios,numEpisodes,malId',
     ExpressionAttributeNames: {
       '#time': 'time',
       '#type': 'type',
