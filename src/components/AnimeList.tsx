@@ -1,6 +1,6 @@
 import { Box, Button, Flex, Text, Wrap } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { weekdayOption, weekdayTcOption } from '../constants/animeOption'
 import { AnimeOverview } from '../types/anime'
 import {
@@ -46,15 +46,20 @@ export const AnimeList = ({
   sort,
   signedIn,
 }: AnimeListProps) => {
+  const [hour, setHour] = useState(0)
+  const [day, setDay] = useState(0)
+
+  useEffect(() => {
+    const now = gethkNow()
+    setHour(now.hour())
+    setDay(now.day())
+  }, [])
+
   const isFollowed = (id: string) => {
     if (followingAnimeIds) {
       return followingAnimeIds.includes(id)
     } else return false
   }
-
-  const now = gethkNow()
-  const hour = now.hour()
-  const day = now.day()
 
   const animesByDayReordered = useMemo(() => {
     const animesByDay: AnimeOverview[][] = [[], [], [], [], [], [], [], []]
@@ -97,19 +102,13 @@ export const AnimeList = ({
           {animesByDayReordered.map((dayAnimes, n) => {
             if (dayAnimes.length === 0) return null
             return (
-              <Box
-                key={n}
-                my={4}
-                ref={el => (weekdayRef.current[n] = el!!)}
-                sx={{ scrollMarginTop: [50, 50, 0] }}
-                backgroundColor={activeN === n ? '#f0ff0080' : undefined}
-              >
+              <Box key={n} my={4} ref={el => (weekdayRef.current[n] = el!!)} sx={{ scrollMarginTop: [50, 50, 0] }}>
                 {/* <motion.div
                   animate={activeN === n ? { backgroundColor: [null, '#f0ff0080', '#f0ff0080', '#ff00'] } : {}}
                   transition={{ repeat: 1, duration: 0.5, times: [0, 0.33, 0.66, 1] }}
                 >
                 </motion.div> */}
-                <Text fontSize="2xl" display="inline-block">
+                <Text fontSize="2xl" display="inline-block" bgColor={activeN === n ? 'yellow' : undefined}>
                   {weekdayTcOption[weekdayOption[reorderIndexFromSunday(n, hour, day)]]} {n === 0 && '(今日)'}
                 </Text>
                 <Wrap overflow="hidden" justify={['center', null, 'start']}>
