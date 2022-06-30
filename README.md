@@ -91,7 +91,8 @@ set DYNAMO_ENDPOINT=http://localhost:4566 && dynamodb-admin
 ### Update build
 - ssh, sudo su, stop pm2
 - change file owner to ec2-user
-- remove old .next & other necessary files
+- remove old .next & other necessary files (.env.local, next.config.js, package.json, public)
 - fillzilla new .next & other necessary files to ec2
 - change file owner to root
+- npm i if package.json has new dependency
 - pm2 restart
