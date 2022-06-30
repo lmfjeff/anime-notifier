@@ -1,6 +1,6 @@
 import { AspectRatio, Box, Icon, IconButton, Image as ChakraImage, Text } from '@chakra-ui/react'
 import { AddIcon, EditIcon, StarIcon } from '@chakra-ui/icons'
-import { FaRegStar, FaStar } from 'react-icons/fa'
+import { FaHeart } from 'react-icons/fa'
 import React from 'react'
 import Link from 'next/link'
 import { AnimeImage } from './AnimeImage'
@@ -70,7 +70,12 @@ export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, sign
               e.preventDefault()
               handleClick()
             }}
-            icon={<Icon as={followed ? FaStar : FaRegStar} boxSize={'22px'} />}
+            borderRadius="24px"
+            variant="ghost"
+            color={followed ? 'red' : 'white'}
+            _hover={{ color: `${followed ? 'red' : 'pink'}` }}
+            _focus={{}}
+            icon={<Icon boxSize={6} as={FaHeart} filter={`drop-shadow(0 0 2px ${followed ? 'white' : 'black'})`} />}
             title={followed ? '取消追蹤' : '追蹤'}
             aria-label={followed ? 'unfollow' : 'follow'}
           />
