@@ -52,6 +52,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     animes = animesBySeason
   }
 
+  animes = animes.filter(anime => anime.type === 'tv')
+
   return {
     props: { animes, queryParams, genTime },
     revalidate: 3600,

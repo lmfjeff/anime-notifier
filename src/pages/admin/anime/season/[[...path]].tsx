@@ -49,6 +49,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
     animes = animesBySeason
   }
 
+  animes = animes.filter(anime => anime.type === 'tv')
+
   return {
     props: { animes, queryParams },
   }
