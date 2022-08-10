@@ -1,4 +1,4 @@
-import { AspectRatio, Box, Container, Flex, Table, Tbody, Td, Text, Tr } from '@chakra-ui/react'
+import { AspectRatio, Box, Container, Flex, Icon, IconButton, Table, Tbody, Td, Text, Tr } from '@chakra-ui/react'
 import { GetStaticProps } from 'next'
 import { AnimeImage } from '../../components/AnimeImage'
 import { HtmlHead } from '../../components/HtmlHead'
@@ -13,6 +13,7 @@ import {
 import { getAnimeById } from '../../services/animeService'
 import { AnimeDetail } from '../../types/anime'
 import { formatTimeDetailed, jp2hk, parseToDayjs, transformAnimeLateNight } from '../../utils/date'
+import { TiArrowBack } from 'react-icons/ti'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { id } = params as { id: string }
@@ -66,6 +67,19 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
   return (
     <>
       <HtmlHead title={title} description={summary || ''} />
+      <Flex
+        borderRadius={20}
+        aria-label="back"
+        position={'fixed'}
+        display={[null, 'none']}
+        onClick={() => {
+          window.history.back()
+        }}
+        _active={{ boxShadow: '0px 0px 2px gray' }}
+      >
+        <Icon as={TiArrowBack} boxSize={10} color={'green.400'} />
+      </Flex>
+
       <Flex wrap="wrap" justifyContent="center" alignItems="flex-start" gap={5}>
         <AspectRatio w={['250px', '300px', null]} ratio={3 / 4}>
           <AnimeImage src={picture || ''} alt={title} borderRadius={2} boxShadow="0 0 3px gray" />
