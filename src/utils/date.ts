@@ -7,13 +7,41 @@ import { GetAnimesBySeasonRequest } from '../types/api'
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
 dayjs.extend(timezone)
+dayjs.tz.setDefault('Asia/Hong_Kong')
 
 export function gethkNow(): Dayjs {
   return dayjs().tz('Asia/Hong_Kong')
 }
 
+export function getYearSeason(): { year: string; season: string } {
+  const today = gethkNow()
+  const year = today.year().toString()
+  const season = month2Season(today.month() + 1)
+  return { year, season }
+}
+
+// e.g. 202201
+export function getYearMonth(): string {
+  const today = gethkNow()
+  const year = today.year()
+  const monthIndex = today.month()
+
+  const adjustedMonth = Math.floor(monthIndex / 3) * 3 + 1
+  const adjustedMonthString = adjustedMonth.toString().padStart(2, '0')
+  return `${year}${adjustedMonthString}`
+}
+
 export function formatTimeDetailed(time: Dayjs): string {
-  return time.format('YYYY-MM-DD HH:mm:ss [GMT]ZZ')
+  return time.tz('Asia/Hong_Kong').format('YYYY-MM-DD HH:mm:ss [GMT]ZZ')
+}
+
+export function formatHKMonthDay(s: string): string {
+  return dayjs(s).format('MM月DD日')
+}
+
+export function parseFromDateTime(s: string): Dayjs | null {
+  if (!dayjs(s, 'YYYY-MM-DD HH:mm').isValid()) return null
+  return dayjs.tz(s, 'YYYY-MM-DD HH:mm', 'Asia/Hong_Kong')
 }
 
 export function parseToDayjs(timeString: string): Dayjs {
@@ -89,21 +117,20 @@ export function reorderIndexFromSunday(index: number, hour: number, day: number)
   return newIndex < 0 ? newIndex + 7 : newIndex >= 7 ? newIndex - 7 : newIndex
 }
 
-export function month2Season(n: number): string | undefined {
-  let season
+export function month2Season(n: number): string {
   if (n >= 1 && n <= 3) {
-    season = 'winter'
+    return 'winter'
   }
   if (n >= 4 && n <= 6) {
-    season = 'spring'
+    return 'spring'
   }
   if (n >= 7 && n <= 9) {
-    season = 'summer'
+    return 'summer'
   }
   if (n >= 10 && n <= 12) {
-    season = 'autumn'
+    return 'autumn'
   }
-  return season
+  throw Error('month number out of range')
 }
 
 export function pastSeason({ year, season }: GetAnimesBySeasonRequest): GetAnimesBySeasonRequest {

@@ -10,88 +10,96 @@ import {
 } from '@aws-sdk/lib-dynamodb'
 import { nanoid } from 'nanoid'
 import { pastSeasons } from '../utils/date'
-import { AnimeDetailResponse, AnimeListResponse, GetAnimesBySeasonRequest } from '../types/api'
+import { AnimeDetailListResponse, AnimeDetailResponse, AnimeListResponse, GetAnimesBySeasonRequest } from '../types/api'
 import { AnimeDetail, AnimeOverview, FollowingAnime } from '../types/anime'
 import dayjs from 'dayjs'
 
-export async function getAnimesByStatus(request: GetAnimesBySeasonRequest): Promise<AnimeListResponse> {
+// include only animes currently_airing in past 3 season, filter out this season currently_airing
+export async function getAnimesByStatus(request: GetAnimesBySeasonRequest): Promise<AnimeDetailListResponse> {
   const { year, season } = request
-  const yearSeason = `${year}-${season}`
+  if (!year || !season) throw Error('Need to specify search year and season')
 
-  const resp = await _getAnimesByStatus()
+  const yearSeason = `${year}-${season}`
+  let allAnimes = [] as AnimeDetail[]
+  let nextCursor
+
+  do {
+    const input: QueryCommandInput = {
+      TableName: 'Animes',
+      IndexName: 'StatusIndex',
+      Limit: 100,
+      ExpressionAttributeValues: {
+        ':status': 'currently_airing',
+      },
+      KeyConditionExpression: '#status = :status',
+      ...(nextCursor ? { ExclusiveStartKey: JSON.parse(nextCursor) } : {}),
+      ProjectionExpression:
+        'id,yearSeason,title,picture,alternative_titles,startDate,endDate,summary,genres,#type,#status,dayOfWeek,#time,#source,studios,numEpisodes,malId,hide',
+      ExpressionAttributeNames: {
+        '#time': 'time',
+        '#type': 'type',
+        '#status': 'status',
+        '#source': 'source',
+      },
+    }
+    const response = await ddbDocClient.query(input)
+    const batchAnimes = (response.Items as AnimeDetail[]) || []
+    allAnimes = [...allAnimes, ...batchAnimes]
+    nextCursor = JSON.stringify(response.LastEvaluatedKey)
+    if (!response.LastEvaluatedKey || !response.Items) {
+      break
+    }
+  } while (nextCursor)
+
   // only retrive current_airing animes of past 3 seasons
-  const filteredAnimes = ((resp.Items as AnimeOverview[]) || []).filter((anime: AnimeOverview) =>
-    pastSeasons(yearSeason, 3).includes(anime.yearSeason)
-  )
+  const filteredAnimes = allAnimes.filter(anime => pastSeasons(yearSeason, 3).includes(anime.yearSeason))
   return {
     animes: filteredAnimes,
   }
 }
 
-// include only animes currently_airing in past 3 season, filter out this season currently_airing
-async function _getAnimesByStatus(nextCursor?: string): Promise<QueryCommandOutput> {
-  const input: QueryCommandInput = {
-    TableName: 'Animes',
-    IndexName: 'StatusIndex',
-    Limit: 100,
-    ExpressionAttributeValues: {
-      ':status': 'currently_airing',
-    },
-    KeyConditionExpression: '#status = :status',
-    ...(nextCursor ? { ExclusiveStartKey: JSON.parse(nextCursor) } : {}),
-    ProjectionExpression: 'id,yearSeason,title,picture,#type,#status,dayOfWeek,#time,hide',
-    ExpressionAttributeNames: {
-      '#time': 'time',
-      '#type': 'type',
-      '#status': 'status',
-    },
-  }
-  const resp = await ddbDocClient.query(input)
-  if (!resp.LastEvaluatedKey || !resp.Items) {
-    // No more
-    return resp
-  }
-  const { Items: nextItems, ...rest } = await _getAnimesByStatus(JSON.stringify(resp.LastEvaluatedKey))
-  return {
-    Items: [...resp.Items, ...(nextItems ?? [])],
-    ...rest,
-  }
-}
-
-export async function getAnimesBySeason(request: GetAnimesBySeasonRequest): Promise<AnimeListResponse> {
-  const resp = await _getAnimesBySeason(request)
-  return {
-    animes: (resp.Items as AnimeOverview[]) || [],
-  }
-}
-
-async function _getAnimesBySeason(request: GetAnimesBySeasonRequest, nextCursor?: string): Promise<QueryCommandOutput> {
+export async function getAnimesBySeason(request: GetAnimesBySeasonRequest): Promise<AnimeDetailListResponse> {
+  // const resp = await _getAnimesBySeason(request)
+  // return {
+  //   animes: (resp.Items as AnimeOverview[]) || [],
+  // }
   const { year, season } = request
-  const input: QueryCommandInput = {
-    TableName: 'Animes',
-    IndexName: 'YearSeasonIndex',
-    Limit: 100,
-    ExpressionAttributeValues: {
-      ':yearSeason': `${year}-${season}`,
-    },
-    KeyConditionExpression: 'yearSeason = :yearSeason',
-    ...(nextCursor ? { ExclusiveStartKey: JSON.parse(nextCursor) } : {}),
-    ProjectionExpression: 'id,yearSeason,title,picture,#type,#status,dayOfWeek,#time,hide',
-    ExpressionAttributeNames: {
-      '#time': 'time',
-      '#type': 'type',
-      '#status': 'status',
-    },
-  }
-  const resp = await ddbDocClient.query(input)
-  if (!resp.LastEvaluatedKey || !resp.Items) {
-    // No more
-    return resp
-  }
-  const { Items: nextItems, ...rest } = await _getAnimesBySeason(request, JSON.stringify(resp.LastEvaluatedKey))
+  if (!year || !season) throw Error('Need to specify search year and season')
+
+  const yearSeason = `${year}-${season}`
+  let allAnimes = [] as AnimeDetail[]
+  let nextCursor
+
+  do {
+    const input: QueryCommandInput = {
+      TableName: 'Animes',
+      IndexName: 'YearSeasonIndex',
+      Limit: 100,
+      ExpressionAttributeValues: {
+        ':yearSeason': yearSeason,
+      },
+      KeyConditionExpression: 'yearSeason = :yearSeason',
+      ...(nextCursor ? { ExclusiveStartKey: JSON.parse(nextCursor) } : {}),
+      ProjectionExpression:
+        'id,yearSeason,title,picture,alternative_titles,startDate,endDate,summary,genres,#type,#status,dayOfWeek,#time,#source,studios,numEpisodes,malId,hide',
+      ExpressionAttributeNames: {
+        '#time': 'time',
+        '#type': 'type',
+        '#status': 'status',
+        '#source': 'source',
+      },
+    }
+    const response = await ddbDocClient.query(input)
+    const batchAnimes = (response.Items as AnimeDetail[]) || []
+    allAnimes = [...allAnimes, ...batchAnimes]
+    nextCursor = JSON.stringify(response.LastEvaluatedKey)
+    if (!response.LastEvaluatedKey || !response.Items) {
+      break
+    }
+  } while (nextCursor)
+
   return {
-    Items: [...resp.Items, ...(nextItems ?? [])],
-    ...rest,
+    animes: allAnimes,
   }
 }
 
@@ -183,7 +191,7 @@ export async function getAnimeByMalId(request: { malId: string }): Promise<Anime
     },
     KeyConditionExpression: 'malId = :malId',
     ProjectionExpression:
-      'id,yearSeason,title,picture,alternative_titles,startDate,endDate,summary,genres,#type,#status,dayOfWeek,#time,#source,studios,numEpisodes,malId',
+      'id,yearSeason,title,picture,alternative_titles,startDate,endDate,summary,genres,#type,#status,dayOfWeek,#time,#source,studios,numEpisodes,malId,hide',
     ExpressionAttributeNames: {
       '#time': 'time',
       '#type': 'type',

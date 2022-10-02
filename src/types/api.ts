@@ -13,6 +13,10 @@ export type AnimeDetailResponse = {
   anime: AnimeDetail | null
 }
 
+export type AnimeDetailListResponse = {
+  animes: AnimeDetail[]
+}
+
 export type FollowingListResponse = {
   animes: FollowingAnime[]
   total: number

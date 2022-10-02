@@ -35,3 +35,6 @@ yarn-error.log*
 
 # localstack dynamodb data
 /tmp
+
+.env.production
+dist
