@@ -22,10 +22,11 @@ export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, sign
   const displayName = anime.title
   // const notAired = anime.status === 'not_yet_aired'
   const startDate = anime.startDate
-  const startDateString = startDate ? `${formatHKMonthDay(startDate)}首播` : null
   const startTime = anime.time
   const startDayjs = parseFromDateTime(`${startDate} ${startTime}`)
-  const notAired = startDayjs ? now?.isBefore(startDayjs) : true
+  const notAired = startDayjs && now?.isBefore(startDayjs)
+  const after24Hr = startDayjs && now?.add(1, 'day').isBefore(startDayjs)
+  const startDateString = startDayjs && (after24Hr ? `${formatHKMonthDay(startDayjs)}首播` : `即將首播`)
 
   const handleClick = () => {
     if (followed) {
@@ -43,7 +44,7 @@ export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, sign
             alt={displayName}
             borderRadius={2}
             boxShadow="0 0 3px gray"
-            opacity={notAired ? 0.5 : 1}
+            opacity={notAired && after24Hr ? 0.5 : 1}
           />
         </AspectRatio>
         <Box

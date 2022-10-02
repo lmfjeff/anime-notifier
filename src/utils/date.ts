@@ -35,8 +35,8 @@ export function formatTimeDetailed(time: Dayjs): string {
   return time.tz('Asia/Hong_Kong').format('YYYY-MM-DD HH:mm:ss [GMT]ZZ')
 }
 
-export function formatHKMonthDay(s: string): string {
-  return dayjs(s).format('MM月DD日')
+export function formatHKMonthDay(d: Dayjs): string {
+  return d.format('MM月DD日')
 }
 
 export function parseFromDateTime(s: string): Dayjs | null {
