@@ -3,7 +3,7 @@ import axios from 'axios'
 import { GetStaticProps } from 'next'
 import { useRouter } from 'next/router'
 import { nth } from 'ramda'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useQuery } from 'react-query'
 import { AnimeList } from '../../../components/AnimeList'
 import { getAnimesBySeason, getAnimesByStatus } from '../../../services/animeService'
@@ -22,6 +22,7 @@ import { HtmlHead } from '../../../components/HtmlHead'
 import { seasonTcOption } from '../../../constants/animeOption'
 import { AnimeOverview } from '../../../types/anime'
 import { GetAnimesBySeasonRequest } from '../../../types/api'
+import { Dayjs } from 'dayjs'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { path } = params as {
@@ -79,6 +80,10 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
   const [sort, setSort] = useState('weekly')
   const { year, season } = queryParams
   const title = season ? `${year}年${seasonTcOption[season]}` : ''
+  const [now, setNow] = useState<Dayjs>()
+  useEffect(() => {
+    setNow(gethkNow())
+  }, [])
 
   const fetchFollowing = async () => {
     const { data } = await axios.get('/api/following')
@@ -131,6 +136,7 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
         removeFollowing={removeFollowing}
         sort={sort}
         signedIn={!loading && !!session}
+        now={now}
       />
       <Flex justifyContent="flex-end">
         <Text fontSize="xs" color="gray">

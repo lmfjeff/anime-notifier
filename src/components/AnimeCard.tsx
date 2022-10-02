@@ -4,19 +4,28 @@ import { FaHeart } from 'react-icons/fa'
 import React from 'react'
 import Link from 'next/link'
 import { AnimeImage } from './AnimeImage'
-import { AnimeOverview } from '../types/anime'
+import { AnimeDetail } from '../types/anime'
 import { weekdayTcOption } from '../constants/animeOption'
+import { formatHKMonthDay, parseFromDateTime } from '../utils/date'
+import { Dayjs } from 'dayjs'
 
 type AnimeCardProps = {
-  anime: AnimeOverview
+  anime: AnimeDetail
   followed: boolean
   addFollowing: (id: string) => Promise<void>
   removeFollowing: (id: string) => Promise<void>
   signedIn: boolean
+  now: Dayjs | undefined
 }
 
-export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, signedIn }: AnimeCardProps) => {
+export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, signedIn, now }: AnimeCardProps) => {
   const displayName = anime.title
+  // const notAired = anime.status === 'not_yet_aired'
+  const startDate = anime.startDate
+  const startDateString = startDate ? `${formatHKMonthDay(startDate)}首播` : null
+  const startTime = anime.time
+  const startDayjs = parseFromDateTime(`${startDate} ${startTime}`)
+  const notAired = startDayjs ? now?.isBefore(startDayjs) : true
 
   const handleClick = () => {
     if (followed) {
@@ -29,7 +38,13 @@ export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, sign
     <Link href={`/anime/${anime.id}`} passHref>
       <Box as="a" position="relative" w="160px">
         <AspectRatio ratio={1}>
-          <AnimeImage src={anime.picture || ''} alt={displayName} borderRadius={2} boxShadow="0 0 3px gray" />
+          <AnimeImage
+            src={anime.picture || ''}
+            alt={displayName}
+            borderRadius={2}
+            boxShadow="0 0 3px gray"
+            opacity={notAired ? 0.5 : 1}
+          />
         </AspectRatio>
         <Box
           position="absolute"
@@ -49,6 +64,21 @@ export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, sign
           </Text>
           <Text fontSize="smaller">{anime.time || '無時間'}</Text>
         </Box>
+        {notAired && startDateString && (
+          <Box
+            position="absolute"
+            top="0"
+            left="50%"
+            transform={'translate(-50%, 0)'}
+            display="flex"
+            justifyContent={'center'}
+            alignItems="center"
+          >
+            <Text textShadow="0 0 6px black" color="white" fontSize={'xs'}>
+              {startDateString}
+            </Text>
+          </Box>
+        )}
         <Text
           noOfLines={2}
           position="absolute"

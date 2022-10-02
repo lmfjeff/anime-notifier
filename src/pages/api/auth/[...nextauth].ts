@@ -21,8 +21,8 @@ export default NextAuth({
     async redirect({ baseUrl }): Promise<string> {
       return baseUrl
     },
-    async session({ session, token }) {
-      session.userId = token.sub
+    async session({ session, token, user }) {
+      session.userId = token?.sub || user?.id
       return session
     },
   },

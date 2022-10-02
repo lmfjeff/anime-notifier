@@ -1,4 +1,5 @@
 import { Box, Button, Flex, Text, Wrap } from '@chakra-ui/react'
+import { Dayjs } from 'dayjs'
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { weekdayOption, weekdayTcOption } from '../constants/animeOption'
@@ -20,6 +21,7 @@ type AnimeListProps = {
   removeFollowing: (id: string) => Promise<void>
   sort: string
   signedIn: boolean
+  now: Dayjs | undefined
 }
 
 type WeekdayButtonProps = {
@@ -45,15 +47,18 @@ export const AnimeList = ({
   removeFollowing,
   sort,
   signedIn,
+  now,
 }: AnimeListProps) => {
-  const [hour, setHour] = useState(0)
-  const [day, setDay] = useState(0)
+  const hour = now?.hour() || 0
+  const day = now?.day() || 0
+  // const [hour, setHour] = useState(0)
+  // const [day, setDay] = useState(0)
 
-  useEffect(() => {
-    const now = gethkNow()
-    setHour(now.hour())
-    setDay(now.day())
-  }, [])
+  // useEffect(() => {
+  //   const now = gethkNow()
+  //   setHour(now.hour())
+  //   setDay(now.day())
+  // }, [])
 
   const isFollowed = (id: string) => {
     if (followingAnimeIds) {
@@ -120,6 +125,7 @@ export const AnimeList = ({
                       addFollowing={addFollowing}
                       removeFollowing={removeFollowing}
                       signedIn={signedIn}
+                      now={now}
                     />
                   ))}
                 </Wrap>
@@ -138,6 +144,7 @@ export const AnimeList = ({
               addFollowing={addFollowing}
               removeFollowing={removeFollowing}
               signedIn={signedIn}
+              now={now}
             />
           ))}
         </Wrap>
