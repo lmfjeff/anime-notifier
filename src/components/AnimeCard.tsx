@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { AnimeImage } from './AnimeImage'
 import { AnimeDetail } from '../types/anime'
 import { weekdayTcOption } from '../constants/animeOption'
-import { formatHKMonthDay, parseFromDateTime } from '../utils/date'
+import { formatHKMonthDay, parseFromDateTime, parseToDayjs } from '../utils/date'
 import { Dayjs } from 'dayjs'
 
 type AnimeCardProps = {
@@ -26,8 +26,8 @@ export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, sign
   const startDayjs = parseFromDateTime(`${startDate} ${startTime}`)
   const hrToAir = startDayjs && startDayjs.diff(now, 'hour', true)
   const notAired = hrToAir && hrToAir > 0
-  const after24Hr = hrToAir && hrToAir > 72
-  const startDateString = startDayjs && (after24Hr ? `${formatHKMonthDay(startDayjs)}首播` : `即將首播`)
+  const after72Hr = hrToAir && hrToAir > 72
+  const startDateString = startDate && (after72Hr ? `${formatHKMonthDay(parseToDayjs(startDate))}首播` : `即將首播`)
 
   const handleClick = () => {
     if (followed) {
@@ -45,7 +45,7 @@ export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, sign
             alt={displayName}
             borderRadius={2}
             boxShadow="0 0 3px gray"
-            opacity={notAired && after24Hr ? 0.5 : 1}
+            opacity={notAired && after72Hr ? 0.5 : 1}
           />
         </AspectRatio>
         <Box

@@ -91,15 +91,19 @@ export function jp2hk(anime: any): any {
 }
 
 export function transformAnimeLateNight(anime: any): any {
-  if (!anime.dayOfWeek || !anime.time) return anime
-  const day = parseWeekday(anime.dayOfWeek)
-  if (day === -1) return anime
-  const time = dayjs(anime.time, 'HH:mm').day(day)
-  if (time.hour() <= 5) {
-    const transformedTime = `${time.hour() + 24}:${time.format('mm')}`
-    const transformedDay = toWeekday(time.subtract(1, 'day').day())
-    const transformedAnime = { ...anime, time: transformedTime, dayOfWeek: transformedDay }
-    return transformedAnime
+  if (!anime.time || !anime.startDate) return anime
+
+  const startDayjs = parseFromDateTime(`${anime.startDate} ${anime.time}`)
+  if (!startDayjs) return anime
+
+  if (startDayjs.hour() <= 5) {
+    const newStartDayjs = startDayjs.subtract(1, 'day')
+    return {
+      ...anime,
+      time: `${startDayjs.hour() + 24}:${startDayjs.format('mm')}`,
+      dayOfWeek: toWeekday(newStartDayjs.day()),
+      startDate: newStartDayjs.format('YYYY-MM-DD'),
+    }
   }
   return anime
 }
