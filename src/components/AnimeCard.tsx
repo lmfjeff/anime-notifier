@@ -24,8 +24,9 @@ export const AnimeCard = ({ anime, followed, addFollowing, removeFollowing, sign
   const startDate = anime.startDate
   const startTime = anime.time
   const startDayjs = parseFromDateTime(`${startDate} ${startTime}`)
-  const notAired = startDayjs && now?.isBefore(startDayjs)
-  const after24Hr = startDayjs && now?.add(1, 'day').isBefore(startDayjs)
+  const hrToAir = startDayjs && startDayjs.diff(now, 'hour', true)
+  const notAired = hrToAir && hrToAir > 0
+  const after24Hr = hrToAir && hrToAir > 72
   const startDateString = startDayjs && (after24Hr ? `${formatHKMonthDay(startDayjs)}首播` : `即將首播`)
 
   const handleClick = () => {

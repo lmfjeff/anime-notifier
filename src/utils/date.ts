@@ -44,6 +44,11 @@ export function parseFromDateTime(s: string): Dayjs | null {
   return dayjs.tz(s, 'YYYY-MM-DD HH:mm', 'Asia/Hong_Kong')
 }
 
+export function parseFromDateTimeJP(s: string): Dayjs | null {
+  if (!dayjs(s, 'YYYY-MM-DD HH:mm').isValid()) return null
+  return dayjs.tz(s, 'YYYY-MM-DD HH:mm', 'Japan')
+}
+
 export function parseToDayjs(timeString: string): Dayjs {
   return dayjs(timeString)
 }
@@ -70,14 +75,19 @@ export function sortTime(a: any, b: any) {
 }
 
 export function jp2hk(anime: any): any {
-  if (!anime.time || !anime.dayOfWeek) return anime
-  const day = parseWeekday(anime.dayOfWeek)
-  if (day === -1) return anime
-  const time = dayjs(anime.time, 'HH:mm').day(day)
-  const transformedTime = time.subtract(1, 'hour')
-  const transformedDay = toWeekday(transformedTime.day())
-  const transformedAnime = { ...anime, time: transformedTime.format('HH:mm'), dayOfWeek: transformedDay }
-  return transformedAnime
+  if (!anime.time || !anime.startDate) return anime
+
+  const startDayjsJP = parseFromDateTimeJP(`${anime.startDate} ${anime.time}`)
+  if (!startDayjsJP) return anime
+  const startDayjs = startDayjsJP?.tz('Asia/Hong_Kong')
+
+  const transformedDay = toWeekday(startDayjs.day())
+  return {
+    ...anime,
+    time: startDayjs.format('HH:mm'),
+    dayOfWeek: transformedDay,
+    startDate: startDayjs.format('YYYY-MM-DD'),
+  }
 }
 
 export function transformAnimeLateNight(anime: any): any {
