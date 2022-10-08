@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import { DynamoDBAdapter } from '@next-auth/dynamodb-adapter'
-import { ddbDocClient } from '../../../services/ddbDocClient'
+import { ddbDocClient } from '../../../lib/ddbDocClient'
 
 // https://next-auth.js.org/configuration/options
 export default NextAuth({

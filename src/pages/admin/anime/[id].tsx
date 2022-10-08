@@ -4,7 +4,7 @@ import { GetServerSideProps, GetStaticProps } from 'next'
 import { getSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { AnimeForm } from '../../../components/AnimeForm'
-import { getAnimeById } from '../../../services/animeService'
+import { getAnimeById } from '../../../services/dynamodb/animeService'
 import { AnimeDetail } from '../../../types/anime'
 
 export const getServerSideProps: GetServerSideProps = async context => {

@@ -13,7 +13,7 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
 import axios from "axios"
 import sharp from "sharp"
-import { getAnimesBySeason, updateAnime } from "../services/animeService"
+import { getAnimesBySeason, updateAnime } from "../services/dynamodb/animeService"
 import { AnimeDetail } from "../types/anime"
 import { getYearSeason } from "../utils/date"
 

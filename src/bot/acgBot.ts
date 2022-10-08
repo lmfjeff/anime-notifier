@@ -1,6 +1,6 @@
 import axios from "axios"
 import * as cheerio from "cheerio"
-import { getAnimeByMalId, updateAnime } from "../services/animeService"
+import { getAnimeByMalId, updateAnime } from "../services/dynamodb/animeService"
 import { AnimeDetail } from "../types/anime"
 import { getYearMonth } from "../utils/date"
 import { newAnimeFromAcg } from "../utils/malUtils"

@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getSession } from 'next-auth/react'
-import { getAnimesByIds } from '../../services/animeService'
-import { getFollowing } from '../../services/followingService'
+import { getAnimesByIds } from '../../services/dynamodb/animeService'
+import { getFollowing } from '../../services/dynamodb/followingService'
 import { FollowingAnime } from '../../types/anime'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

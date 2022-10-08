@@ -1,4 +1,4 @@
-import { ddbDocClient } from './ddbDocClient'
+import { ddbDocClient } from '../../lib/ddbDocClient'
 import { UpdateCommandInput, GetCommandInput } from '@aws-sdk/lib-dynamodb'
 
 export async function getFollowing(req: { userId: string }): Promise<{ animeIds: string[] }> {

@@ -1,4 +1,4 @@
-import { ddbDocClient } from './ddbDocClient'
+import { ddbDocClient } from '../../lib/ddbDocClient'
 import {
   QueryCommandInput,
   GetCommandInput,
@@ -9,9 +9,9 @@ import {
   QueryCommandOutput,
 } from '@aws-sdk/lib-dynamodb'
 import { nanoid } from 'nanoid'
-import { pastSeasons } from '../utils/date'
-import { AnimeDetailListResponse, AnimeDetailResponse, AnimeListResponse, GetAnimesBySeasonRequest } from '../types/api'
-import { AnimeDetail, AnimeOverview, FollowingAnime } from '../types/anime'
+import { pastSeasons } from '../../utils/date'
+import { AnimeDetailListResponse, AnimeDetailResponse, AnimeListResponse, GetAnimesBySeasonRequest } from '../../types/api'
+import { AnimeDetail, AnimeOverview, FollowingAnime } from '../../types/anime'
 import dayjs from 'dayjs'
 
 // include only animes currently_airing in past 3 season, filter out this season currently_airing

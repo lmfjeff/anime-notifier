@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getSession } from 'next-auth/react'
 import webPush from 'web-push'
-import { getSub } from '../../services/subscribeService'
+import { getSub } from '../../services/dynamodb/subscribeService'
 
 // api for sending test push notification
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

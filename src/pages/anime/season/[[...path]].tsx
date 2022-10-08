@@ -6,7 +6,7 @@ import { nth } from 'ramda'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useQuery } from 'react-query'
 import { AnimeList } from '../../../components/AnimeList'
-import { getAnimesBySeason, getAnimesByStatus } from '../../../services/animeService'
+import { getAnimesBySeason, getAnimesByStatus } from '../../../services/dynamodb/animeService'
 import {
   gethkNow,
   jp2hk,

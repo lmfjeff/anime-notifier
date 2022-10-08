@@ -1,4 +1,4 @@
-import { getAnimesByStatus, updateAnime } from "../services/animeService"
+import { getAnimesByStatus, updateAnime } from "../services/dynamodb/animeService"
 import { getAnime } from "../services/malService"
 import { getYearSeason } from "../utils/date"
 import { malAnime2DynamodbAnime, newAnimeFromMal } from "../utils/malUtils"

@@ -10,7 +10,7 @@ import {
   typeTcOption,
   weekdayTcOption,
 } from '../../constants/animeOption'
-import { getAnimeById } from '../../services/animeService'
+import { getAnimeById } from '../../services/dynamodb/animeService'
 import { AnimeDetail } from '../../types/anime'
 import { formatTimeDetailed, jp2hk, parseToDayjs, transformAnimeLateNight } from '../../utils/date'
 import { TiArrowBack } from 'react-icons/ti'
