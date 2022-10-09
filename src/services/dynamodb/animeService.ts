@@ -15,8 +15,7 @@ import { AnimeDetail, AnimeOverview, FollowingAnime } from '../../types/anime'
 import dayjs from 'dayjs'
 
 // include only animes currently_airing in past 3 season, filter out this season currently_airing
-export async function getAnimesByStatus(request: GetAnimesBySeasonRequest): Promise<AnimeDetailListResponse> {
-  const { year, season } = request
+export async function getAnimesByStatus(year?: string, season?: string): Promise<AnimeDetail[]> {
   if (!year || !season) throw Error('Need to specify search year and season')
 
   const yearSeason = `${year}-${season}`
@@ -53,17 +52,14 @@ export async function getAnimesByStatus(request: GetAnimesBySeasonRequest): Prom
 
   // only retrive current_airing animes of past 3 seasons
   const filteredAnimes = allAnimes.filter(anime => pastSeasons(yearSeason, 3).includes(anime.yearSeason))
-  return {
-    animes: filteredAnimes,
-  }
+  return filteredAnimes
 }
 
-export async function getAnimesBySeason(request: GetAnimesBySeasonRequest): Promise<AnimeDetailListResponse> {
+export async function getAnimesBySeason(year?: string, season?: string): Promise<AnimeDetail[]> {
   // const resp = await _getAnimesBySeason(request)
   // return {
   //   animes: (resp.Items as AnimeOverview[]) || [],
   // }
-  const { year, season } = request
   if (!year || !season) throw Error('Need to specify search year and season')
 
   const yearSeason = `${year}-${season}`
@@ -98,26 +94,21 @@ export async function getAnimesBySeason(request: GetAnimesBySeasonRequest): Prom
     }
   } while (nextCursor)
 
-  return {
-    animes: allAnimes,
-  }
+  return allAnimes
 }
 
-export async function getAnimeById(request: { id: string }): Promise<AnimeDetailResponse> {
-  const { id } = request
+export async function getAnimeById(id?: string): Promise<AnimeDetail | null> {
+  if (!id) return null
   const input: GetCommandInput = {
     TableName: 'Animes',
     Key: { id },
   }
   const resp = await ddbDocClient.get(input)
-  return {
-    anime: (resp.Item as AnimeDetail) || null,
-  }
+  return resp.Item as AnimeDetail || null
 }
 
-export async function getAnimesByIds(request: { animeIds: string[] }): Promise<{ animes: FollowingAnime[] }> {
-  const { animeIds } = request
-  if (!animeIds || animeIds.length === 0) return { animes: [] }
+export async function getAnimesByIds(animeIds: string[]): Promise<FollowingAnime[]> {
+  if (!animeIds || animeIds.length === 0) return []
   const keyArray = animeIds.map(id => ({ id }))
   const input: BatchGetCommandInput = {
     RequestItems: {
@@ -126,12 +117,11 @@ export async function getAnimesByIds(request: { animeIds: string[] }): Promise<{
   }
   const resp = await ddbDocClient.batchGet(input)
 
-  return { animes: (resp.Responses?.Animes as FollowingAnime[]) || [] }
+  return resp.Responses?.Animes as FollowingAnime[] || []
 }
 
 // todo implement yup validation (server side / client side?)
-export async function updateAnime(request: { anime: AnimeDetail }): Promise<void> {
-  const { anime } = request
+export async function updateAnime(anime: Partial<AnimeDetail>): Promise<void> {
   const now = dayjs()
 
   let update_expression = 'set #updatedAt = :updatedAt,'
@@ -158,8 +148,7 @@ export async function updateAnime(request: { anime: AnimeDetail }): Promise<void
   await ddbDocClient.update(input)
 }
 
-export async function createAnime(request: { anime: AnimeDetail }): Promise<void> {
-  const { anime } = request
+export async function createAnime(anime: AnimeDetail): Promise<void> {
   const now = dayjs()
 
   const input: PutCommandInput = {
@@ -170,8 +159,7 @@ export async function createAnime(request: { anime: AnimeDetail }): Promise<void
   await ddbDocClient.put(input)
 }
 
-export async function deleteAnime(request: { id: string }): Promise<void> {
-  const { id } = request
+export async function deleteAnime(id: string): Promise<void> {
   const input: DeleteCommandInput = {
     TableName: 'Animes',
     Key: { id },
@@ -179,9 +167,7 @@ export async function deleteAnime(request: { id: string }): Promise<void> {
   await ddbDocClient.delete(input)
 }
 
-export async function getAnimeByMalId(request: { malId: string }): Promise<AnimeDetailResponse> {
-  const { malId } = request
-
+export async function getAnimeByMalId(malId: string): Promise<AnimeDetail | null> {
   const input: QueryCommandInput = {
     TableName: 'Animes',
     IndexName: 'MalIdIndex',
@@ -201,7 +187,5 @@ export async function getAnimeByMalId(request: { malId: string }): Promise<Anime
   }
 
   const resp = await ddbDocClient.query(input)
-  return {
-    anime: (resp.Items?.[0] as AnimeDetail) || null,
-  }
+  return resp.Items?.[0] as AnimeDetail || null
 }

@@ -45,11 +45,11 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   // if visit this season, get this season's anime & past 3 seasons' currently_airing anime
   if (year === now.year().toString() && season === month2Season(nowMonth)) {
-    const { animes: animesByStatus } = await getAnimesByStatus(queryParams)
-    const { animes: animesBySeason } = await getAnimesBySeason(queryParams)
+    const animesByStatus = await getAnimesByStatus(year, season)
+    const animesBySeason = await getAnimesBySeason(year, season)
     animes = [...animesByStatus, ...animesBySeason]
   } else {
-    const { animes: animesBySeason } = await getAnimesBySeason(queryParams)
+    const animesBySeason = await getAnimesBySeason(year, season)
     animes = animesBySeason
   }
 

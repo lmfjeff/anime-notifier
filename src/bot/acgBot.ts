@@ -23,11 +23,11 @@ export async function handler() {
   for (const newAnime of animeList) {
     const { title, summary, malId } = newAnime
     if (malId) {
-      const { anime } = await getAnimeByMalId({ malId })
+      const anime = await getAnimeByMalId(malId)
       if (anime) {
         const modifiedAnime = newAnimeFromAcg(anime, newAnime)
         if (!modifiedAnime) continue
-        await updateAnime({ anime: modifiedAnime })
+        await updateAnime(modifiedAnime)
         console.log("Anime updated: ", anime.title)
         console.log("old: ", anime)
         console.log("new: ", newAnime)

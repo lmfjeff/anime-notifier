@@ -30,7 +30,7 @@ export async function handler() {
 
   const { year, season } = getYearSeason()
 
-  const { animes } = await getAnimesBySeason({ year, season })
+  const animes = await getAnimesBySeason(year, season)
 
   console.log('animes length', animes.length)
 
@@ -59,7 +59,7 @@ export async function handler() {
         })
       )
 
-      await updateAnime({ anime: { id: anime.id, picture: path } as AnimeDetail })
+      await updateAnime({ id: anime.id, picture: path })
       console.log("picture changed for: ", anime.title)
       count++
     }

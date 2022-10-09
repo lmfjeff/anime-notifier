@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'GET') {
     try {
-      const { animeIds } = await getFollowing({ userId })
+      const animeIds = await getFollowing(userId)
       res.status(200).json({ animeIds })
     } catch (error) {
       res.status(400).json(error)
@@ -20,10 +20,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'POST') {
     try {
       const { animeId } = req.body
-      const { anime } = await getAnimeById({ id: animeId })
+      const anime = await getAnimeById(animeId)
       if (anime === null) return res.status(400).json({ message: 'anime id not exist' })
 
-      await addFollowing({ animeId, userId })
+      await addFollowing(animeId, userId)
       res.status(200).end()
     } catch (error) {
       res.status(400).json(error)
@@ -33,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'DELETE') {
     try {
       const { animeId } = req.query as { animeId: string }
-      await removeFollowing({ animeId, userId })
+      await removeFollowing(animeId, userId)
       res.status(200).end()
     } catch (error) {
       res.status(400).json(error)

@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'POST') {
     try {
-      const { sub } = await getSub({ userId: userId })
+      const sub = await getSub(userId)
       if (!sub) return res.status(400).json({ message: 'not subscribed to web push' })
       const response = await webPush.sendNotification(
         JSON.parse(sub),

@@ -41,16 +41,16 @@ export async function handler() {
     // filter out ova/ona/sp/movie
     // if (newAnime.type !== "tv") continue
 
-    const { anime } = await getAnimeByMalId({ malId: newAnime.malId })
+    const anime = await getAnimeByMalId(newAnime.malId)
     // if anime not exist in db, create one
     if (!anime) {
-      await createAnime({ anime: newAnime })
+      await createAnime(newAnime)
       console.log('New anime added: ', newAnime.title)
     } else {
       // if exist, compare mal anime with db anime, update if updated
       const modifiedAnime = newAnimeFromMal(anime, newAnime)
       if (!modifiedAnime) continue
-      await updateAnime({ anime: modifiedAnime })
+      await updateAnime(modifiedAnime)
       console.log('Anime updated: ', anime.title)
       console.log('old: ', anime)
       console.log('new: ', newAnime)

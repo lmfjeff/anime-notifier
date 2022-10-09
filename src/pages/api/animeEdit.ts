@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'PUT') {
     try {
-      await updateAnime({ anime: req.body.anime })
+      await updateAnime(req.body.anime)
       res.status(200).end()
     } catch (error) {
       res.status(400).json(error)
@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'POST') {
     try {
-      await createAnime({ anime: req.body.anime })
+      await createAnime(req.body.anime)
       res.status(200).end()
     } catch (error) {
       res.status(400).json(error)
@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'DELETE') {
     try {
-      await deleteAnime({ id: req.query.id as string })
+      await deleteAnime(req.query.id as string)
       res.status(200).end()
     } catch (error) {
       res.status(400).json(error)

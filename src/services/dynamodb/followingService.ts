@@ -1,8 +1,7 @@
 import { ddbDocClient } from '../../lib/ddbDocClient'
 import { UpdateCommandInput, GetCommandInput } from '@aws-sdk/lib-dynamodb'
 
-export async function getFollowing(req: { userId: string }): Promise<{ animeIds: string[] }> {
-  const { userId } = req
+export async function getFollowing(userId: string): Promise<string[]> {
   const input: GetCommandInput = {
     TableName: 'next-auth',
     Key: {
@@ -14,9 +13,7 @@ export async function getFollowing(req: { userId: string }): Promise<{ animeIds:
   const resp = await ddbDocClient.get(input)
   const animeIds = (resp?.Item?.anime as string[]) || []
 
-  return {
-    animeIds,
-  }
+  return animeIds
 }
 
 async function updateFollowingByList(userId: string, animeList: string[]): Promise<void> {
@@ -34,10 +31,8 @@ async function updateFollowingByList(userId: string, animeList: string[]): Promi
   await ddbDocClient.update(input)
 }
 
-export async function addFollowing(req: { animeId: string; userId: string }): Promise<void> {
-  const { animeId, userId } = req
-
-  const { animeIds: oldList } = await getFollowing({ userId })
+export async function addFollowing(animeId: string, userId: string): Promise<void> {
+  const oldList = await getFollowing(userId)
   if (oldList.includes(animeId)) return
 
   const newList = oldList
@@ -45,10 +40,8 @@ export async function addFollowing(req: { animeId: string; userId: string }): Pr
   await updateFollowingByList(userId, newList)
 }
 
-export async function removeFollowing(req: { animeId: string; userId: string }): Promise<void> {
-  const { animeId, userId } = req
-
-  const { animeIds: oldList } = await getFollowing({ userId })
+export async function removeFollowing(animeId: string, userId: string): Promise<void> {
+  const oldList = await getFollowing(userId)
 
   const newList = oldList.filter(id => id !== animeId)
   await updateFollowingByList(userId, newList)

@@ -16,9 +16,9 @@ import { formatTimeDetailed, jp2hk, parseToDayjs, transformAnimeLateNight } from
 import { TiArrowBack } from 'react-icons/ti'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { id } = params as { id: string }
+  const { id } = params as { id: string | undefined }
 
-  const { anime } = await getAnimeById({ id })
+  const anime = await getAnimeById(id)
 
   if (!anime)
     return {

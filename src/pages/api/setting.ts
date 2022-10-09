@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'GET') {
     try {
-      const { sub } = await getSub({ userId: userId })
+      const sub = await getSub(userId)
       res.status(200).json({ sub })
     } catch (error) {
       res.status(400).json(error)
@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'POST') {
     try {
-      const { sub } = await updateSub({ sub: req.body?.sub, userId })
+      const sub = await updateSub(req.body?.sub, userId)
       res.status(200).json({ sub })
     } catch (error) {
       res.status(400).json(error)

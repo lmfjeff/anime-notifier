@@ -11,11 +11,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'GET') {
     try {
-      const { animeIds } = await getFollowing({ userId })
+      const animeIds = await getFollowing(userId)
       const { page } = req.query as { page: string }
       const index = parseInt(page)
       const animesIdsPortion = animeIds.reverse().slice(index, index + 50)
-      const { animes } = await getAnimesByIds({ animeIds: animesIdsPortion })
+      const animes = await getAnimesByIds(animesIdsPortion)
 
       // cope with deleted animes
       if (animes.length < animesIdsPortion.length) {

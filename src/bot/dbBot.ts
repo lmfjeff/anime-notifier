@@ -20,7 +20,7 @@ export async function handler() {
 
   const { year, season } = getYearSeason()
 
-  const { animes } = await getAnimesByStatus({ year, season })
+  const animes = await getAnimesByStatus(year, season)
 
   for (const anime of animes) {
     if (anime.type !== "tv") continue
@@ -29,7 +29,7 @@ export async function handler() {
 
     const modifiedAnime = newAnimeFromMal(anime, malAnime)
     if (!modifiedAnime) continue
-    await updateAnime({ anime: modifiedAnime })
+    await updateAnime(modifiedAnime)
     console.log("Anime updated: ", anime.title)
     console.log("old: ", anime)
     console.log("new: ", malAnime)

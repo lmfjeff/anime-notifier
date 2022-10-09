@@ -15,8 +15,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
     }
   }
 
-  const { id } = context.params as { id: string }
-  const { anime } = await getAnimeById({ id })
+  const { id } = context.params as { id: string | undefined }
+  const anime = await getAnimeById(id)
 
   if (!anime)
     return {

@@ -1,8 +1,7 @@
 import { ddbDocClient } from '../../lib/ddbDocClient'
 import { UpdateCommandInput, GetCommandInput } from '@aws-sdk/lib-dynamodb'
 
-export async function getSub(req: { userId: string }): Promise<{ sub: string | null }> {
-  const { userId } = req
+export async function getSub(userId: string): Promise<string | null> {
   const input: GetCommandInput = {
     TableName: 'next-auth',
     Key: {
@@ -17,13 +16,10 @@ export async function getSub(req: { userId: string }): Promise<{ sub: string | n
   const resp = await ddbDocClient.get(input)
   const sub = resp?.Item?.sub || null
 
-  return {
-    sub,
-  }
+  return sub
 }
 
-export async function updateSub(req: { sub: string | null; userId: string }): Promise<{ sub: string | null }> {
-  const { userId, sub } = req
+export async function updateSub(sub: string | null, userId: string): Promise<string | null> {
   const input: UpdateCommandInput = {
     TableName: 'next-auth',
     Key: {
@@ -35,12 +31,10 @@ export async function updateSub(req: { sub: string | null; userId: string }): Pr
       '#sub': 'sub',
     },
     ExpressionAttributeValues: {
-      ':sub': sub || null,
+      ':sub': sub,
     },
     ReturnValues: 'UPDATED_NEW',
   }
   const { Attributes } = await ddbDocClient.update(input)
-  return {
-    sub: Attributes?.sub || null,
-  }
+  return Attributes?.sub || null
 }
