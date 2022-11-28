@@ -10,6 +10,9 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { HtmlHead } from '../components/HtmlHead'
 import { FollowingAnime } from '../types/anime'
+import { Prisma } from '@prisma/client'
+import { WATCH_STATUS_DISPLAY_NAME } from '../constants/followOption'
+import { AnimelistSortFilter } from '../components/AnimelistSortFilter'
 
 FollowingPage.getTitle = '追蹤'
 
@@ -17,8 +20,11 @@ export default function FollowingPage() {
   const { data: session, status } = useSession()
   const loading = status === 'loading'
   const queryClient = useQueryClient()
+  const [sort, setSort] = useState('updatedAt')
+  const [sortOrder, setSortOrder] = useState('desc')
+  const [statusFilter, setStatusFilter] = useState('watching')
 
-  const { data, fetchNextPage, hasNextPage, isFetching } = useFollowingQuery(!!session)
+  const { data, fetchNextPage, hasNextPage, isFetching } = useFollowingQuery(!!session, sort, sortOrder, statusFilter)
 
   const animes = data?.pages.map(({ animes }) => animes).flat() || []
 
@@ -31,26 +37,36 @@ export default function FollowingPage() {
   return (
     <>
       <HtmlHead title="追蹤的動畫" />
-      <Flex flexDir="column" alignItems="center" w="full">
-        {data && (
-          <>
-            <Text pb={5}>總共 {data?.pages[0].total} 套動畫</Text>
-            <Box maxW={['full', null, '600px']} w={['full', null, '100%']}>
-              <InfiniteScroll
-                dataLength={animes.length} // This is important field to render the next data
-                next={fetchNextPage}
-                hasMore={!!hasNextPage}
-                loader={<Loading isLoading={isFetching} />}
-                endMessage={<End enabled={animes.length > 0} />}
-                scrollThreshold={0.95}
-              >
-                <FollowingList animes={animes} removeFollowing={removeFollowing} disabled={isFetching} />
-              </InfiniteScroll>
-            </Box>
-          </>
-        )}
-        {session && (!data || isFetching) ? <Loading isLoading={true} /> : null}
-      </Flex>
+      {session && (
+        <Flex flexDir="column" alignItems="center" w="full">
+          <AnimelistSortFilter
+            sort={sort}
+            setSort={setSort}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+          />
+          {data && (
+            <>
+              <Text pb={5}>總共 {data?.pages[0].total} 套動畫</Text>
+              <Box maxW={['full', null, '600px']} w={['full', null, '100%']}>
+                <InfiniteScroll
+                  dataLength={animes.length} // This is important field to render the next data
+                  next={fetchNextPage}
+                  hasMore={!!hasNextPage}
+                  loader={<Loading isLoading={isFetching} />}
+                  endMessage={<End enabled={animes.length > 0} />}
+                  scrollThreshold={0.95}
+                >
+                  <FollowingList animes={animes} removeFollowing={removeFollowing} disabled={isFetching} />
+                </InfiniteScroll>
+              </Box>
+            </>
+          )}
+          {(!data || isFetching) && <Loading isLoading={true} />}
+        </Flex>
+      )}
       {!loading && !session && (
         <Flex h="full" justifyContent="center" alignItems="center">
           <Text alignSelf="center">請登入以追蹤動畫</Text>
@@ -73,7 +89,7 @@ const End = ({ enabled }: { enabled: boolean }) => {
 }
 
 type FollowingListProps = {
-  animes: FollowingAnime[]
+  animes: Prisma.AnimelistGetPayload<{ include: { anime: true } }>[]
   removeFollowing: (id: string) => Promise<void>
   disabled: boolean
 }
@@ -81,30 +97,41 @@ type FollowingListProps = {
 const FollowingList = ({ animes, removeFollowing, disabled }: FollowingListProps) => {
   return (
     <>
-      {animes.map(({ id, title }) => (
-        <Link href={`/anime/${id}`} passHref key={id}>
+      {animes.map(({ anime, watch_status, score }) => (
+        <Link href={`/anime/${anime.id}`} passHref key={anime.id}>
           <Flex
             px={3}
             alignItems="center"
+            gap={1}
             borderBottom="1px"
             borderColor="gray.400"
             _hover={{ bg: 'gray.300' }}
             justifyContent="space-between"
             as="a"
           >
-            <Text>{title}</Text>
-            <IconButton
-              bg="transparent"
-              _focus={{}}
-              disabled={disabled}
-              onClick={e => {
-                e.preventDefault()
-                removeFollowing(id)
-              }}
-              icon={<CloseIcon />}
-              aria-label="unfollow"
-              title="取消追蹤"
-            ></IconButton>
+            <Text noOfLines={1}>{anime.title}</Text>
+            <Box display="flex" alignItems="center" gap={1}>
+              {score && (
+                <Text bg="blue.100" minWidth="32px" textAlign="center" py={1}>
+                  {score}
+                </Text>
+              )}
+              <Text bg="blue.100" minWidth="40px" textAlign="center" p={1}>
+                {WATCH_STATUS_DISPLAY_NAME[watch_status]}
+              </Text>
+              <IconButton
+                bg="transparent"
+                _focus={{}}
+                disabled={disabled}
+                onClick={e => {
+                  e.preventDefault()
+                  removeFollowing(anime.id)
+                }}
+                icon={<CloseIcon />}
+                aria-label="unfollow"
+                title="取消追蹤"
+              ></IconButton>
+            </Box>
           </Flex>
         </Link>
       ))}

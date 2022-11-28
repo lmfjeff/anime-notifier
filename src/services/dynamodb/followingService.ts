@@ -31,7 +31,7 @@ async function updateFollowingByList(userId: string, animeList: string[]): Promi
   await ddbDocClient.update(input)
 }
 
-export async function addFollowing(animeId: string, userId: string): Promise<void> {
+export async function addFollowing(userId: string, animeId: string): Promise<void> {
   const oldList = await getFollowing(userId)
   if (oldList.includes(animeId)) return
 
@@ -40,7 +40,7 @@ export async function addFollowing(animeId: string, userId: string): Promise<voi
   await updateFollowingByList(userId, newList)
 }
 
-export async function removeFollowing(animeId: string, userId: string): Promise<void> {
+export async function removeFollowing(userId: string, animeId: string): Promise<void> {
   const oldList = await getFollowing(userId)
 
   const newList = oldList.filter(id => id !== animeId)

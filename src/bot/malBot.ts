@@ -1,4 +1,6 @@
-import { createAnime, getAnimeByMalId, updateAnime } from '../services/dynamodb/animeService'
+// import { createAnime, getAnimeByMalId, updateAnime } from '../services/dynamodb/animeService'
+import { createAnime, getAnimeByMalId, updateAnime } from '../services/prisma/anime.service'
+import { Prisma } from '@prisma/client'
 import { getSeasonalAnime } from '../services/malService'
 import { getYearSeason } from '../utils/date'
 import { malAnime2DynamodbAnime, newAnimeFromMal } from '../utils/malUtils'
@@ -41,10 +43,10 @@ export async function handler() {
     // filter out ova/ona/sp/movie
     // if (newAnime.type !== "tv") continue
 
-    const anime = await getAnimeByMalId(newAnime.malId)
+    const anime = await getAnimeByMalId(newAnime.malId as string)
     // if anime not exist in db, create one
     if (!anime) {
-      await createAnime(newAnime)
+      await createAnime(newAnime as Prisma.AnimeCreateInput)
       console.log('New anime added: ', newAnime.title)
     } else {
       // if exist, compare mal anime with db anime, update if updated

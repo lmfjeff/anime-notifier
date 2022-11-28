@@ -53,11 +53,28 @@ export async function getSeasonalAnime(
       'X-MAL-CLIENT-ID': process.env.MAL_CLIENT_ID,
     },
   }
+  const malFields = [
+    'id',
+    'title',
+    'main_picture',
+    'alternative_titles',
+    'start_date',
+    'end_date',
+    'synopsis',
+    'genres',
+    'media_type',
+    'status',
+    'start_season',
+    'broadcast',
+    'source',
+    'studios',
+    'num_episodes',
+    'mean',
+  ]
   const params = {
     offset: '0',
     limit: '500',
-    fields:
-      'id,title,main_picture,alternative_titles,start_date,end_date,synopsis,genres,media_type,status,start_season,broadcast,source,studios,num_episodes',
+    fields: malFields.join(','),
     nsfw: '1',
   }
   const url = `https://api.myanimelist.net/v2/anime/season/${year}/${season}?` + new URLSearchParams(params)

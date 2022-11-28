@@ -10,7 +10,12 @@ import {
 } from '@aws-sdk/lib-dynamodb'
 import { nanoid } from 'nanoid'
 import { pastSeasons } from '../../utils/date'
-import { AnimeDetailListResponse, AnimeDetailResponse, AnimeListResponse, GetAnimesBySeasonRequest } from '../../types/api'
+import {
+  AnimeDetailListResponse,
+  AnimeDetailResponse,
+  AnimeListResponse,
+  GetAnimesBySeasonRequest,
+} from '../../types/api'
 import { AnimeDetail, AnimeOverview, FollowingAnime } from '../../types/anime'
 import dayjs from 'dayjs'
 
@@ -104,7 +109,7 @@ export async function getAnimeById(id?: string): Promise<AnimeDetail | null> {
     Key: { id },
   }
   const resp = await ddbDocClient.get(input)
-  return resp.Item as AnimeDetail || null
+  return (resp.Item as AnimeDetail) || null
 }
 
 export async function getAnimesByIds(animeIds: string[]): Promise<FollowingAnime[]> {
@@ -117,7 +122,7 @@ export async function getAnimesByIds(animeIds: string[]): Promise<FollowingAnime
   }
   const resp = await ddbDocClient.batchGet(input)
 
-  return resp.Responses?.Animes as FollowingAnime[] || []
+  return (resp.Responses?.Animes as FollowingAnime[]) || []
 }
 
 // todo implement yup validation (server side / client side?)
@@ -187,5 +192,5 @@ export async function getAnimeByMalId(malId: string): Promise<AnimeDetail | null
   }
 
   const resp = await ddbDocClient.query(input)
-  return resp.Items?.[0] as AnimeDetail || null
+  return (resp.Items?.[0] as AnimeDetail) || null
 }

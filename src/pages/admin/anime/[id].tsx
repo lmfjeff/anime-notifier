@@ -1,10 +1,13 @@
 import { Box, Flex, Text } from '@chakra-ui/react'
+import { Anime } from '@prisma/client'
 import axios from 'axios'
 import { GetServerSideProps, GetStaticProps } from 'next'
 import { getSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { AnimeForm } from '../../../components/AnimeForm'
-import { getAnimeById } from '../../../services/dynamodb/animeService'
+// import { getAnimeById } from '../../../services/dynamodb/animeService'
+import { getAnimeById } from '../../../services/prisma/anime.service'
+
 import { AnimeDetail } from '../../../types/anime'
 
 export const getServerSideProps: GetServerSideProps = async context => {
@@ -29,7 +32,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
 }
 
 type AnimeEditPageProps = {
-  anime: AnimeDetail
+  anime: Anime
 }
 
 export default function AnimeEditPage({ anime }: AnimeEditPageProps) {

@@ -6,7 +6,7 @@ import Intro from '../mdx/Intro.mdx'
 export default function Index() {
   return (
     <>
-      <HtmlHead title="Anime Notifier" />
+      <HtmlHead title="動畫新番網" />
       <Markdown>
         <Intro />
       </Markdown>

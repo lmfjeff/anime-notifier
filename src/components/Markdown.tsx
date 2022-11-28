@@ -1,8 +1,9 @@
 /* eslint-disable react/display-name */
 import { chakra, Text, Heading, Image, Divider } from '@chakra-ui/react'
 import { MDXProvider } from '@mdx-js/react'
+import { ReactNode } from 'react'
 
-export const Markdown: React.FC = ({ children }) => (
+export const Markdown: React.FC<{ children: ReactNode }> = ({ children }) => (
   <MDXProvider
     components={{
       // https://mdxjs.com/table-of-components
@@ -13,24 +14,27 @@ export const Markdown: React.FC = ({ children }) => (
       h3: p => <Heading mt={4} mb={2} as="h3" size="md" {...p} />,
       h4: p => <Heading my={2} as="h4" size="sm" {...p} />,
       h5: p => <Heading as="h5" size="xs" {...p} />,
-      p: p => <Text as="p" {...p} />,
+      p: p => <Text as="p" mb={1} {...p} />,
       ol: p => <chakra.ol sx={{ listStylePosition: 'inside' }} {...p} />,
       ul: p => <chakra.ul sx={{ listStylePosition: 'inside' }} {...p} />,
       hr: p => <Divider {...p} />,
-      a: p => (
-        <chakra.a
-          color="green"
-          borderColor="gray"
-          borderBottomWidth="1px"
-          borderStyle="dotted"
-          _hover={{
-            color: 'black',
-            borderBottomWidth: '2px',
-            borderColor: 'black',
-          }}
-          {...p}
-        />
-      ),
+      a: p => {
+        return (
+          <chakra.a
+            target={p?.href?.includes('http') ? '_blank' : '_self'}
+            color="ActiveBorder"
+            borderColor="gray"
+            borderBottomWidth="1px"
+            borderStyle="dotted"
+            _hover={{
+              color: 'black',
+              borderBottomWidth: '2px',
+              borderColor: 'black',
+            }}
+            {...p}
+          />
+        )
+      },
     }}
   >
     {children}

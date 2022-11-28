@@ -51,7 +51,7 @@ export const AnimeForm = ({ anime, submitFn }: AnimeFormProps) => {
         <StringInput label="picture" {...customInputProps} />
         <SelectInput label="type" options={typeOption} required="type is required" {...customInputProps} />
         <SelectInput label="status" options={statusOption} required="status is required" {...customInputProps} />
-        <SelectInput label="dayOfWeek" options={weekdayOption.slice(0, -1)} {...customInputProps} />
+        <SelectInput label="dayOfWeek" options={weekdayOption} {...customInputProps} />
         <StringInput label="time" {...customInputProps} />
 
         <StringInput label="alternative_titles.en" {...customInputProps} />

@@ -49,7 +49,7 @@ export function parseFromDateTimeJP(s: string): Dayjs | null {
   return dayjs.tz(s, 'YYYY-MM-DD HH:mm', 'Japan')
 }
 
-export function parseToDayjs(timeString: string): Dayjs {
+export function parseToDayjs(timeString: string | Date): Dayjs {
   return dayjs(timeString)
 }
 
@@ -118,14 +118,12 @@ export function reorderByDate(animes: any[], hour: number, day: number): any[] {
 
 // if input 2 (二), today is 四, [0,1,2,3,4,5,6] -> [4,5,6,0,1,2,3], output index will be 5
 export function reorderIndexFromToday(index: number, hour: number, day: number): number {
-  if (index === 7) return index
   const today = hour <= 5 ? day - 1 : day
   const newIndex = index - today
   return newIndex < 0 ? newIndex + 7 : newIndex >= 7 ? newIndex - 7 : newIndex
 }
 
 export function reorderIndexFromSunday(index: number, hour: number, day: number): number {
-  if (index === 7) return index
   const today = hour <= 5 ? day - 1 : day
   const newIndex = index + today
   return newIndex < 0 ? newIndex + 7 : newIndex >= 7 ? newIndex - 7 : newIndex

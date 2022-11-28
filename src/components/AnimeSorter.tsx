@@ -1,4 +1,4 @@
-import { Box, Button, Flex, HStack, Text, useRadio, useRadioGroup } from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Select, Text, useRadio, useRadioGroup } from '@chakra-ui/react'
 import React from 'react'
 
 type AnimeSorterProps = {
@@ -14,12 +14,40 @@ type SortButtonProps = {
 }
 
 export const AnimeSorter = ({ sort, setSort }: AnimeSorterProps) => {
+  const sortOptions = [
+    { val: 'weekly', text: '星期' },
+    { val: 'compact', text: '無排序' },
+    { val: 'mal_score', text: 'MAL評分' },
+    { val: 'score', text: '本站評分' },
+  ]
   return (
-    <Flex justifyContent="center" alignItems="center" wrap="wrap" gap={2}>
-      <Text fontSize="lg">排序:</Text>
-      <SortButton val="weekly" text="星期" sort={sort} setSort={setSort} />
-      <SortButton val="compact" text="無排序" sort={sort} setSort={setSort} />
-    </Flex>
+    <>
+      <Flex justifyContent="center" alignItems="center" wrap="wrap" gap={2} display={['none', null, null, 'flex']}>
+        <Text fontSize="lg">排序:</Text>
+        {sortOptions.map(({ val, text }) => (
+          <SortButton key={val} val={val} text={text} sort={sort} setSort={setSort} />
+        ))}
+      </Flex>
+      <Flex alignItems="center" gap={2} display={['flex', null, null, 'none']}>
+        <Text wordBreak={'keep-all'} fontSize="lg">
+          排序:
+        </Text>
+        <Box>
+          <Select
+            value={sort}
+            onChange={e => {
+              setSort(e.target.value)
+            }}
+          >
+            {sortOptions.map(({ val, text }) => (
+              <option key={val} value={val}>
+                {text}
+              </option>
+            ))}
+          </Select>
+        </Box>
+      </Flex>
+    </>
   )
 }
 

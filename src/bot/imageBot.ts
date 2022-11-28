@@ -10,12 +10,13 @@
  * 7. repeat 4-6 for each anime
  */
 
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
-import axios from "axios"
-import sharp from "sharp"
-import { getAnimesBySeason, updateAnime } from "../services/dynamodb/animeService"
-import { AnimeDetail } from "../types/anime"
-import { getYearSeason } from "../utils/date"
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import axios from 'axios'
+import sharp from 'sharp'
+import { getAnimesBySeason, updateAnime } from '../services/prisma/anime.service'
+// import { getAnimesBySeason, updateAnime } from "../services/dynamodb/animeService"
+import { AnimeDetail } from '../types/anime'
+import { getYearSeason } from '../utils/date'
 
 if (typeof require !== 'undefined' && require.main === module) {
   handler()
@@ -26,7 +27,7 @@ const s3Client = new S3Client({
 })
 
 export async function handler() {
-  console.log("start compress anime image")
+  console.log('start compress anime image')
 
   const { year, season } = getYearSeason()
 
@@ -38,13 +39,9 @@ export async function handler() {
   console.log('download limit: ', DOWNLOAD_LIMIT)
   let count = 0
   for (const anime of animes) {
-    if (
-      anime.type === "tv" &&
-      anime.picture &&
-      anime.picture.includes("http")
-    ) {
+    if (anime.type === 'tv' && anime.picture && anime.picture.includes('http')) {
       const response = await axios.get(anime.picture, {
-        responseType: "arraybuffer",
+        responseType: 'arraybuffer',
       })
       const image = sharp(response.data)
       const buffer = await image.webp().toBuffer()
@@ -52,15 +49,15 @@ export async function handler() {
 
       await s3Client.send(
         new PutObjectCommand({
-          Bucket: "anime-notifier",
+          Bucket: 'anime-notifier',
           Key: path,
           Body: buffer,
-          ContentType: "image/webp",
+          ContentType: 'image/webp',
         })
       )
 
       await updateAnime({ id: anime.id, picture: path })
-      console.log("picture changed for: ", anime.title)
+      console.log('picture changed for: ', anime.title)
       count++
     }
     if (count === DOWNLOAD_LIMIT) {
@@ -68,5 +65,5 @@ export async function handler() {
       break
     }
   }
-  console.log("finish compress anime image")
+  console.log('finish compress anime image')
 }

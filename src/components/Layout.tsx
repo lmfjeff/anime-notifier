@@ -1,11 +1,16 @@
-import { Box, Flex, useDisclosure } from '@chakra-ui/react'
+import { Box, BoxProps, Flex, useDisclosure } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import { Backdrop } from './Backdrop'
 import { LoginModal } from './LoginModal'
 import { Navbar } from './Navbar'
 import { Sidebar } from './Sidebar'
 
-export const Layout: React.FC<{ title?: string }> = ({ children, title }) => {
+type LayoutProps = {
+  children: React.ReactNode
+  title?: string
+}
+
+export const Layout: React.FC<LayoutProps> = ({ children, title }) => {
   const { isOpen: isSidebarOpen, onToggle: toggleSidebar } = useDisclosure()
 
   const [isLoginModalOpen, setLoginModalOpen] = useState(false)
@@ -16,7 +21,7 @@ export const Layout: React.FC<{ title?: string }> = ({ children, title }) => {
     <>
       <Flex minH="100vh" flexDir="column">
         {/* mobile/tablet navbar with hamburger */}
-        <Navbar display={['flex', null, 'none']} handleToggle={toggleSidebar} title={title} zIndex="1" />
+        <Navbar display={['flex', null, 'none']} handleToggle={toggleSidebar} title={title} zIndex="sticky" />
 
         <Flex flexGrow={1} flexDir="row" bg="#f3f3f3">
           {/* desktop sidebar */}
@@ -27,7 +32,7 @@ export const Layout: React.FC<{ title?: string }> = ({ children, title }) => {
             h="100vh"
             openLoginModal={openLoginModal}
           />
-          <Box flexGrow={1} p={5}>
+          <Box flexGrow={1} py={[2, 3, 5]} px={[2, 3, 5]}>
             {children}
           </Box>
         </Flex>
@@ -35,7 +40,7 @@ export const Layout: React.FC<{ title?: string }> = ({ children, title }) => {
 
       {/* mobile hamburger sidebar */}
       {isSidebarOpen && (
-        <Backdrop onClick={toggleSidebar} zIndex="1">
+        <Backdrop onClick={toggleSidebar} zIndex="overlay">
           <Sidebar
             position={['fixed', null, null]}
             top="0"
@@ -47,7 +52,7 @@ export const Layout: React.FC<{ title?: string }> = ({ children, title }) => {
         </Backdrop>
       )}
 
-      {isLoginModalOpen && <LoginModal handleClose={closeLoginModal} zIndex="1" />}
+      <LoginModal handleClose={closeLoginModal} zIndex="overlay" display={isLoginModalOpen ? 'flex' : 'none'} />
     </>
   )
 }

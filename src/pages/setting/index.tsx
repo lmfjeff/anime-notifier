@@ -32,7 +32,7 @@ export default function Account() {
       <Flex flexDir="column" alignItems={'center'} gap={3}>
         <Flex w="300px" flexDir="column" gap={3}>
           <Text>連結的 Google 電郵:</Text>
-          <Input defaultValue={session?.user?.email || ''} bg="white" isDisabled _disabled={{}} />
+          <Input defaultValue={session?.user?.email || '無'} bg="white" isDisabled _disabled={{}} />
         </Flex>
       </Flex>
     </>

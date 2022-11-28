@@ -6,7 +6,7 @@ import { nth } from 'ramda'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useQuery } from 'react-query'
 import { AnimeList } from '../../../components/AnimeList'
-import { getAnimesBySeason, getAnimesByStatus } from '../../../services/dynamodb/animeService'
+// import { getAnimesBySeason, getAnimesByStatus } from '../../../services/dynamodb/animeService'
 import {
   gethkNow,
   jp2hk,
@@ -23,6 +23,10 @@ import { seasonTcOption } from '../../../constants/animeOption'
 import { AnimeOverview } from '../../../types/anime'
 import { GetAnimesBySeasonRequest } from '../../../types/api'
 import { Dayjs } from 'dayjs'
+import { getAnimesBySeason, getAnimesByStatus } from '../../../services/prisma/anime.service'
+import { Anime, Animelist, Prisma } from '@prisma/client'
+import { FollowFilter } from '../../../components/FollowFilter'
+import { BackToTop } from '../../../components/BackToTop'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { path } = params as {
@@ -41,7 +45,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     season,
   }
 
-  let animes: AnimeOverview[]
+  let animes: Anime[]
 
   // if visit this season, get this season's anime & past 3 seasons' currently_airing anime
   if (year === now.year().toString() && season === month2Season(nowMonth)) {
@@ -66,7 +70,7 @@ export async function getStaticPaths() {
 }
 
 type AnimeSeasonPageProps = {
-  animes: AnimeOverview[]
+  animes: Anime[]
   queryParams: GetAnimesBySeasonRequest
   genTime: string
 }
@@ -78,6 +82,7 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
   const { data: session, status } = useSession()
   const loading = status === 'loading'
   const [sort, setSort] = useState('weekly')
+  const [followFilter, setFollowFilter] = useState<string | null>(null)
   const { year, season } = queryParams
   const title = season ? `${year}年${seasonTcOption[season]}` : ''
   const [now, setNow] = useState<Dayjs>()
@@ -92,13 +97,11 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
   const { data: followingData, refetch: followingRefetch } = useQuery('getFollowing', fetchFollowing, {
     enabled: !loading && !!session,
   })
-  const followingAnimeIds = followingData?.animeIds
+  const followingAnimes = followingData?.animes
 
   // todo optimistic update
-  const addFollowing = async (id: string) => {
-    await axios.post('/api/following', {
-      animeId: id,
-    })
+  const upsertAnimelist = async (animelist: Partial<Animelist>) => {
+    await axios.post('/api/following', animelist)
     await followingRefetch()
   }
 
@@ -116,27 +119,38 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
   // filter out anime hidden by admin
   const filterByHide = (el: any) => el.hide !== true
 
-  const tvAnimes: AnimeOverview[] = useMemo(
-    () => animes.filter(filterByHide).map(jp2hk).map(transformAnimeLateNight).sort(sortTime),
+  const calcVote = (ani: Prisma.AnimeGetPayload<{ include: { animelist: true } }>) => {
+    const votedList = ani.animelist.filter(a => a.score !== null)
+    if (votedList.length > 0) {
+      ani.average_vote_score = votedList.reduce((prev, curr) => prev + (curr.score || 0), 0) / votedList.length
+    }
+    return ani
+  }
+
+  const tvAnimes: Anime[] = useMemo(
+    () => animes.filter(filterByHide).map(jp2hk).map(transformAnimeLateNight).sort(sortTime).map(calcVote),
     [animes]
   )
 
   return (
     <>
       <HtmlHead title={title} />
-      <Flex justifyContent="center" alignItems="center" wrap="wrap" gap={2}>
+      <BackToTop />
+      <Flex justifyContent="center" alignItems="center" gap={2}>
         <SeasonPicker queryParams={queryParams} onSelectSeason={onSelectSeason} />
         <AnimeSorter sort={sort} setSort={setSort} />
+        <FollowFilter followFilter={followFilter} setFollowFilter={setFollowFilter} />
       </Flex>
 
       <AnimeList
         animes={tvAnimes}
-        followingAnimeIds={followingAnimeIds}
-        addFollowing={addFollowing}
+        followingAnimes={followingAnimes}
+        upsertAnimelist={upsertAnimelist}
         removeFollowing={removeFollowing}
         sort={sort}
         signedIn={!loading && !!session}
         now={now}
+        followFilter={followFilter}
       />
       <Flex justifyContent="flex-end">
         <Text fontSize="xs" color="gray">

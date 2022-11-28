@@ -75,7 +75,7 @@ export const Sidebar = (props: SideBarProps) => {
             toggleSidebar && toggleSidebar()
           }}
         >
-          Anime Notifier
+          動畫新番網
         </Button>
       </Link>
       <SidebarLink url="/anime/season" text="番表" checkActive={checkActive} />

@@ -54,7 +54,7 @@ export const sourceTcOption: Record<string, string> = {
   music: '音樂',
 }
 
-export const weekdayOption = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'unknown']
+export const weekdayOption = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 
 export const weekdayTcOption: Record<string, string> = {
   sunday: '星期日',
@@ -64,7 +64,6 @@ export const weekdayTcOption: Record<string, string> = {
   thursday: '星期四',
   friday: '星期五',
   saturday: '星期六',
-  unknown: '星期未知',
 }
 
 export const seasonOption = ['winter', 'spring', 'summer', 'autumn']

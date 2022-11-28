@@ -1,7 +1,9 @@
+import { Prisma } from '@prisma/client'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getSession } from 'next-auth/react'
 import webPush from 'web-push'
-import { getSub } from '../../services/dynamodb/subscribeService'
+import { getSubscription } from '../../services/prisma/subscribe.service'
+// import { getSub } from '../../services/dynamodb/subscribeService'
 
 // api for sending test push notification
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -16,16 +18,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   )
 
   const session = await getSession({ req })
-  const { userId } = session as { userId?: string }
-  if (!session || !userId) return res.status(401).end()
+  if (!session) return res.status(401).end()
+  const { userId } = session
+  if (!userId) return res.status(401).end()
 
   if (req.method === 'POST') {
     try {
-      const sub = await getSub(userId)
+      const device = req.body.device || ''
+      const subscriptions = await getSubscription(userId)
+      const sub = subscriptions.find(s => s.device === device)?.push_subscription as unknown as webPush.PushSubscription
       if (!sub) return res.status(400).json({ message: 'not subscribed to web push' })
       const response = await webPush.sendNotification(
-        JSON.parse(sub),
-        JSON.stringify({ title: 'Anime Notifier', message: '測試通知成功' })
+        sub,
+        JSON.stringify({ title: '動畫新番網', message: '測試通知成功' })
       )
       res.writeHead(response.statusCode, response.headers).end(response.body)
     } catch (err: any) {

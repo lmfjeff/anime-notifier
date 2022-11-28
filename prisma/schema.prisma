@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["orderByNulls"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String      @id @default(cuid())
+  name          String?
+  email         String?     @unique
+  username      String?     @unique
+  password      String?
+  emailVerified DateTime?   @map("email_verified")
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  animelist     Animelist[]
+  webpush       Webpush[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+model Anime {
+  id                 String      @id @default(cuid())
+  yearSeason         String
+  title              String
+  picture            String?
+  type               String
+  status             String
+  dayOfWeek          String?
+  time               String?
+  hide               Boolean?
+  alternative_titles Json?
+  startDate          String?
+  endDate            String?
+  summary            String?
+  genres             String[]
+  source             String?
+  studios            String[]
+  numEpisodes        Int         @default(0)
+  malId              String?
+  mal_score          Float?      @db.Real
+  average_vote_score Float?      @db.Real
+  vote_number        Int         @default(0)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  animelist          Animelist[]
+
+  @@map("animes")
+}
+
+model Animelist {
+  anime        Anime    @relation(fields: [anime_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  anime_id     String
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user_id      String
+  watch_status String   @default("watching")
+  score        Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@id([anime_id, user_id])
+  @@map("animelist")
+}
+
+model Webpush {
+  device            String   @id
+  active            Boolean
+  push_subscription Json
+  useragent         String
+  user              User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user_id           String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("webpush")
+}

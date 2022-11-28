@@ -1,6 +1,8 @@
-import { Box, Button, Flex, Text, Wrap } from '@chakra-ui/react'
+import { Box, Button, Flex, Grid, Text, Wrap, Icon, Select } from '@chakra-ui/react'
+import { Anime, Animelist } from '@prisma/client'
 import { Dayjs } from 'dayjs'
 import { motion } from 'framer-motion'
+import produce from 'immer'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { weekdayOption, weekdayTcOption } from '../constants/animeOption'
 import { AnimeOverview } from '../types/anime'
@@ -15,42 +17,35 @@ import {
 import { AnimeCard } from './AnimeCard'
 
 type AnimeListProps = {
-  animes: AnimeOverview[]
-  followingAnimeIds: string[]
-  addFollowing: (id: string) => Promise<void>
+  animes: Anime[]
+  followingAnimes: Animelist[]
+  upsertAnimelist: (animelist: Partial<Animelist>) => Promise<void>
   removeFollowing: (id: string) => Promise<void>
   sort: string
   signedIn: boolean
   now: Dayjs | undefined
-}
-
-type WeekdayButtonProps = {
-  text: string
-  day: number
-  scrollTo: (n: number) => Promise<void>
-  today: number
-}
-
-const WeekdayButton = ({ text, day, scrollTo, today }: WeekdayButtonProps) => {
-  return (
-    <Button bg={'white'} m={1} onClick={() => scrollTo(day)} boxShadow={today === day ? '0 0 3px black' : ''}>
-      {text.replace('星期', '')}
-    </Button>
-  )
+  followFilter: string | null
 }
 
 // todo lazy load the compact view
 export const AnimeList = ({
   animes,
-  followingAnimeIds,
-  addFollowing,
+  followingAnimes,
+  upsertAnimelist,
   removeFollowing,
   sort,
   signedIn,
   now,
+  followFilter,
 }: AnimeListProps) => {
   const hour = now?.hour() || 0
   const day = now?.day() || 0
+  const dayShiftedBy6hr = useMemo(() => {
+    const tmp = hour <= 5 ? day - 1 : day
+    if (tmp < 0) return tmp + 7
+    return tmp
+  }, [hour, day])
+
   // const [hour, setHour] = useState(0)
   // const [day, setDay] = useState(0)
 
@@ -60,14 +55,14 @@ export const AnimeList = ({
   //   setDay(now.day())
   // }, [])
 
-  const isFollowed = (id: string) => {
-    if (followingAnimeIds) {
-      return followingAnimeIds.includes(id)
-    } else return false
-  }
+  // const isFollowed = (id: string) => {
+  //   if (followingAnimes) {
+  //     return followingAnimes.some(fa => fa.anime_id === id)
+  //   } else return false
+  // }
 
   const animesByDayReordered = useMemo(() => {
-    const animesByDay: AnimeOverview[][] = [[], [], [], [], [], [], [], []]
+    const animesByDay: Anime[][] = [[], [], [], [], [], [], [], []]
     animes.forEach(anime => {
       if (parseWeekday(anime.dayOfWeek) === -1) {
         animesByDay[7].push(anime)
@@ -78,6 +73,29 @@ export const AnimeList = ({
     const tmp = reorderByDate(animesByDay, hour, day)
     return tmp
   }, [animes, day, hour])
+
+  const animeSorted = useMemo(() => {
+    if (sort === 'compact') {
+      return produce(animes, draft => {
+        draft.sort(sortDay)
+      })
+    }
+    if (sort === 'mal_score') {
+      return produce(animes, draft => {
+        draft.sort((a, b) => (b.mal_score || -1) - (a.mal_score || -1))
+      })
+    }
+    if (sort === 'score') {
+      return produce(animes, draft => {
+        draft.sort(
+          (a, b) =>
+            (typeof b.average_vote_score === 'number' ? b.average_vote_score : -1) -
+            (typeof a.average_vote_score === 'number' ? a.average_vote_score : -1)
+        )
+      })
+    }
+    return []
+  }, [animes, sort])
 
   const weekdayRef = useRef<HTMLDivElement[]>(new Array())
 
@@ -96,12 +114,19 @@ export const AnimeList = ({
       <Text my={2}>收錄動畫數: {animes.length} </Text>
       {sort === 'weekly' && (
         <>
-          <Flex alignItems={'center'} justifyContent={'center'} flexWrap={'wrap'}>
-            <Text mx={3} fontSize={'lg'}>
-              跳到:
-            </Text>
+          <Flex alignItems={'center'} justifyContent={'center'} flexWrap={'wrap'} gap={1}>
+            {/* <Text mx={3} fontSize={'lg'}>
+              跳到
+            </Text> */}
             {weekdayOption.map((val, n) => (
-              <WeekdayButton key={n} day={n} text={weekdayTcOption[val]} scrollTo={scrollTo} today={day} />
+              <Button
+                key={val}
+                bg={'white'}
+                onClick={() => scrollTo(n)}
+                boxShadow={n === dayShiftedBy6hr ? '0 0 3px black' : ''}
+              >
+                {weekdayTcOption[val].replace('星期', '')}
+              </Button>
             ))}
           </Flex>
           {animesByDayReordered.map((dayAnimes, n) => {
@@ -114,40 +139,48 @@ export const AnimeList = ({
                 >
                 </motion.div> */}
                 <Text fontSize="2xl" display="inline-block" bgColor={activeN === n ? 'yellow' : undefined}>
-                  {weekdayTcOption[weekdayOption[reorderIndexFromSunday(n, hour, day)]]} {n === 0 && '(今日)'}
+                  {weekdayTcOption[weekdayOption[reorderIndexFromSunday(n, hour, day)]] || '星期未知'}{' '}
+                  {n === 0 && '(今日)'}
                 </Text>
-                <Wrap overflow="hidden" justify={['center', null, 'start']}>
+                {/* <Wrap overflow="hidden" justify={['center', null, 'start']}> */}
+                <Grid gridTemplateColumns={'repeat(auto-fill, minmax(160px, 1fr))'} gap={2}>
                   {dayAnimes.map((anime: any) => (
                     <AnimeCard
                       key={anime.id}
                       anime={anime}
-                      followed={isFollowed(anime.id)}
-                      addFollowing={addFollowing}
+                      // followed={isFollowed(anime.id)}
+                      followStatus={followingAnimes?.find(({ anime_id }) => anime_id === anime.id)}
+                      upsertAnimelist={upsertAnimelist}
                       removeFollowing={removeFollowing}
                       signedIn={signedIn}
                       now={now}
+                      sort={sort}
+                      followFilter={followFilter}
                     />
                   ))}
-                </Wrap>
+                </Grid>
               </Box>
             )
           })}
         </>
       )}
-      {sort === 'compact' && (
-        <Wrap overflow="hidden" my={4} justify={['center', null, 'start']}>
-          {animes.sort(sortDay).map((anime: any) => (
+      {['compact', 'mal_score', 'score'].includes(sort) && (
+        <Grid gridTemplateColumns={'repeat(auto-fill, minmax(160px, 1fr))'} gap={2}>
+          {animeSorted.map((anime: any) => (
             <AnimeCard
               key={anime.id}
               anime={anime}
-              followed={isFollowed(anime.id)}
-              addFollowing={addFollowing}
+              // followed={isFollowed(anime.id)}
+              followStatus={followingAnimes?.find(({ anime_id }) => anime_id === anime.id)}
+              upsertAnimelist={upsertAnimelist}
               removeFollowing={removeFollowing}
               signedIn={signedIn}
               now={now}
+              sort={sort}
+              followFilter={followFilter}
             />
           ))}
-        </Wrap>
+        </Grid>
       )}
     </>
   )

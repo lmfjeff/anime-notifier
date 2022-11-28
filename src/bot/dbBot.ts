@@ -1,7 +1,8 @@
-import { getAnimesByStatus, updateAnime } from "../services/dynamodb/animeService"
-import { getAnime } from "../services/malService"
-import { getYearSeason } from "../utils/date"
-import { malAnime2DynamodbAnime, newAnimeFromMal } from "../utils/malUtils"
+// import { getAnimesByStatus, updateAnime } from "../services/dynamodb/animeService"
+import { getAnimesByStatus, updateAnime } from '../services/prisma/anime.service'
+import { getAnime } from '../services/malService'
+import { getYearSeason } from '../utils/date'
+import { malAnime2DynamodbAnime, newAnimeFromMal } from '../utils/malUtils'
 
 if (typeof require !== 'undefined' && require.main === module) {
   handler()
@@ -23,18 +24,18 @@ export async function handler() {
   const animes = await getAnimesByStatus(year, season)
 
   for (const anime of animes) {
-    if (anime.type !== "tv") continue
+    if (anime.type !== 'tv' || !anime.malId) continue
     const data = await getAnime(anime.malId)
     const malAnime = malAnime2DynamodbAnime(data)
 
     const modifiedAnime = newAnimeFromMal(anime, malAnime)
     if (!modifiedAnime) continue
     await updateAnime(modifiedAnime)
-    console.log("Anime updated: ", anime.title)
-    console.log("old: ", anime)
-    console.log("new: ", malAnime)
-    console.log("Changed: ", modifiedAnime)
+    console.log('Anime updated: ', anime.title)
+    console.log('old: ', anime)
+    console.log('new: ', malAnime)
+    console.log('Changed: ', modifiedAnime)
   }
 
-  console.log("finish import")
+  console.log('finish import')
 }

@@ -10,8 +10,10 @@ import {
   typeTcOption,
   weekdayTcOption,
 } from '../../constants/animeOption'
-import { getAnimeById } from '../../services/dynamodb/animeService'
-import { AnimeDetail } from '../../types/anime'
+// import { getAnimeById } from '../../services/dynamodb/animeService'
+import { getAnimeById } from '../../services/prisma/anime.service'
+// import { AnimeDetail } from '../../types/anime'
+import { Anime, Prisma } from '@prisma/client'
 import { formatTimeDetailed, jp2hk, parseToDayjs, transformAnimeLateNight } from '../../utils/date'
 import { TiArrowBack } from 'react-icons/ti'
 
@@ -36,14 +38,14 @@ export async function getStaticPaths() {
 }
 
 type AnimeDetailPageProps = {
-  anime: AnimeDetail
+  anime: Anime
   genTime: string
 }
 
 AnimeDetailPage.getTitle = '動畫詳情'
 
 export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps) {
-  const tvAnime: AnimeDetail = transformAnimeLateNight(jp2hk(anime))
+  const tvAnime: Anime = transformAnimeLateNight(jp2hk(anime))
   const {
     yearSeason,
     title,
@@ -87,7 +89,7 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
         <Box flexGrow={1} w={['250px', '400px', null]}>
           <Text fontSize="2xl">{title}</Text>
           <Text fontSize="sm" color="gray">
-            {alternative_titles?.ja || ''}
+            {((alternative_titles as Prisma.JsonObject)?.ja as string) || ''}
           </Text>
           <Text my={5}>{summary || '未有介紹'}</Text>
           <Text my={3}>

@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getSession } from 'next-auth/react'
-import { createAnime, deleteAnime, updateAnime } from '../../services/dynamodb/animeService'
+import { createAnime, deleteAnime, updateAnime } from '../../services/prisma/anime.service'
+// import { createAnime, deleteAnime, updateAnime } from '../../services/dynamodb/animeService'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getSession({ req })
@@ -13,6 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await updateAnime(req.body.anime)
       res.status(200).end()
     } catch (error) {
+      console.log(error)
       res.status(400).json(error)
     }
   }
@@ -22,6 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await createAnime(req.body.anime)
       res.status(200).end()
     } catch (error) {
+      console.log(error)
       res.status(400).json(error)
     }
   }
@@ -31,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await deleteAnime(req.query.id as string)
       res.status(200).end()
     } catch (error) {
+      console.log(error)
       res.status(400).json(error)
     }
   }

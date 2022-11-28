@@ -47,7 +47,7 @@ export const SeasonPicker = ({ queryParams, onSelectSeason }: SeasonPickerProps)
   const { year, season } = queryParams
   const [selectedYear, setSelectedYear] = useState(year)
 
-  const yearList = range(2020, gethkNow().year() + 1)
+  const yearList = range(2020, gethkNow().add(3, 'month').year() + 1)
     .map(number => number.toString())
     .reverse()
 
@@ -61,6 +61,7 @@ export const SeasonPicker = ({ queryParams, onSelectSeason }: SeasonPickerProps)
         icon={<Icon as={AiFillCaretLeft} />}
         aria-label="previous season"
         title="上一季"
+        display={['none', 'inline-flex']}
       />
       <Popover>
         {({ onClose }) => (
@@ -111,6 +112,7 @@ export const SeasonPicker = ({ queryParams, onSelectSeason }: SeasonPickerProps)
         icon={<Icon as={AiFillCaretRight} />}
         aria-label="next season"
         title="下一季"
+        display={['none', 'inline-flex']}
       />
     </Flex>
   )
