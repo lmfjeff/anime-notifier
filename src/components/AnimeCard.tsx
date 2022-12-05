@@ -205,7 +205,7 @@ export const AnimeCard = ({
                 }}
                 // borderRadius="24px"
                 // variant="ghost"
-                bg={followed ? 'green' : 'white'}
+                bg={followed ? (followStatus?.watch_status === 'dropped' ? 'red.500' : 'green') : 'white'}
                 color={followed ? 'white' : 'black'}
                 _hover={{}}
                 _focus={{}}
