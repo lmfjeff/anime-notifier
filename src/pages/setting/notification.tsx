@@ -135,11 +135,11 @@ export default function Notification() {
       <HtmlHead title="設定" />
       <SettingPanelTab />
       <Flex flexDir="column" alignItems={'center'}>
-        <Skeleton isLoaded={!loadingGetSub} borderRadius={5}>
+        <Skeleton isLoaded={!loadingGetSub} borderRadius={5} w="full" maxW="450px">
           <Text mb={1} textAlign={'center'}>
             本裝置
           </Text>
-          <Flex w="450px" bg="blue.100" gap={3} py={4} px={2} justify="space-between">
+          <Flex w="full" bg="blue.100" gap={3} py={4} px={2} justify="space-between">
             <Flex gap={3} align={'center'}>
               <Text>允許推送通知:</Text>
               <Switch isChecked={!!deviceSub} onChange={() => handleToggle()} isDisabled={loadingToggle} />
