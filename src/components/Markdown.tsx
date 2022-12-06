@@ -15,8 +15,8 @@ export const Markdown: React.FC<{ children: ReactNode }> = ({ children }) => (
       h4: p => <Heading my={2} as="h4" size="sm" {...p} />,
       h5: p => <Heading as="h5" size="xs" {...p} />,
       p: p => <Text as="p" mb={1} {...p} />,
-      ol: p => <chakra.ol sx={{ listStylePosition: 'inside' }} {...p} />,
-      ul: p => <chakra.ul sx={{ listStylePosition: 'inside' }} {...p} />,
+      ol: p => <chakra.ol sx={{ listStylePosition: 'outside' }} {...p} />,
+      ul: p => <chakra.ul sx={{ listStylePosition: 'outside' }} {...p} />,
       hr: p => <Divider {...p} />,
       a: p => {
         return (
