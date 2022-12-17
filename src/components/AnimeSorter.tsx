@@ -3,14 +3,14 @@ import React from 'react'
 
 type AnimeSorterProps = {
   sort: string
-  setSort: React.Dispatch<React.SetStateAction<string>>
+  setSort: (v: string) => void
 }
 
 type SortButtonProps = {
   val: string
   text: string
   sort: string
-  setSort: React.Dispatch<React.SetStateAction<string>>
+  setSort: (v: string) => void
 }
 
 export const AnimeSorter = ({ sort, setSort }: AnimeSorterProps) => {

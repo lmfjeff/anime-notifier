@@ -36,7 +36,7 @@ export function formatTimeDetailed(time: Dayjs): string {
 }
 
 export function formatHKMonthDay(d: Dayjs): string {
-  return d.format('MM月DD日')
+  return d.format('DD/MM')
 }
 
 export function parseFromDateTime(s: string): Dayjs | null {

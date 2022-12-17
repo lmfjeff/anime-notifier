@@ -88,7 +88,21 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
   const [now, setNow] = useState<Dayjs>()
   useEffect(() => {
     setNow(gethkNow())
+    const sortPref = window.localStorage.getItem('animes-sort')
+    const followFilterPref = window.localStorage.getItem('animes-follow-filter')
+    if (sortPref) setSort(sortPref)
+    if (followFilterPref) setFollowFilter(followFilterPref)
   }, [])
+
+  const handleChangeSort = (v: string) => {
+    setSort(v)
+    window.localStorage.setItem('animes-sort', v)
+  }
+
+  const handleChangeFollowFilter = (v: string | null) => {
+    setFollowFilter(v)
+    window.localStorage.setItem('animes-follow-filter', v || '')
+  }
 
   const fetchFollowing = async () => {
     const { data } = await axios.get('/api/following')
@@ -138,8 +152,8 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
       <BackToTop />
       <Flex justifyContent="center" alignItems="center" gap={2}>
         <SeasonPicker queryParams={queryParams} onSelectSeason={onSelectSeason} />
-        <AnimeSorter sort={sort} setSort={setSort} />
-        <FollowFilter followFilter={followFilter} setFollowFilter={setFollowFilter} />
+        <AnimeSorter sort={sort} setSort={handleChangeSort} />
+        <FollowFilter followFilter={followFilter} setFollowFilter={handleChangeFollowFilter} />
       </Flex>
 
       <AnimeList

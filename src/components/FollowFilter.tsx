@@ -4,7 +4,7 @@ import { FaHeart, FaRegHeart } from 'react-icons/fa'
 
 type FollowFilterProps = {
   followFilter: string | null
-  setFollowFilter: React.Dispatch<React.SetStateAction<string | null>>
+  setFollowFilter: (v: string | null) => void
 }
 
 export const FollowFilter = ({ followFilter, setFollowFilter }: FollowFilterProps) => {

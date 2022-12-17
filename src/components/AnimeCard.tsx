@@ -38,15 +38,28 @@ export const AnimeCard = ({
   const weekdayString = weekdayTcOption[anime.dayOfWeek || '']
     ? weekdayTcOption[anime.dayOfWeek || '']?.replace('星期', '')
     : '未知'
-  const timeString = anime.time || '無時間'
-  // const notAired = anime.status === 'not_yet_aired'
+  const airTime = anime.time
+  const timeString = airTime || '無時間'
+
   const startDate = anime.startDate
-  const startTime = anime.time
-  const startDayjs = parseFromDateTime(`${startDate} ${startTime}`)
+  const startDayjs = startDate && airTime && parseFromDateTime(`${startDate} ${airTime}`)
   const hrToAir = startDayjs && startDayjs.diff(now, 'hour', true)
   const notAired = hrToAir && hrToAir > 0
-  const after72Hr = hrToAir && hrToAir > 72
-  const startDateString = startDate && (after72Hr ? `${formatHKMonthDay(parseToDayjs(startDate))}首播` : `即將首播`)
+  // const notAired = anime.status === 'not_yet_aired'
+  const within72HrToAir = notAired && hrToAir < 72
+  const startDateString = within72HrToAir
+    ? `即將首播`
+    : notAired
+    ? `${formatHKMonthDay(parseToDayjs(startDate))}首播`
+    : null
+
+  const endDate = anime.endDate
+  const endDayjs = parseFromDateTime(`${endDate} ${airTime}`)
+  const hrToEnd = endDayjs && endDayjs.diff(now, 'hour', true)
+  const isFinished = hrToEnd && hrToEnd < 0
+  const within72HrToEnd = hrToEnd && !isFinished && hrToEnd < 72
+  const endString = within72HrToEnd ? '最後一集' : isFinished ? '已完' : null
+
   const malScore = anime.mal_score || '無'
   const score =
     anime.average_vote_score || anime.average_vote_score === 0 ? Math.round(anime.average_vote_score * 100) / 100 : '無'
@@ -55,6 +68,9 @@ export const AnimeCard = ({
   const modelRef = useRef<HTMLDivElement>(null)
   const [rating, setRating] = useState('')
   const [watchStatus, setWatchStatus] = useState('')
+  const [followLoading, setFollowLoading] = useState(false)
+  const [voteLoading, setVoteLoading] = useState(false)
+  const [statusLoading, setStatusLoading] = useState(false)
 
   const followed = !!followStatus
 
@@ -64,34 +80,52 @@ export const AnimeCard = ({
   }, [followStatus])
 
   const handleFollow = async () => {
-    if (followed) {
-      await removeFollowing(anime.id)
-    } else {
-      await upsertAnimelist({
-        anime_id: anime.id,
-        watch_status: 'watching',
-      })
+    setFollowLoading(true)
+    try {
+      if (followed) {
+        await removeFollowing(anime.id)
+      } else {
+        await upsertAnimelist({
+          anime_id: anime.id,
+          watch_status: 'watching',
+        })
+      }
+    } catch {
+      alert('更改失敗 請再試')
     }
+    setFollowLoading(false)
   }
   const handleVote = async () => {
     if (!rating) {
-      alert('need to specify watch status')
+      alert('請選擇評分')
       return
     }
-    await upsertAnimelist({
-      anime_id: anime.id,
-      score: parseInt(rating),
-    })
+    setVoteLoading(true)
+    try {
+      await upsertAnimelist({
+        anime_id: anime.id,
+        score: parseInt(rating),
+      })
+    } catch {
+      alert('評分失敗 請再試')
+    }
+    setVoteLoading(false)
   }
   const handleChangeStatus = async () => {
     if (!watchStatus) {
-      alert('need to specify watch status')
+      alert('請選擇觀看狀態')
       return
     }
-    await upsertAnimelist({
-      anime_id: anime.id,
-      watch_status: watchStatus,
-    })
+    setStatusLoading(true)
+    try {
+      await upsertAnimelist({
+        anime_id: anime.id,
+        watch_status: watchStatus,
+      })
+    } catch {
+      alert('更改失敗 請再試')
+    }
+    setStatusLoading(false)
   }
   const toggleModal = () => {
     setShowModal(!showModal)
@@ -119,7 +153,7 @@ export const AnimeCard = ({
             alt={displayName}
             borderRadius={2}
             boxShadow="0 0 3px gray"
-            opacity={notAired && after72Hr ? 0.5 : 1}
+            opacity={(notAired && !within72HrToAir) || isFinished ? 0.5 : 1}
           />
         </AspectRatio>
         <Box display={showModal ? 'none' : 'unset'}>
@@ -148,21 +182,19 @@ export const AnimeCard = ({
               </>
             )}
           </Box>
-          {notAired && startDateString && (
-            <Box
-              position="absolute"
-              top="0"
-              left="50%"
-              transform={'translate(-50%, 0)'}
-              display="flex"
-              justifyContent={'center'}
-              alignItems="center"
-            >
-              <Text textShadow="0 0 6px black" color="white" fontSize={'xs'}>
-                {startDateString}
-              </Text>
-            </Box>
-          )}
+          <Box
+            position="absolute"
+            top="0"
+            left="50%"
+            transform={'translate(-50%, 0)'}
+            display="flex"
+            justifyContent={'center'}
+            alignItems="center"
+          >
+            <Text textShadow="0 0 6px black" color="white" fontSize={'xs'}>
+              {startDateString ? startDateString : endString}
+            </Text>
+          </Box>
           <Text
             noOfLines={2}
             position="absolute"
@@ -224,6 +256,7 @@ export const AnimeCard = ({
                   }}
                   ml="auto"
                   width="50%"
+                  isLoading={followLoading}
                 >
                   {followed ? '取消追蹤' : '追蹤'}
                 </Button>
@@ -253,6 +286,7 @@ export const AnimeCard = ({
                       // toggleModal()
                     }}
                     width="50%"
+                    isLoading={voteLoading}
                   >
                     評分
                   </Button>
@@ -279,6 +313,7 @@ export const AnimeCard = ({
                       // toggleModal()
                     }}
                     width="50%"
+                    isLoading={statusLoading}
                   >
                     更新
                   </Button>
