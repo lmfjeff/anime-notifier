@@ -14,18 +14,19 @@ export const BackToTop = () => {
     <>
       <Box ref={ref} position="absolute" />
       <Flex
-        w="40px"
-        h="40px"
+        w="50px"
+        h="50px"
         align={'center'}
         justify="center"
-        borderRadius={20}
+        borderRadius={50}
         position={'fixed'}
         zIndex="docked"
-        right={3}
+        left={3}
         bottom={5}
         bg="white"
         opacity={inView ? 0 : 0.7}
         _hover={{ opacity: inView ? 0 : 1 }}
+        filter='drop-shadow(0 0 2px gray)'
         cursor="pointer"
         onClick={() => {
           window.scrollTo(0, 0)

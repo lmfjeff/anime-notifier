@@ -43,7 +43,7 @@ export default function MyApp({ Component, pageProps: { session, ...pageProps } 
             <Component {...pageProps} />
           </Layout>
         </SessionProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
+        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </QueryClientProvider>
     </ChakraProvider>
   )

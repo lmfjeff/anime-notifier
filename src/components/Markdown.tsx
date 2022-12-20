@@ -22,7 +22,7 @@ export const Markdown: React.FC<{ children: ReactNode }> = ({ children }) => (
         return (
           <chakra.a
             target={p?.href?.includes('http') ? '_blank' : '_self'}
-            color="ActiveBorder"
+            color="gray"
             borderColor="gray"
             borderBottomWidth="1px"
             borderStyle="dotted"

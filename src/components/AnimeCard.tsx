@@ -10,7 +10,7 @@ import { formatHKMonthDay, parseFromDateTime, parseToDayjs } from '../utils/date
 import { Dayjs } from 'dayjs'
 import { Anime, Animelist } from '@prisma/client'
 import { range } from 'ramda'
-import { WATCH_STATUS_DISPLAY_NAME, WATCH_STATUS_OPTIONS } from '../constants/followOption'
+import { WATCH_STATUS_COLOR, WATCH_STATUS_DISPLAY_NAME, WATCH_STATUS_OPTIONS } from '../constants/followOption'
 
 type AnimeCardProps = {
   anime: Anime
@@ -237,7 +237,7 @@ export const AnimeCard = ({
                 }}
                 // borderRadius="24px"
                 // variant="ghost"
-                bg={followed ? (followStatus?.watch_status === 'dropped' ? 'red.500' : 'green') : 'white'}
+                bg={followed ? WATCH_STATUS_COLOR[followStatus?.watch_status] : 'white'}
                 color={followed ? 'white' : 'black'}
                 _hover={{}}
                 _focus={{}}

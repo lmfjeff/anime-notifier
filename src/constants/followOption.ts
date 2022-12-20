@@ -7,3 +7,11 @@ export const WATCH_STATUS_DISPLAY_NAME: Record<string, string> = {
   completed: '看完',
   on_hold: '暫停',
 }
+
+export const WATCH_STATUS_COLOR: Record<string, string> = {
+  plan_to_watch: 'green',
+  watching: 'green',
+  dropped: 'red.500',
+  completed: 'blue.500',
+  on_hold: 'yellow.300',
+}

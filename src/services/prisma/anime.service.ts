@@ -37,6 +37,17 @@ export async function getAnimesBySeason(year: string, season: string): Promise<A
   })
 }
 
+export async function findAnimeWithExternalPic(): Promise<Anime | null> {
+  return await prismaClient.anime.findFirst({
+    where: {
+      picture: {
+        startsWith: 'http',
+      },
+      type: 'tv',
+    },
+  })
+}
+
 export async function getAnimeById(id: string | undefined): Promise<Anime | null> {
   return await prismaClient.anime.findUnique({
     where: {

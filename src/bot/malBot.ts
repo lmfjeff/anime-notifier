@@ -27,6 +27,10 @@ export async function handler() {
   // }
 
   let { year, season } = getYearSeason()
+  const fetchYear = process.env.MAL_FETCH_YEAR
+  const fetchSeason = process.env.MAL_FETCH_SEASON
+  year = fetchYear ? fetchYear : year
+  season = fetchSeason ? fetchSeason : season
   if (season === 'autumn') season = 'fall'
 
   // get seasonal anime list from mal api

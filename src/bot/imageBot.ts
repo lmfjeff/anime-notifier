@@ -13,7 +13,7 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import axios from 'axios'
 import sharp from 'sharp'
-import { getAnimesBySeason, updateAnime } from '../services/prisma/anime.service'
+import { findAnimeWithExternalPic, getAnimesBySeason, updateAnime } from '../services/prisma/anime.service'
 // import { getAnimesBySeason, updateAnime } from "../services/dynamodb/animeService"
 import { AnimeDetail } from '../types/anime'
 import { getYearSeason } from '../utils/date'
@@ -29,41 +29,34 @@ const s3Client = new S3Client({
 export async function handler() {
   console.log('start compress anime image')
 
-  const { year, season } = getYearSeason()
+  // const { year, season } = getYearSeason()
+  // const animes = await getAnimesBySeason(year, season)
 
-  const animes = await getAnimesBySeason(year, season)
-
-  console.log('animes length', animes.length)
-
-  const DOWNLOAD_LIMIT = process.env.DOWNLOAD_LIMIT || 1
-  console.log('download limit: ', DOWNLOAD_LIMIT)
-  let count = 0
-  for (const anime of animes) {
-    if (anime.type === 'tv' && anime.picture && anime.picture.includes('http')) {
-      const response = await axios.get(anime.picture, {
-        responseType: 'arraybuffer',
-      })
-      const image = sharp(response.data)
-      const buffer = await image.webp().toBuffer()
-      const path = `img/${anime.id}.webp`
-
-      await s3Client.send(
-        new PutObjectCommand({
-          Bucket: 'anime-notifier',
-          Key: path,
-          Body: buffer,
-          ContentType: 'image/webp',
-        })
-      )
-
-      await updateAnime({ id: anime.id, picture: path })
-      console.log('picture changed for: ', anime.title)
-      count++
-    }
-    if (count === DOWNLOAD_LIMIT) {
-      console.log('reach download limit')
-      break
-    }
+  const anime = await findAnimeWithExternalPic()
+  if (!anime) {
+    console.log('all images have been compressed')
+    return
   }
-  console.log('finish compress anime image')
+  if (anime.type !== 'tv' || !anime.picture || !anime.picture.includes('http')) {
+    console.log('anime not tv / no pic / not http')
+    return
+  }
+
+  const response = await axios.get(anime.picture, {
+    responseType: 'arraybuffer',
+  })
+  const image = sharp(response.data)
+  const buffer = await image.webp().toBuffer()
+  const path = `img/${anime.id}.webp`
+
+  await s3Client.send(
+    new PutObjectCommand({
+      Bucket: 'anime-notifier',
+      Key: path,
+      Body: buffer,
+      ContentType: 'image/webp',
+    })
+  )
+  await updateAnime({ id: anime.id, picture: 'path' })
+  console.log('finish compress anime image: ', anime.title)
 }
