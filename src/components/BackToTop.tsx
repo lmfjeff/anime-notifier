@@ -26,7 +26,7 @@ export const BackToTop = () => {
         bg="white"
         opacity={inView ? 0 : 0.7}
         _hover={{ opacity: inView ? 0 : 1 }}
-        filter='drop-shadow(0 0 2px gray)'
+        filter="drop-shadow(0 0 2px gray)"
         cursor="pointer"
         onClick={() => {
           window.scrollTo(0, 0)
