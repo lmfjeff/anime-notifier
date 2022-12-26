@@ -21,7 +21,7 @@ export const BackToTop = () => {
         borderRadius={50}
         position={'fixed'}
         zIndex="docked"
-        left={3}
+        left={[3, null, 48]}
         bottom={5}
         bg="white"
         opacity={inView ? 0 : 0.7}

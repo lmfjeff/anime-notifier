@@ -26,7 +26,7 @@ const SidebarLink = ({ text, url, checkActive, onClick, toggleSidebar }: Sidebar
         borderRadius="none"
         bg="#eaeaea"
         fontWeight="normal"
-        _hover={{ bg: 'blue.200' }}
+        _hover={{ bg: 'blue.100' }}
         _active={{ bg: 'blue.200' }}
         onClick={() => {
           toggleSidebar && toggleSidebar()
@@ -40,7 +40,7 @@ const SidebarLink = ({ text, url, checkActive, onClick, toggleSidebar }: Sidebar
       borderRadius="none"
       bg="#eaeaea"
       fontWeight="normal"
-      _hover={{ bg: 'blue.200' }}
+      _hover={{ bg: 'blue.100' }}
       _active={{ bg: 'blue.200' }}
       onClick={onClick}
     >

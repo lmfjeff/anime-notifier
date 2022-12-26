@@ -34,8 +34,8 @@ export default NextAuth({
   },
 
   callbacks: {
-    async redirect({ baseUrl }): Promise<string> {
-      return baseUrl
+    async redirect({ url, baseUrl }): Promise<string> {
+      return url
     },
     async jwt({ token, account, isNewUser, profile, user }) {
       // console.log('token', token)

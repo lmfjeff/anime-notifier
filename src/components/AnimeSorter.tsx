@@ -1,4 +1,18 @@
-import { Box, Button, Flex, HStack, Select, Text, useRadio, useRadioGroup } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  ButtonProps,
+  Flex,
+  HStack,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
+  Text,
+  useDisclosure,
+  useRadio,
+  useRadioGroup,
+} from '@chakra-ui/react'
 import React from 'react'
 
 type AnimeSorterProps = {
@@ -6,7 +20,7 @@ type AnimeSorterProps = {
   setSort: (v: string) => void
 }
 
-type SortButtonProps = {
+type SortButtonProps = ButtonProps & {
   val: string
   text: string
   sort: string
@@ -25,39 +39,42 @@ export const AnimeSorter = ({ sort, setSort }: AnimeSorterProps) => {
       <Flex justifyContent="center" alignItems="center" wrap="wrap" gap={2} display={['none', null, null, 'flex']}>
         <Text fontSize="lg">排序:</Text>
         {sortOptions.map(({ val, text }) => (
-          <SortButton key={val} val={val} text={text} sort={sort} setSort={setSort} />
+          <SortButton key={val} val={val} text={text} sort={sort} setSort={setSort} boxShadow="0 0 3px gray" />
         ))}
       </Flex>
       <Flex alignItems="center" gap={2} display={['flex', null, null, 'none']}>
         <Text wordBreak={'keep-all'} fontSize="lg">
           排序:
         </Text>
-        <Box>
-          <Select
-            value={sort}
-            onChange={e => {
-              setSort(e.target.value)
-            }}
-          >
-            {sortOptions.map(({ val, text }) => (
-              <option key={val} value={val}>
-                {text}
-              </option>
-            ))}
-          </Select>
-        </Box>
+        <Popover gutter={0}>
+          <PopoverTrigger>
+            <Button borderRadius={'sm'} bg="white" borderWidth={1} width="100px">
+              {sortOptions.find(s => s.val === sort)?.text}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent w="fit-content">
+            <Flex flexDir={'column'}>
+              {sortOptions.map(({ val, text }) => (
+                <SortButton key={val} val={val} text={text} sort={sort} setSort={setSort} />
+              ))}
+            </Flex>
+          </PopoverContent>
+        </Popover>
       </Flex>
     </>
   )
 }
 
-const SortButton = ({ val, text, sort, setSort }: SortButtonProps) => (
+const SortButton = ({ val, text, sort, setSort, ...props }: SortButtonProps) => (
   <Button
-    onClick={() => setSort(val)}
-    boxShadow="0 0 3px gray"
-    isActive={sort === val}
+    onClick={() => {
+      setSort(val)
+    }}
+    bg={sort === val ? 'blue.200' : 'white'}
+    _hover={{ bg: sort === val ? 'blue.200' : 'blue.100' }}
     _active={{ bg: 'blue.200' }}
     borderRadius={'sm'}
+    {...props}
   >
     {text}
   </Button>

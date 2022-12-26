@@ -1,7 +1,19 @@
-import { Button, Flex, Grid, Icon, IconButton, Popover, PopoverContent, PopoverTrigger, Select } from '@chakra-ui/react'
+import {
+  Button,
+  ButtonProps,
+  Flex,
+  Grid,
+  Icon,
+  IconButton,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
+} from '@chakra-ui/react'
 import { range } from 'ramda'
 import React, { useState } from 'react'
-import { AiFillCaretLeft, AiFillCaretRight } from 'react-icons/ai'
+import { BsFillCaretLeftFill, BsFillCaretRightFill } from 'react-icons/bs'
+import { IconType } from 'react-icons/lib'
 import { seasonOption, seasonTcOption } from '../constants/animeOption'
 import { GetAnimesBySeasonRequest } from '../types/api'
 import { gethkNow, nextSeason, pastSeason } from '../utils/date'
@@ -14,28 +26,33 @@ type SeasonPickerProps = {
 type SeasonButtonProps = {
   val: string
   text: string
-  onClose?: () => void
   selectedYear: string | undefined
   queryParams: GetAnimesBySeasonRequest
   onSelectSeason: (val: GetAnimesBySeasonRequest) => void
 }
 
-const SeasonButton = ({ val, text, onClose, selectedYear, queryParams, onSelectSeason }: SeasonButtonProps) => {
+type ArrowButtonProps = ButtonProps & {
+  onClick: () => void
+  icon: IconType
+  title: string
+}
+
+const SeasonButton = ({ val, text, selectedYear, queryParams, onSelectSeason }: SeasonButtonProps) => {
   const { year, season } = queryParams
+  const isChecked = val === season && selectedYear === year
   return (
     <Button
       onClick={() => {
         if (val === season && selectedYear === year) {
           return
         } else {
-          onClose && onClose()
           onSelectSeason({ year: selectedYear, season: val })
         }
       }}
       borderWidth={1}
-      isActive={val === season && selectedYear === year}
+      bg={isChecked ? 'blue.200' : 'transparent'}
+      _hover={{ bg: isChecked ? 'blue.200' : 'blue.100' }}
       _active={{ bg: 'blue.200' }}
-      bg={'transparent'}
       borderRadius={'sm'}
     >
       {text}
@@ -53,67 +70,95 @@ export const SeasonPicker = ({ queryParams, onSelectSeason }: SeasonPickerProps)
 
   return (
     <Flex justifyContent="center" alignItems="center">
-      <IconButton
-        borderRadius={20}
-        bg={'transparent'}
-        mr={1}
+      <ArrowButton
         onClick={() => onSelectSeason(pastSeason(queryParams))}
-        icon={<Icon as={AiFillCaretLeft} />}
-        aria-label="previous season"
+        icon={BsFillCaretLeftFill}
         title="上一季"
+        mr={1}
         display={['none', 'inline-flex']}
       />
       <Popover>
-        {({ onClose }) => (
-          <>
-            <PopoverTrigger>
-              <Button borderRadius={'sm'} bg={'white'} borderWidth={1}>
-                {year} {season ? seasonTcOption[season] : ''}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent w={'fit-content'}>
-              <Flex alignItems={'center'} p={1} gap={1}>
-                <Select
-                  w={'fit-content'}
-                  variant={'outline'}
-                  value={selectedYear}
-                  onChange={e => setSelectedYear(e.target.value)}
-                  borderRadius={'sm'}
-                >
-                  {yearList.map(yearItem => (
-                    <option key={yearItem} value={yearItem}>
-                      {yearItem}
-                    </option>
-                  ))}
-                </Select>
-                <Grid gridTemplateColumns={'repeat(2, 1fr)'} gap={1}>
-                  {seasonOption.map(sn => (
-                    <SeasonButton
-                      key={sn}
-                      val={sn}
-                      text={seasonTcOption[sn]}
-                      onClose={onClose}
-                      selectedYear={selectedYear}
-                      queryParams={queryParams}
-                      onSelectSeason={onSelectSeason}
-                    />
-                  ))}
-                </Grid>
+        <PopoverTrigger>
+          <Button
+            borderRadius={'sm'}
+            bg={'white'}
+            _hover={{ bg: 'blue.100' }}
+            _active={{ bg: 'blue.200' }}
+            borderWidth={1}
+          >
+            {year} {season ? seasonTcOption[season] : ''}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent w={'fit-content'}>
+          <Flex alignItems={'center'} p={1} gap={1}>
+            <Flex flexDir={'column'} gap={1}>
+              <Select
+                w={'fit-content'}
+                variant={'outline'}
+                value={selectedYear}
+                onChange={e => setSelectedYear(e.target.value)}
+                borderRadius={'sm'}
+              >
+                {yearList.map(yearItem => (
+                  <option key={yearItem} value={yearItem}>
+                    {yearItem}
+                  </option>
+                ))}
+              </Select>
+              <Flex gap={1} justifyContent="center">
+                <ArrowButton
+                  onClick={() => onSelectSeason(pastSeason(queryParams))}
+                  icon={BsFillCaretLeftFill}
+                  title="上一季"
+                  display={['block', 'none']}
+                  lineHeight={0}
+                />
+                <ArrowButton
+                  onClick={() => onSelectSeason(nextSeason(queryParams))}
+                  icon={BsFillCaretRightFill}
+                  title="下一季"
+                  display={['block', 'none']}
+                  lineHeight={0}
+                />
               </Flex>
-            </PopoverContent>
-          </>
-        )}
+            </Flex>
+            <Grid gridTemplateColumns={'repeat(2, 1fr)'} gap={1}>
+              {seasonOption.map(sn => (
+                <SeasonButton
+                  key={sn}
+                  val={sn}
+                  text={seasonTcOption[sn]}
+                  selectedYear={selectedYear}
+                  queryParams={queryParams}
+                  onSelectSeason={onSelectSeason}
+                />
+              ))}
+            </Grid>
+          </Flex>
+        </PopoverContent>
       </Popover>
-      <IconButton
-        borderRadius={20}
-        bg={'transparent'}
-        ml={1}
+      <ArrowButton
         onClick={() => onSelectSeason(nextSeason(queryParams))}
-        icon={<Icon as={AiFillCaretRight} />}
-        aria-label="next season"
+        icon={BsFillCaretRightFill}
         title="下一季"
+        ml={1}
         display={['none', 'inline-flex']}
       />
     </Flex>
   )
 }
+
+const ArrowButton = ({ onClick, icon, title, ...props }: ArrowButtonProps) => (
+  <IconButton
+    borderRadius={20}
+    borderWidth={1}
+    bg={'white'}
+    _hover={{ bg: 'blue.100' }}
+    _active={{ bg: 'blue.200' }}
+    onClick={onClick}
+    icon={<Icon as={icon} />}
+    aria-label={title}
+    title={title}
+    {...props}
+  />
+)

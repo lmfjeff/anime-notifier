@@ -153,7 +153,7 @@ export const AnimeCard = ({
             alt={displayName}
             borderRadius={2}
             boxShadow="0 0 3px gray"
-            opacity={(notAired && !within72HrToAir) || isFinished ? 0.5 : 1}
+            opacity={isFinished ? 0.5 : 1}
           />
         </AspectRatio>
         <Box display={showModal ? 'none' : 'unset'}>

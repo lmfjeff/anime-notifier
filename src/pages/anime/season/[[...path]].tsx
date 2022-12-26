@@ -151,9 +151,9 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
       <HtmlHead title={title} />
       <BackToTop />
       <Flex justifyContent="center" alignItems="center" gap={2}>
-        <SeasonPicker queryParams={queryParams} onSelectSeason={onSelectSeason} />
-        <AnimeSorter sort={sort} setSort={handleChangeSort} />
-        <FollowFilter followFilter={followFilter} setFollowFilter={handleChangeFollowFilter} />
+        <SeasonPicker key={JSON.stringify(queryParams)} queryParams={queryParams} onSelectSeason={onSelectSeason} />
+        <AnimeSorter key={sort} sort={sort} setSort={handleChangeSort} />
+        <FollowFilter key={followFilter} followFilter={followFilter} setFollowFilter={handleChangeFollowFilter} />
       </Flex>
 
       <AnimeList
@@ -166,7 +166,7 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
         now={now}
         followFilter={followFilter}
       />
-      <Flex justifyContent="flex-end">
+      <Flex justifyContent="flex-end" mt={4}>
         <Text fontSize="xs" color="gray">
           Update : {genTime}
         </Text>

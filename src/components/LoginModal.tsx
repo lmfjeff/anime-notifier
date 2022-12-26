@@ -10,6 +10,7 @@ import { CloseIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import axios from 'axios'
 import ReCAPTCHA from 'react-google-recaptcha'
 import { userLoginSchema, userRegisterSchema } from '../utils/validation'
+import { BeatLoader } from 'react-spinners'
 
 type LoginModalProps = {
   handleClose: () => void
@@ -40,8 +41,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ handleClose, zIndex, ...
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [recaptchaToken, setRecaptchaToken] = useState('')
+  const [isLoginLoading, setLoginLoading] = useState(false)
+  const [isRegLoading, setRegLoading] = useState(false)
   const recaptchaRef = useRef<ReCAPTCHA>(null)
   const registerWithPw = async () => {
+    setRegLoading(true)
     try {
       await userRegisterSchema.validate({ username, password, recaptcha_token: recaptchaToken })
       await axios.post('/api/user', {
@@ -55,8 +59,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ handleClose, zIndex, ...
       alert(e?.response?.data?.error || e?.message || 'Unknown error occured')
       recaptchaRef?.current?.reset()
     }
+    setRegLoading(false)
   }
   const handleSignin = async () => {
+    setLoginLoading(true)
     try {
       await userLoginSchema.validate({ username, password })
       const resp = await signIn('credentials', { username, password, redirect: false })
@@ -71,6 +77,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ handleClose, zIndex, ...
       // console.log('error', JSON.stringify(e, null, 2))
       alert(e?.message || 'Something went wrong, sign in failed')
     }
+    setLoginLoading(false)
   }
   return (
     <Backdrop
@@ -160,6 +167,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ handleClose, zIndex, ...
             onClick={handleSignin}
             disabled={!username || !password}
             _disabled={{ cursor: 'not-allowed' }}
+            isLoading={isLoginLoading}
+            spinner={<BeatLoader size={10} />}
           >
             <Text color="gray">使用密碼登入</Text>
           </Button>
@@ -178,6 +187,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ handleClose, zIndex, ...
             mt={2}
             disabled={!recaptchaToken || !username || !password}
             _disabled={{ cursor: 'not-allowed' }}
+            isLoading={isRegLoading}
+            spinner={<BeatLoader size={10} />}
           >
             <Text color="gray">創建帳號</Text>
           </Button>
