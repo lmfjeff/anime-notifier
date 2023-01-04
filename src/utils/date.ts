@@ -160,6 +160,7 @@ export function reorderIndexFromToday(index: number, hour: number, day: number):
 }
 
 export function reorderIndexFromSunday(index: number, hour: number, day: number): number {
+  if (index >= 7) return index
   const today = hour <= 5 ? day - 1 : day
   const newIndex = index + today
   return newIndex < 0 ? newIndex + 7 : newIndex >= 7 ? newIndex - 7 : newIndex
