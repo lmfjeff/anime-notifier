@@ -21,8 +21,9 @@ export function getYearSeason(): { year: string; season: string } {
 }
 
 // e.g. 202201
-export function getYearMonth(): string {
-  const today = gethkNow()
+export function getYearMonth(nextSeason?: boolean): string {
+  let today = gethkNow()
+  if (nextSeason) today = today.add(3, 'M')
   const year = today.year()
   const monthIndex = today.month()
 
@@ -75,37 +76,72 @@ export function sortTime(a: any, b: any) {
 }
 
 export function jp2hk(anime: any): any {
-  if (!anime.time || !anime.startDate) return anime
+  if (!anime.time) return anime
 
-  const startDayjsJP = parseFromDateTimeJP(`${anime.startDate} ${anime.time}`)
-  if (!startDayjsJP) return anime
-  const startDayjs = startDayjsJP?.tz('Asia/Hong_Kong')
+  let transformedTime
+  let transformedDay
+  if (anime.dayOfWeek) {
+    const dayjsJP = dayjs(anime.time, 'HH:mm').day(parseWeekday(anime.dayOfWeek))
+    const dayjsHK = dayjsJP.tz('Asia/Hong_Kong')
+    transformedDay = toWeekday(dayjsHK.day())
+    transformedTime = dayjsHK.format('HH:mm')
+  }
 
-  const transformedDay = toWeekday(startDayjs.day())
+  let transformedStartDate
+  if (anime.startDate) {
+    const startDayjsJP = parseFromDateTimeJP(`${anime.startDate} ${anime.time}`)
+    const startDayjsHK = startDayjsJP?.tz('Asia/Hong_Kong')
+    transformedStartDate = startDayjsHK?.format('YYYY-MM-DD')
+  }
+  
+  let transformedEndDate
+  if (anime.endDate) {
+    const endDayjsJP = parseFromDateTimeJP(`${anime.endDate} ${anime.time}`)
+    const endDayjsHK = endDayjsJP?.tz('Asia/Hong_Kong')
+    transformedEndDate = endDayjsHK?.format('YYYY-MM-DD')
+  }
+
   return {
     ...anime,
-    time: startDayjs.format('HH:mm'),
-    dayOfWeek: transformedDay,
-    startDate: startDayjs.format('YYYY-MM-DD'),
+    time: transformedTime,
+    dayOfWeek: transformedDay || null,
+    startDate: transformedStartDate || null,
+    endDate: transformedEndDate || null,
   }
 }
 
 export function transformAnimeLateNight(anime: any): any {
-  if (!anime.time || !anime.startDate) return anime
+  if (!anime.time) return anime
+  const dayjsHK = dayjs(anime.time, 'HH:mm')
+  if (dayjsHK.hour() > 5) return anime
 
-  const startDayjs = parseFromDateTime(`${anime.startDate} ${anime.time}`)
-  if (!startDayjs) return anime
+  const transformedTime = `${dayjsHK.hour() + 24}:${dayjsHK.format('mm')}`
 
-  if (startDayjs.hour() <= 5) {
-    const newStartDayjs = startDayjs.subtract(1, 'day')
-    return {
-      ...anime,
-      time: `${startDayjs.hour() + 24}:${startDayjs.format('mm')}`,
-      dayOfWeek: toWeekday(newStartDayjs.day()),
-      startDate: newStartDayjs.format('YYYY-MM-DD'),
-    }
+  let transformedDay
+  if (anime.dayOfWeek) {
+    const newDayjsHK = dayjsHK.day(parseWeekday(anime.dayOfWeek))
+    transformedDay = toWeekday(newDayjsHK.subtract(1, 'day').day())
   }
-  return anime
+
+  let transformedStartDate
+  if (anime.startDate) {
+    const startDayjs = parseFromDateTimeJP(`${anime.startDate} ${anime.time}`)
+    transformedStartDate = startDayjs?.subtract(1, 'day')?.format('YYYY-MM-DD')
+  }
+
+  let transformedEndDate
+  if (anime.endDate) {
+    const endDayjs = parseFromDateTimeJP(`${anime.endDate} ${anime.time}`)
+    transformedEndDate = endDayjs?.subtract(1, 'day')?.format('YYYY-MM-DD')
+  }
+
+  return {
+    ...anime,
+    time: transformedTime,
+    dayOfWeek: transformedDay || null,
+    startDate: transformedStartDate || null,
+    endDate: transformedEndDate || null,
+  }
 }
 
 export function reorderByDate(animes: any[], hour: number, day: number): any[] {
