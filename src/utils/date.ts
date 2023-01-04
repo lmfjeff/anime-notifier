@@ -93,7 +93,7 @@ export function jp2hk(anime: any): any {
     const startDayjsHK = startDayjsJP?.tz('Asia/Hong_Kong')
     transformedStartDate = startDayjsHK?.format('YYYY-MM-DD')
   }
-  
+
   let transformedEndDate
   if (anime.endDate) {
     const endDayjsJP = parseFromDateTimeJP(`${anime.endDate} ${anime.time}`)
