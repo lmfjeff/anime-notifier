@@ -50,6 +50,11 @@ export function parseFromDateTimeJP(s: string): Dayjs | null {
   return dayjs.tz(s, 'YYYY-MM-DD HH:mm', 'Japan')
 }
 
+export function parseFromTimeJP(s: string): Dayjs | null {
+  if (!dayjs(s, 'HH:mm').isValid()) return null
+  return dayjs.tz(s, 'HH:mm', 'Japan')
+}
+
 export function parseToDayjs(timeString: string | Date): Dayjs {
   return dayjs(timeString)
 }
@@ -81,10 +86,12 @@ export function jp2hk(anime: any): any {
   let transformedTime
   let transformedDay
   if (anime.dayOfWeek) {
-    const dayjsJP = dayjs(anime.time, 'HH:mm').day(parseWeekday(anime.dayOfWeek))
-    const dayjsHK = dayjsJP.tz('Asia/Hong_Kong')
-    transformedDay = toWeekday(dayjsHK.day())
-    transformedTime = dayjsHK.format('HH:mm')
+    const dayjsJP = parseFromTimeJP(anime.time)?.day(parseWeekday(anime.dayOfWeek))
+    if (dayjsJP) {
+      const dayjsHK = dayjsJP.tz('Asia/Hong_Kong')
+      transformedDay = toWeekday(dayjsHK.day())
+      transformedTime = dayjsHK.format('HH:mm')
+    }
   }
 
   let transformedStartDate
