@@ -1,27 +1,38 @@
-import { AspectRatio, Box, Button, Icon, IconButton, Image as ChakraImage, Select, Text } from '@chakra-ui/react'
-import { AddIcon, EditIcon, StarIcon } from '@chakra-ui/icons'
-import { FaHeart, FaStar, FaPlus, FaTimes } from 'react-icons/fa'
+import {
+  AspectRatio,
+  Box,
+  Button,
+  Grid,
+  Icon,
+  IconButton,
+  Image as ChakraImage,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Text,
+  useDisclosure,
+} from '@chakra-ui/react'
+import { FaTimes, FaBars } from 'react-icons/fa'
 import React, { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { AnimeImage } from './AnimeImage'
-import { AnimeDetail } from '../types/anime'
 import { weekdayTcOption } from '../constants/animeOption'
 import { formatHKMonthDay, parseFromDateTime, parseToDayjs } from '../utils/date'
 import { Dayjs } from 'dayjs'
 import { Anime, Animelist } from '@prisma/client'
 import { range } from 'ramda'
 import { WATCH_STATUS_COLOR, WATCH_STATUS_DISPLAY_NAME, WATCH_STATUS_OPTIONS } from '../constants/followOption'
+import { BeatLoader } from 'react-spinners'
 
 type AnimeCardProps = {
   anime: Anime
-  // followed: boolean
   followStatus?: Animelist
   upsertAnimelist: (animelist: Partial<Animelist>) => Promise<void>
   removeFollowing: (id: string) => Promise<void>
-  signedIn: boolean
   now: Dayjs | undefined
   sort: string
   followFilter: string | null
+  showMenu: boolean
 }
 
 export const AnimeCard = ({
@@ -29,10 +40,10 @@ export const AnimeCard = ({
   followStatus,
   upsertAnimelist,
   removeFollowing,
-  signedIn,
   now,
   sort,
   followFilter,
+  showMenu,
 }: AnimeCardProps) => {
   const displayName = anime.title
   const weekdayString = weekdayTcOption[anime.dayOfWeek || '']
@@ -65,17 +76,19 @@ export const AnimeCard = ({
     anime.average_vote_score || anime.average_vote_score === 0 ? Math.round(anime.average_vote_score * 100) / 100 : '無'
 
   const [showModal, setShowModal] = useState(false)
-  const modelRef = useRef<HTMLDivElement>(null)
   const [rating, setRating] = useState('')
   const [watchStatus, setWatchStatus] = useState('')
   const [followLoading, setFollowLoading] = useState(false)
   const [voteLoading, setVoteLoading] = useState(false)
   const [statusLoading, setStatusLoading] = useState(false)
 
+  const { isOpen: isVoteModalOpen, onToggle: onToggleVoteModal, onClose: onCloseVoteModal } = useDisclosure()
+  const { isOpen: isStatusModalOpen, onToggle: onToggleStatusModal, onClose: onCloseStatusModal } = useDisclosure()
+
   const followed = !!followStatus
 
   useEffect(() => {
-    setRating(`${followStatus?.score}` || '')
+    setRating(followStatus?.score?.toString() || '')
     setWatchStatus(followStatus?.watch_status || '')
   }, [followStatus])
 
@@ -95,32 +108,30 @@ export const AnimeCard = ({
     }
     setFollowLoading(false)
   }
-  const handleVote = async () => {
-    if (!rating) {
-      alert('請選擇評分')
-      return
-    }
+
+  const handleVote = async (r: number) => {
+    if (r.toString() === rating) return
+    onCloseVoteModal()
     setVoteLoading(true)
     try {
       await upsertAnimelist({
         anime_id: anime.id,
-        score: parseInt(rating),
+        score: r,
       })
     } catch {
       alert('評分失敗 請再試')
     }
     setVoteLoading(false)
   }
-  const handleChangeStatus = async () => {
-    if (!watchStatus) {
-      alert('請選擇觀看狀態')
-      return
-    }
+
+  const handleChangeStatus = async (s: string) => {
+    if (s === watchStatus) return
+    onCloseStatusModal()
     setStatusLoading(true)
     try {
       await upsertAnimelist({
         anime_id: anime.id,
-        watch_status: watchStatus,
+        watch_status: s,
       })
     } catch {
       alert('更改失敗 請再試')
@@ -130,199 +141,221 @@ export const AnimeCard = ({
   const toggleModal = () => {
     setShowModal(!showModal)
   }
-  useEffect(() => {
-    if (showModal) {
-      if (modelRef) {
-        modelRef.current?.focus()
-      }
-    }
-  }, [showModal])
   const handleBlur = (e: React.FocusEvent<HTMLDivElement, Element>) => {
     if (!e.currentTarget.contains(e.relatedTarget)) {
       setShowModal(false)
     }
   }
+
   if (followed && followFilter === 'hideFollowed') return null
   if (!followed && followFilter === 'hideUnfollowed') return null
+
   return (
-    <Link href={`/anime/${anime.id}`} passHref>
-      <Box as="a" position="relative">
-        <AspectRatio ratio={1}>
-          <AnimeImage
-            src={anime.picture || ''}
-            alt={displayName}
-            borderRadius={2}
-            boxShadow="0 0 3px gray"
-            opacity={isFinished ? 0.5 : 1}
-          />
-        </AspectRatio>
-        <Box display={showModal ? 'none' : 'unset'}>
-          <Box
-            position="absolute"
-            top="0"
-            right="0"
-            textShadow="0 0 3px black"
-            color="white"
-            fontWeight="semibold"
-            bg="blue.200"
-            px={1}
-            borderRadius={2}
-            textAlign="center"
-          >
-            {sort === 'mal_score' ? (
-              // todo styling
-              <Text>{malScore}</Text>
-            ) : sort === 'score' ? (
-              // todo styling
-              <Text>{score}</Text>
-            ) : (
-              <>
-                <Text fontSize="md">{weekdayString}</Text>
-                <Text fontSize="smaller">{timeString}</Text>
-              </>
-            )}
-          </Box>
-          <Box
-            position="absolute"
-            top="0"
-            left="50%"
-            transform={'translate(-50%, 0)'}
-            display="flex"
-            justifyContent={'center'}
-            alignItems="center"
-          >
-            <Text textShadow="0 0 6px black" color="white" fontSize={'xs'}>
-              {startDateString ? startDateString : endString}
-            </Text>
-          </Box>
-          <Text
-            noOfLines={2}
-            position="absolute"
-            bottom="0"
-            textShadow="0 0 6px black"
-            color="white"
-            fontSize="lg"
-            fontWeight="semibold"
-          >
-            {displayName}
-          </Text>
-        </Box>
-        {signedIn && (
-          <Box
-            position="absolute"
-            top="0"
-            left="0"
-            p={1}
-            ref={modelRef}
-            tabIndex={-1}
-            onBlur={handleBlur}
-            onClick={e => {
-              e.preventDefault()
-              e.stopPropagation()
-            }}
-            zIndex="base"
-            width={showModal ? 'full' : 'unset'}
-            height={showModal ? 'full' : 'unset'}
-            display="flex"
-            flexDir="column"
-            alignItems="start"
-            gap={3}
-            bg={showModal ? '#e0e0e080' : 'unset'}
-          >
-            <Box display="flex" width="full">
-              <IconButton
-                disabled={followed === null}
-                onClick={e => {
-                  toggleModal()
-                }}
-                // borderRadius="24px"
-                // variant="ghost"
-                bg={followed ? WATCH_STATUS_COLOR[followStatus?.watch_status] : 'white'}
-                color={followed ? 'white' : 'black'}
-                _hover={{}}
-                _focus={{}}
-                icon={<Icon as={showModal ? FaTimes : FaPlus} />}
-                // filter={`drop-shadow(0 0 2px ${followed ? 'white' : 'black'})`}
-                title="追番/評分"
-                aria-label="follow or rate"
-              />
-              {showModal && (
-                <Button
-                  color="white"
-                  _hover={{}}
-                  bg={followed ? 'red.500' : 'green'}
-                  onClick={e => {
-                    handleFollow()
-                  }}
-                  ml="auto"
-                  width="50%"
-                  isLoading={followLoading}
-                >
-                  {followed ? '取消追蹤' : '追蹤'}
-                </Button>
+    <Box position="relative">
+      <Link href={`/anime/${anime.id}`} passHref>
+        <Box as="a">
+          <AspectRatio ratio={1}>
+            <AnimeImage
+              src={anime.picture || ''}
+              alt={displayName}
+              borderRadius={2}
+              boxShadow="0 0 3px gray"
+              opacity={isFinished ? 0.5 : 1}
+            />
+          </AspectRatio>
+          <Box display={showModal ? 'none' : 'unset'}>
+            <Box
+              position="absolute"
+              top="0"
+              right="0"
+              textShadow="0 0 3px black"
+              color="white"
+              fontWeight="semibold"
+              bg="blue.200"
+              borderRadius={2}
+              display="flex"
+              flexDir={'column'}
+              alignItems="center"
+              justifyContent={'center'}
+              minW="35px"
+              minH="35px"
+            >
+              {sort === 'mal_score' ? (
+                <Text>{malScore}</Text>
+              ) : sort === 'score' ? (
+                <Text>{score}</Text>
+              ) : (
+                <>
+                  <Text fontSize="md" px={1}>
+                    {weekdayString}
+                  </Text>
+                  <Text fontSize="smaller" px={1}>
+                    {timeString}
+                  </Text>
+                </>
               )}
             </Box>
+            <Box
+              position="absolute"
+              top="0"
+              left="50%"
+              transform={'translate(-50%, 0)'}
+              display="flex"
+              justifyContent={'center'}
+              alignItems="center"
+            >
+              <Text textShadow="0 0 6px black" color="white" fontSize={'xs'}>
+                {startDateString ? startDateString : endString}
+              </Text>
+            </Box>
+            <Text
+              noOfLines={2}
+              position="absolute"
+              bottom="0"
+              textShadow="0 0 6px black"
+              color="white"
+              fontSize="lg"
+              fontWeight="semibold"
+            >
+              {displayName}
+            </Text>
+          </Box>
+        </Box>
+      </Link>
+
+      {showMenu && (
+        <Box
+          position="absolute"
+          top="0"
+          left="0"
+          p={1}
+          // tabIndex={-1}
+          onBlur={handleBlur}
+          onClick={e => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+          // zIndex="base"
+          width={showModal ? 'full' : 'unset'}
+          height={showModal ? 'full' : 'unset'}
+          display="flex"
+          flexDir="column"
+          alignItems="start"
+          gap={3}
+          bg={showModal ? '#e0e0e080' : 'unset'}
+        >
+          <Box display="flex" width="full" justifyContent={'space-between'}>
+            <Button
+              onClick={toggleModal}
+              borderRadius="40px"
+              bg={followed ? WATCH_STATUS_COLOR[followStatus?.watch_status] : 'white'}
+              color={followed ? 'white' : 'black'}
+              _hover={{}}
+              _focus={{}}
+              title="追番/評分"
+              aria-label="follow or rate"
+              px={0}
+              // filter={`drop-shadow(0 0 2px ${followed ? 'white' : 'black'})`}
+            >
+              {showModal ? <Icon as={FaTimes} /> : rating ? <Text>{rating}</Text> : <Icon as={FaBars} />}
+            </Button>
             {showModal && (
-              <Box width="full" flexGrow={1} display="flex" flexDir="column" gap={3}>
-                <Box display={'flex'} gap={1}>
-                  <Select
-                    bg="white"
-                    onChange={e => {
-                      setRating(e.target.value)
-                    }}
-                    value={rating}
-                    placeholder=" "
-                    width="50%"
-                  >
-                    {range(0, 11).map(score => (
-                      <option key={score} value={score}>
-                        {`${score}`}
-                      </option>
-                    ))}
-                  </Select>
-                  <Button
-                    onClick={e => {
-                      handleVote()
-                      // toggleModal()
-                    }}
-                    width="50%"
-                    isLoading={voteLoading}
-                  >
-                    評分
-                  </Button>
-                </Box>
-                <Box display={'flex'} gap={1}>
-                  <Select
-                    bg="white"
-                    onChange={e => {
-                      setWatchStatus(e.target.value)
-                    }}
-                    value={watchStatus}
-                    placeholder=" "
-                    width="50%"
-                  >
-                    {WATCH_STATUS_OPTIONS.map(status => (
-                      <option key={status} value={status}>
-                        {WATCH_STATUS_DISPLAY_NAME[status]}
-                      </option>
-                    ))}
-                  </Select>
-                  <Button
-                    onClick={e => {
-                      handleChangeStatus()
-                      // toggleModal()
-                    }}
-                    width="50%"
-                    isLoading={statusLoading}
-                  >
-                    更新
-                  </Button>
-                </Box>
-              </Box>
+              <Button
+                bg={followed ? 'red.500' : 'green.500'}
+                color="black"
+                w="40px"
+                borderRadius="20px"
+                _hover={{}}
+                _focus={{}}
+                onClick={handleFollow}
+              >
+                {followLoading ? (
+                  <BeatLoader size={6} color="white" />
+                ) : (
+                  <>
+                    <Text color="white">追</Text>
+                    {followed ? (
+                      <Box position={'absolute'} w="full" borderBottom="2px solid white" transform={'rotate(-45deg)'} />
+                    ) : null}
+                  </>
+                )}
+              </Button>
             )}
           </Box>
-        )}
-      </Box>
-    </Link>
+          {showModal && (
+            <>
+              <Popover
+                placement="left"
+                preventOverflow={false}
+                isOpen={isVoteModalOpen}
+                onClose={onCloseVoteModal}
+                isLazy
+              >
+                <PopoverTrigger>
+                  <Button w="40px" borderRadius="20px" onClick={onToggleVoteModal}>
+                    {voteLoading ? <BeatLoader size={6} /> : <Text fontSize="sm">{rating || '評分'}</Text>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent w="fit-content">
+                  <Grid templateColumns="repeat(2, 1fr)" gap="1px" bg={'gray.200'}>
+                    {range(0, 21)
+                      .map(n => n / 2)
+                      .map(rat => (
+                        <Button
+                          key={rat}
+                          borderRadius={0}
+                          bg="white"
+                          _hover={{ bg: 'blue.100' }}
+                          _active={{ bg: 'blue.200' }}
+                          onClick={() => {
+                            handleVote(rat)
+                          }}
+                          isActive={rat.toString() === rating}
+                        >
+                          {rat}
+                        </Button>
+                      ))}
+                  </Grid>
+                </PopoverContent>
+              </Popover>
+              <Popover
+                placement="left"
+                preventOverflow={false}
+                isOpen={isStatusModalOpen}
+                onClose={onCloseStatusModal}
+                isLazy
+              >
+                <PopoverTrigger>
+                  <Button w="40px" borderRadius="20px" onClick={onToggleStatusModal}>
+                    {statusLoading ? (
+                      <BeatLoader size={6} />
+                    ) : (
+                      <Text fontSize="sm">{WATCH_STATUS_DISPLAY_NAME[watchStatus] || '狀態'}</Text>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent w="fit-content" gap="1px" bg={'gray.200'}>
+                  {WATCH_STATUS_OPTIONS.map(status => (
+                    <Button
+                      key={status}
+                      borderRadius={0}
+                      bg="white"
+                      _hover={{ bg: 'blue.100' }}
+                      _active={{ bg: 'blue.200' }}
+                      onClick={() => {
+                        handleChangeStatus(status)
+                      }}
+                      isActive={status === watchStatus}
+                    >
+                      {WATCH_STATUS_DISPLAY_NAME[status]}
+                    </Button>
+                  ))}
+                </PopoverContent>
+              </Popover>
+            </>
+          )}
+        </Box>
+      )}
+    </Box>
   )
 }

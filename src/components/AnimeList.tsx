@@ -19,6 +19,7 @@ import { AnimeCard } from './AnimeCard'
 type AnimeListProps = {
   animes: Anime[]
   followingAnimes: Animelist[]
+  isFollowingLoading: boolean
   upsertAnimelist: (animelist: Partial<Animelist>) => Promise<void>
   removeFollowing: (id: string) => Promise<void>
   sort: string
@@ -31,6 +32,7 @@ type AnimeListProps = {
 export const AnimeList = ({
   animes,
   followingAnimes,
+  isFollowingLoading,
   upsertAnimelist,
   removeFollowing,
   sort,
@@ -148,14 +150,13 @@ export const AnimeList = ({
                     <AnimeCard
                       key={anime.id}
                       anime={anime}
-                      // followed={isFollowed(anime.id)}
                       followStatus={followingAnimes?.find(({ anime_id }) => anime_id === anime.id)}
                       upsertAnimelist={upsertAnimelist}
                       removeFollowing={removeFollowing}
-                      signedIn={signedIn}
                       now={now}
                       sort={sort}
                       followFilter={followFilter}
+                      showMenu={signedIn && !isFollowingLoading}
                     />
                   ))}
                 </Grid>
@@ -170,14 +171,13 @@ export const AnimeList = ({
             <AnimeCard
               key={anime.id}
               anime={anime}
-              // followed={isFollowed(anime.id)}
               followStatus={followingAnimes?.find(({ anime_id }) => anime_id === anime.id)}
               upsertAnimelist={upsertAnimelist}
               removeFollowing={removeFollowing}
-              signedIn={signedIn}
               now={now}
               sort={sort}
               followFilter={followFilter}
+              showMenu={signedIn && !isFollowingLoading}
             />
           ))}
         </Grid>

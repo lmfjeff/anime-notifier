@@ -108,7 +108,7 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
     const { data } = await axios.get('/api/following')
     return data
   }
-  const { data: followingData, refetch: followingRefetch } = useQuery('getFollowing', fetchFollowing, {
+  const { data: followingData, refetch: followingRefetch, isLoading: isFollowingLoading } = useQuery('getFollowing', fetchFollowing, {
     enabled: !loading && !!session,
   })
   const followingAnimes = followingData?.animes
@@ -159,6 +159,7 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
       <AnimeList
         animes={tvAnimes}
         followingAnimes={followingAnimes}
+        isFollowingLoading={isFollowingLoading}
         upsertAnimelist={upsertAnimelist}
         removeFollowing={removeFollowing}
         sort={sort}
