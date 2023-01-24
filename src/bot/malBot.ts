@@ -2,7 +2,7 @@
 import { createAnime, getAnimeByMalId, updateAnime } from '../services/prisma/anime.service'
 import { Prisma } from '@prisma/client'
 import { getSeasonalAnime } from '../services/malService'
-import { getYearSeason } from '../utils/date'
+import { getYearSeason, nextSeason } from '../utils/date'
 import { malAnime2DynamodbAnime, newAnimeFromMal } from '../utils/malUtils'
 
 if (typeof require !== 'undefined' && require.main === module) {
@@ -27,10 +27,13 @@ export async function handler() {
   // }
 
   let { year, season } = getYearSeason()
-  const fetchYear = process.env.MAL_FETCH_YEAR
-  const fetchSeason = process.env.MAL_FETCH_SEASON
-  year = fetchYear ? fetchYear : year
-  season = fetchSeason ? fetchSeason : season
+  if (process.env.MAL_FETCH_NEXT_SEASON === 'true') {
+    const nextSeasonYear = nextSeason({ year, season }).year
+    const nextSeasonSeason = nextSeason({ year, season }).season
+    if (!nextSeasonYear || !nextSeasonSeason) throw Error('next season value undefined')
+    year = nextSeasonYear
+    season = nextSeasonSeason
+  }
   if (season === 'autumn') season = 'fall'
 
   // get seasonal anime list from mal api

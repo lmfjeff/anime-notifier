@@ -2,7 +2,7 @@ import { Button, IconButton } from '@chakra-ui/button'
 import { BoxProps, Flex, FlexProps, Text, Box, Spacer } from '@chakra-ui/layout'
 import { motion, Variants } from 'framer-motion'
 import { signIn } from 'next-auth/react'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Backdrop } from './Backdrop'
 import { FcGoogle } from 'react-icons/fc'
 import { Icon, Input, Tabs, TabList, Tab, InputRightElement, InputGroup } from '@chakra-ui/react'
@@ -14,6 +14,7 @@ import { BeatLoader } from 'react-spinners'
 
 type LoginModalProps = {
   handleClose: () => void
+  isLoginModalOpen: boolean
 } & BoxProps
 
 const MotionFlex = motion<FlexProps>(Flex)
@@ -35,7 +36,7 @@ const dropIn: Variants = {
   },
 }
 
-export const LoginModal: React.FC<LoginModalProps> = ({ handleClose, zIndex, ...props }) => {
+export const LoginModal: React.FC<LoginModalProps> = ({ handleClose, isLoginModalOpen, zIndex, ...props }) => {
   const [isReg, setIsReg] = useState(false)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -44,6 +45,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({ handleClose, zIndex, ...
   const [isLoginLoading, setLoginLoading] = useState(false)
   const [isRegLoading, setRegLoading] = useState(false)
   const recaptchaRef = useRef<ReCAPTCHA>(null)
+  const usernameRef = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (isLoginModalOpen && usernameRef) {
+      usernameRef.current?.focus()
+    }
+  }, [isLoginModalOpen])
+
   const registerWithPw = async () => {
     setRegLoading(true)
     try {
@@ -70,9 +78,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({ handleClose, zIndex, ...
       const { error, ok, status } = resp
       if (error) {
         alert(error)
-        return
+      } else {
+        handleClose()
       }
-      handleClose()
     } catch (e: any) {
       // console.log('error', JSON.stringify(e, null, 2))
       alert(e?.message || 'Something went wrong, sign in failed')
@@ -81,6 +89,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ handleClose, zIndex, ...
   }
   return (
     <Backdrop
+      display={isLoginModalOpen ? 'flex' : 'none'}
       onMouseDown={e => {
         handleClose()
       }}
@@ -137,7 +146,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({ handleClose, zIndex, ...
           </TabList>
         </Tabs>
         <Input
+          name="username"
           placeholder="用戶名"
+          ref={usernameRef}
           mb={2}
           value={username}
           onChange={e => setUsername(e.target.value)}

@@ -52,7 +52,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, title }) => {
         </Backdrop>
       )}
 
-      <LoginModal handleClose={closeLoginModal} zIndex="overlay" display={isLoginModalOpen ? 'flex' : 'none'} />
+      <LoginModal handleClose={closeLoginModal} zIndex="overlay" isLoginModalOpen={isLoginModalOpen} />
     </>
   )
 }

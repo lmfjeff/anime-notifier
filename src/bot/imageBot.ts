@@ -57,6 +57,6 @@ export async function handler() {
       ContentType: 'image/webp',
     })
   )
-  await updateAnime({ id: anime.id, picture: 'path' })
+  await updateAnime({ id: anime.id, picture: path })
   console.log('finish compress anime image: ', anime.title)
 }

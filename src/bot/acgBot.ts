@@ -13,7 +13,8 @@ if (typeof require !== 'undefined' && require.main === module) {
 
 export async function handler() {
   const acgBaseUrl = 'https://acgsecrets.hk/bangumi'
-  const season = getYearMonth()
+  const fetchNextSeason = process.env.MAL_FETCH_NEXT_SEASON === 'true'
+  const season = getYearMonth(fetchNextSeason)
 
   const acgUrl = `${acgBaseUrl}/${season}`
   const { data } = await axios.get(acgUrl)

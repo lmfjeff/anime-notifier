@@ -1,15 +1,5 @@
 version: '3.8'
 services:
-  dynamodb-local:
-    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
-    image: "amazon/dynamodb-local:latest"
-    container_name: dynamodb-local
-    ports:
-      - "4566:8000"
-    volumes:
-      - "./tmp/dynamodb:/home/dynamodblocal/data"
-    working_dir: /home/dynamodblocal
-
   postgres:
     image: postgres:13.7
     ports:
@@ -23,21 +13,3 @@ services:
 
 volumes:
   postgres_data:
-  
-# version: "3.8"
-
-# services:
-#   localstack:
-#     container_name: localstack_main
-#     image: localstack/localstack
-#     network_mode: bridge
-#     ports:
-#       - "127.0.0.1:4566:4566"
-#     environment:
-#       - SERVICES=dynamodb
-#       - DEBUG=1
-#       - DATA_DIR=/tmp/localstack/data
-#       - DOCKER_HOST=unix:///var/run/docker.sock
-#     volumes:
-#       - "./tmp/localstack:/tmp/localstack"
-#       - "/var/run/docker.sock:/var/run/docker.sock"

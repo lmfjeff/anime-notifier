@@ -13,6 +13,33 @@ axios.interceptors.response.use(
   }
 )
 
+if (!process.env.MAL_CLIENT_ID) throw Error('need mal client id to fetch mal')
+const malGetConfig = {
+  headers: {
+    // Authorization: `Bearer ${malAuth.accessToken}`,
+    'X-MAL-CLIENT-ID': process.env.MAL_CLIENT_ID,
+  },
+}
+
+const malFields = [
+  'id',
+  'title',
+  'main_picture',
+  'alternative_titles',
+  'start_date',
+  'end_date',
+  'synopsis',
+  'genres',
+  'media_type',
+  'status',
+  'start_season',
+  'broadcast',
+  'source',
+  'studios',
+  'num_episodes',
+  'mean',
+]
+
 export async function refreshToken(malAuth: { accessToken: string; refreshToken: string; lastUpdated: string }) {
   const clientId = process.env.MAL_CLIENT_ID
   const clientSecret = process.env.MAL_CLIENT_SECRET
@@ -45,32 +72,7 @@ export async function getSeasonalAnime(
 ) {
   console.log('---bot for updating mal anime info into dynamodb---')
   console.log(`start for: ${year} ${season}`)
-  if (!process.env.MAL_CLIENT_ID) throw Error('process.env.MAL_CLIENT_ID required')
 
-  const config = {
-    headers: {
-      // Authorization: `Bearer ${malAuth.accessToken}`,
-      'X-MAL-CLIENT-ID': process.env.MAL_CLIENT_ID,
-    },
-  }
-  const malFields = [
-    'id',
-    'title',
-    'main_picture',
-    'alternative_titles',
-    'start_date',
-    'end_date',
-    'synopsis',
-    'genres',
-    'media_type',
-    'status',
-    'start_season',
-    'broadcast',
-    'source',
-    'studios',
-    'num_episodes',
-    'mean',
-  ]
   const params = {
     offset: '0',
     limit: '500',
@@ -79,7 +81,7 @@ export async function getSeasonalAnime(
   }
   const url = `https://api.myanimelist.net/v2/anime/season/${year}/${season}?` + new URLSearchParams(params)
 
-  const resp = await axios.get(url, config)
+  const resp = await axios.get(url, malGetConfig)
   return resp.data
 }
 
@@ -87,18 +89,11 @@ export async function getAnime(
   // malAuth: { accessToken: string; refreshToken: string; lastUpdated: string },
   malId: string
 ) {
-  if (!process.env.MAL_CLIENT_ID) throw Error('process.env.MAL_CLIENT_ID required')
-  const config = {
-    headers: {
-      // Authorization: `Bearer ${malAuth.accessToken}`,
-      'X-MAL-CLIENT-ID': process.env.MAL_CLIENT_ID,
-    },
-  }
   const params = {
-    fields:
-      'id,title,main_picture,alternative_titles,start_date,end_date,synopsis,genres,media_type,status,start_season,broadcast,source,studios,num_episodes',
+    fields: malFields.join(','),
+    nsfw: '1',
   }
   const url = `https://api.myanimelist.net/v2/anime/${malId}?` + new URLSearchParams(params)
-  const response = await axios.get(url, config)
+  const response = await axios.get(url, malGetConfig)
   return response.data
 }

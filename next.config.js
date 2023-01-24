@@ -20,5 +20,6 @@ module.exports = withMDX({
         },
       ],
     ],
+    scrollRestoration: true,
   },
 })
