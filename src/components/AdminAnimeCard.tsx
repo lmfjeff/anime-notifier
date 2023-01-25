@@ -18,7 +18,7 @@ export const AdminAnimeCard = ({ anime, deleteAnime, hideAnime }: AdminAnimeCard
 
   return (
     <Link href={`/anime/${anime.id}`} passHref>
-      <Box as="a" position="relative" w="160px">
+      <Box position="relative" w="160px">
         <AspectRatio ratio={1}>
           <AnimeImage
             src={anime.picture || ''}

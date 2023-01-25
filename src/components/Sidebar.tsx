@@ -21,7 +21,7 @@ const SidebarLink = ({ text, url, checkActive, onClick, toggleSidebar }: Sidebar
   return url ? (
     <Link href={url} passHref>
       <Button
-        as="a"
+        w="full"
         isActive={checkActive && checkActive(url)}
         borderRadius="none"
         bg="#eaeaea"
@@ -37,6 +37,7 @@ const SidebarLink = ({ text, url, checkActive, onClick, toggleSidebar }: Sidebar
     </Link>
   ) : (
     <Button
+      w="full"
       borderRadius="none"
       bg="#eaeaea"
       fontWeight="normal"
@@ -65,7 +66,7 @@ export const Sidebar = (props: SideBarProps) => {
     <Flex flexDirection="column" bg="#eaeaea" w={180} flexShrink={0} {...rest}>
       <Link href="/" passHref>
         <Button
-          as="a"
+          w="full"
           bg="gray.400"
           _hover={{}}
           _focus={{}}

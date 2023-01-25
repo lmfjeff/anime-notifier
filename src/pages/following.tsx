@@ -107,7 +107,6 @@ const FollowingList = ({ animes, removeFollowing, disabled }: FollowingListProps
             borderColor="gray.400"
             _hover={{ bg: 'gray.300' }}
             justifyContent="space-between"
-            as="a"
           >
             <Text noOfLines={1}>{anime.title}</Text>
             <Box display="flex" alignItems="center" gap={1}>

@@ -153,73 +153,71 @@ export const AnimeCard = ({
   return (
     <Box position="relative">
       <Link href={`/anime/${anime.id}`} passHref>
-        <Box as="a">
-          <AspectRatio ratio={1}>
-            <AnimeImage
-              src={anime.picture || ''}
-              alt={displayName}
-              borderRadius={2}
-              boxShadow="0 0 3px gray"
-              opacity={isFinished ? 0.5 : 1}
-            />
-          </AspectRatio>
-          <Box display={showModal ? 'none' : 'unset'}>
-            <Box
-              position="absolute"
-              top="0"
-              right="0"
-              textShadow="0 0 3px black"
-              color="white"
-              fontWeight="semibold"
-              bg="blue.200"
-              borderRadius={2}
-              display="flex"
-              flexDir={'column'}
-              alignItems="center"
-              justifyContent={'center'}
-              minW="35px"
-              minH="35px"
-            >
-              {sort === 'mal_score' ? (
-                <Text>{malScore}</Text>
-              ) : sort === 'score' ? (
-                <Text>{score}</Text>
-              ) : (
-                <>
-                  <Text fontSize="md" px={1}>
-                    {weekdayString}
-                  </Text>
-                  <Text fontSize="smaller" px={1}>
-                    {timeString}
-                  </Text>
-                </>
-              )}
-            </Box>
-            <Box
-              position="absolute"
-              top="0"
-              left="50%"
-              transform={'translate(-50%, 0)'}
-              display="flex"
-              justifyContent={'center'}
-              alignItems="center"
-            >
-              <Text textShadow="0 0 6px black" color="white" fontSize={'xs'}>
-                {startDateString ? startDateString : endString}
-              </Text>
-            </Box>
-            <Text
-              noOfLines={2}
-              position="absolute"
-              bottom="0"
-              textShadow="0 0 6px black"
-              color="white"
-              fontSize="lg"
-              fontWeight="semibold"
-            >
-              {displayName}
+        <AspectRatio ratio={1}>
+          <AnimeImage
+            src={anime.picture || ''}
+            alt={displayName}
+            borderRadius={2}
+            boxShadow="0 0 3px gray"
+            opacity={isFinished ? 0.5 : 1}
+          />
+        </AspectRatio>
+        <Box display={showModal ? 'none' : 'unset'}>
+          <Box
+            position="absolute"
+            top="0"
+            right="0"
+            textShadow="0 0 3px black"
+            color="white"
+            fontWeight="semibold"
+            bg="blue.200"
+            borderRadius={2}
+            display="flex"
+            flexDir={'column'}
+            alignItems="center"
+            justifyContent={'center'}
+            minW="35px"
+            minH="35px"
+          >
+            {sort === 'mal_score' ? (
+              <Text>{malScore}</Text>
+            ) : sort === 'score' ? (
+              <Text>{score}</Text>
+            ) : (
+              <>
+                <Text fontSize="md" px={1}>
+                  {weekdayString}
+                </Text>
+                <Text fontSize="smaller" px={1}>
+                  {timeString}
+                </Text>
+              </>
+            )}
+          </Box>
+          <Box
+            position="absolute"
+            top="0"
+            left="50%"
+            transform={'translate(-50%, 0)'}
+            display="flex"
+            justifyContent={'center'}
+            alignItems="center"
+          >
+            <Text textShadow="0 0 6px black" color="white" fontSize={'xs'}>
+              {startDateString ? startDateString : endString}
             </Text>
           </Box>
+          <Text
+            noOfLines={2}
+            position="absolute"
+            bottom="0"
+            textShadow="0 0 6px black"
+            color="white"
+            fontSize="lg"
+            fontWeight="semibold"
+          >
+            {displayName}
+          </Text>
         </Box>
       </Link>
 
