@@ -86,6 +86,7 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
   const { year, season } = queryParams
   const title = season ? `${year}年${seasonTcOption[season]}` : ''
   const [now, setNow] = useState<Dayjs>()
+  const thisSeason = now ? year === now.year().toString() && season === month2Season(now.month() + 1) : false
   useEffect(() => {
     setNow(gethkNow())
     const sortPref = window.localStorage.getItem('animes-sort')
@@ -93,7 +94,6 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
     if (sortPref) setSort(sortPref)
     if (followFilterPref) setFollowFilter(followFilterPref)
   }, [])
-
   const handleChangeSort = (v: string) => {
     setSort(v)
     window.localStorage.setItem('animes-sort', v)
@@ -170,6 +170,7 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
         signedIn={!loading && !!session}
         now={now}
         followFilter={followFilter}
+        thisSeason={thisSeason}
       />
       <Flex justifyContent="flex-end" mt={4}>
         <Text fontSize="xs" color="gray">

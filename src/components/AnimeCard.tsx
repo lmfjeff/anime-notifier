@@ -1,6 +1,7 @@
 import {
   AspectRatio,
   Box,
+  BoxProps,
   Button,
   Grid,
   Icon,
@@ -33,6 +34,7 @@ type AnimeCardProps = {
   sort: string
   followFilter: string | null
   showMenu: boolean
+  thisSeason: boolean
 }
 
 export const AnimeCard = ({
@@ -44,6 +46,7 @@ export const AnimeCard = ({
   sort,
   followFilter,
   showMenu,
+  thisSeason,
 }: AnimeCardProps) => {
   const displayName = anime.title
   const weekdayString = weekdayTcOption[anime.dayOfWeek || '']
@@ -58,18 +61,15 @@ export const AnimeCard = ({
   const notAired = hrToAir && hrToAir > 0
   // const notAired = anime.status === 'not_yet_aired'
   const within72HrToAir = notAired && hrToAir < 72
-  const startDateString = within72HrToAir
-    ? `即將首播`
-    : notAired
-    ? `${formatHKMonthDay(parseToDayjs(startDate))}首播`
-    : null
+  const startDateString = within72HrToAir ? `即將首播` : notAired ? `仲有${Math.floor(hrToAir / 24)}日` : null
 
   const endDate = anime.endDate
   const endDayjs = parseFromDateTime(`${endDate} ${airTime}`)
   const hrToEnd = endDayjs && endDayjs.diff(now, 'hour', true)
   const isFinished = hrToEnd && hrToEnd < 0
   const within72HrToEnd = hrToEnd && !isFinished && hrToEnd < 72
-  const endString = within72HrToEnd ? '最後一集' : isFinished ? '已完' : null
+  const almostEndString = within72HrToEnd ? '最後一集' : null
+  const endString = isFinished && thisSeason ? '完' : null
 
   const malScore = anime.mal_score || '無'
   const score =
@@ -159,7 +159,7 @@ export const AnimeCard = ({
             alt={displayName}
             borderRadius={2}
             boxShadow="0 0 3px gray"
-            opacity={isFinished ? 0.5 : 1}
+            opacity={isFinished && thisSeason ? 0.5 : 1}
           />
         </AspectRatio>
         <Box display={showModal ? 'none' : 'unset'}>
@@ -194,19 +194,7 @@ export const AnimeCard = ({
               </>
             )}
           </Box>
-          <Box
-            position="absolute"
-            top="0"
-            left="50%"
-            transform={'translate(-50%, 0)'}
-            display="flex"
-            justifyContent={'center'}
-            alignItems="center"
-          >
-            <Text textShadow="0 0 6px black" color="white" fontSize={'xs'}>
-              {startDateString ? startDateString : endString}
-            </Text>
-          </Box>
+          <NoticeWord startDateString={startDateString} almostEndString={almostEndString} endString={endString} />
           <Text
             noOfLines={2}
             position="absolute"
@@ -354,6 +342,44 @@ export const AnimeCard = ({
           )}
         </Box>
       )}
+    </Box>
+  )
+}
+
+const NoticeWord = ({
+  startDateString,
+  almostEndString,
+  endString,
+}: {
+  startDateString?: string | null
+  almostEndString?: string | null
+  endString?: string | null
+}) => {
+  if (!startDateString && !almostEndString && !endString) return null
+  const endProps: BoxProps = endString
+    ? {
+        bg: 'red.500',
+        w: '35px',
+        h: '35px',
+        borderRadius: '35px',
+      }
+    : {
+        px: 1,
+        bg: 'rgb(0, 0, 0, 0.4)',
+      }
+  return (
+    <Box
+      position="absolute"
+      top={1}
+      left="50%"
+      transform={'translate(-50%, 0)'}
+      display="flex"
+      justifyContent={'center'}
+      alignItems="center"
+      color="white"
+      {...endProps}
+    >
+      <Text fontSize={endString ? 'xl' : 'sm'}>{startDateString || almostEndString || endString}</Text>
     </Box>
   )
 }

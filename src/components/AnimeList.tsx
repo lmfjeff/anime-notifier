@@ -26,6 +26,7 @@ type AnimeListProps = {
   signedIn: boolean
   now: Dayjs | undefined
   followFilter: string | null
+  thisSeason: boolean
 }
 
 // todo lazy load the compact view
@@ -39,6 +40,7 @@ export const AnimeList = ({
   signedIn,
   now,
   followFilter,
+  thisSeason,
 }: AnimeListProps) => {
   const hour = now?.hour() || 0
   const day = now?.day() || 0
@@ -157,6 +159,7 @@ export const AnimeList = ({
                       sort={sort}
                       followFilter={followFilter}
                       showMenu={signedIn && !isFollowingLoading}
+                      thisSeason={thisSeason}
                     />
                   ))}
                 </Grid>
@@ -178,6 +181,7 @@ export const AnimeList = ({
               sort={sort}
               followFilter={followFilter}
               showMenu={signedIn && !isFollowingLoading}
+              thisSeason={thisSeason}
             />
           ))}
         </Grid>
