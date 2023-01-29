@@ -17,14 +17,14 @@ import React from 'react'
 
 type AnimeSorterProps = {
   sort: string
-  setSort: (v: string) => void
+  setSort?: (v: string) => void
 }
 
 type SortButtonProps = ButtonProps & {
   val: string
   text: string
   sort: string
-  setSort: (v: string) => void
+  setSort?: (v: string) => void
 }
 
 export const AnimeSorter = ({ sort, setSort }: AnimeSorterProps) => {
@@ -68,7 +68,7 @@ export const AnimeSorter = ({ sort, setSort }: AnimeSorterProps) => {
 const SortButton = ({ val, text, sort, setSort, ...props }: SortButtonProps) => (
   <Button
     onClick={() => {
-      setSort(val)
+      if (setSort) setSort(val)
     }}
     bg={sort === val ? 'blue.200' : 'white'}
     _hover={{ bg: sort === val ? 'blue.200' : 'blue.100' }}

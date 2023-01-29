@@ -6,9 +6,11 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { SessionProvider } from 'next-auth/react'
 import { ProgressBar } from '../components/ProgressBar'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import * as swHelper from '../utils/swHelper'
 import { NextPage } from 'next'
+import TimeProvider from '../context/time'
+import PrefProvider from '../context/pref'
 
 type NextPageWithLayout = NextPage & {
   getTitle?: string
@@ -19,7 +21,12 @@ type AppPropsWithLayout = AppProps & {
 }
 
 export default function MyApp({ Component, pageProps: { session, ...pageProps } }: AppPropsWithLayout) {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false } } })
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: { queries: { refetchOnWindowFocus: false } },
+      })
+  )
 
   const theme = {
     fonts: {
@@ -35,16 +42,20 @@ export default function MyApp({ Component, pageProps: { session, ...pageProps } 
   }, [])
 
   return (
-    <ChakraProvider theme={extendTheme(theme)}>
-      <QueryClientProvider client={queryClient}>
-        <SessionProvider session={session}>
-          <ProgressBar />
-          <Layout title={Component.getTitle}>
-            <Component {...pageProps} />
-          </Layout>
-        </SessionProvider>
-        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-      </QueryClientProvider>
-    </ChakraProvider>
+    <PrefProvider>
+      <TimeProvider>
+        <ChakraProvider theme={extendTheme(theme)}>
+          <QueryClientProvider client={queryClient}>
+            <SessionProvider session={session}>
+              <ProgressBar />
+              <Layout title={Component.getTitle}>
+                <Component {...pageProps} />
+              </Layout>
+            </SessionProvider>
+            {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+          </QueryClientProvider>
+        </ChakraProvider>
+      </TimeProvider>
+    </PrefProvider>
   )
 }

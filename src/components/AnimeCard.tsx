@@ -272,7 +272,7 @@ export const AnimeCard = ({
             <>
               <Popover
                 placement="left"
-                preventOverflow={false}
+                eventListeners={false}
                 isOpen={isVoteModalOpen}
                 onClose={onCloseVoteModal}
                 isLazy
@@ -306,7 +306,7 @@ export const AnimeCard = ({
               </Popover>
               <Popover
                 placement="left"
-                preventOverflow={false}
+                eventListeners={false}
                 isOpen={isStatusModalOpen}
                 onClose={onCloseStatusModal}
                 isLazy

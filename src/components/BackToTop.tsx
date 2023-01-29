@@ -1,14 +1,9 @@
 import { Box, Flex, Icon, Portal } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import React from 'react'
 import { ArrowUpIcon } from '@chakra-ui/icons'
 import { useInView } from 'react-intersection-observer'
-// import { useIntersectionObserver } from '@researchgate/react-intersection-observer'
 
 export const BackToTop = () => {
-  const [isTop, setIsTop] = useState(false)
-  //   const [ref] = useIntersectionObserver(entry => {
-  //     setIsTop(entry.isIntersecting)
-  //   })
   const { ref, inView, entry } = useInView()
   return (
     <>

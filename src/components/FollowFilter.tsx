@@ -16,14 +16,14 @@ import { IconType } from 'react-icons/lib'
 
 type FollowFilterProps = {
   followFilter: string | null
-  setFollowFilter: (v: string | null) => void
+  setFollowFilter?: (v: string | null) => void
 }
 
 type FilterButtonProps = ButtonProps & {
   val: string | null
   text: string
   followFilter: string | null
-  setFollowFilter: (v: string | null) => void
+  setFollowFilter?: (v: string | null) => void
   icon: IconType
 }
 
@@ -71,7 +71,7 @@ export const FollowFilter = ({ followFilter, setFollowFilter }: FollowFilterProp
 const FilterButton = ({ val, text, followFilter, setFollowFilter, icon, ...props }: FilterButtonProps) => (
   <Button
     onClick={() => {
-      setFollowFilter(val)
+      if (setFollowFilter) setFollowFilter(val)
     }}
     bg={followFilter === val ? 'blue.200' : 'white'}
     _hover={{ bg: followFilter === val ? 'blue.200' : 'blue.100' }}

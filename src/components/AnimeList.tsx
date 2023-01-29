@@ -24,7 +24,7 @@ type AnimeListProps = {
   removeFollowing: (id: string) => Promise<void>
   sort: string
   signedIn: boolean
-  now: Dayjs | undefined
+  now: Dayjs
   followFilter: string | null
   thisSeason: boolean
 }
@@ -42,8 +42,8 @@ export const AnimeList = ({
   followFilter,
   thisSeason,
 }: AnimeListProps) => {
-  const hour = now?.hour() || 0
-  const day = now?.day() || 0
+  const hour = now.hour()
+  const day = now.day()
   const dayShiftedBy6hr = useMemo(() => {
     const tmp = hour <= 5 ? day - 1 : day
     if (tmp < 0) return tmp + 7

@@ -3,7 +3,7 @@ import axios from 'axios'
 import { GetStaticProps } from 'next'
 import { useRouter } from 'next/router'
 import { nth } from 'ramda'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useQuery } from 'react-query'
 import { AnimeList } from '../../../components/AnimeList'
 // import { getAnimesBySeason, getAnimesByStatus } from '../../../services/dynamodb/animeService'
@@ -27,6 +27,8 @@ import { getAnimesBySeason, getAnimesByStatus } from '../../../services/prisma/a
 import { Anime, Animelist, Prisma } from '@prisma/client'
 import { FollowFilter } from '../../../components/FollowFilter'
 import { BackToTop } from '../../../components/BackToTop'
+import { TimeContext } from '../../../context/time'
+import { PrefContext } from '../../../context/pref'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { path } = params as {
@@ -81,28 +83,14 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
   const router = useRouter()
   const { data: session, status } = useSession()
   const loading = status === 'loading'
-  const [sort, setSort] = useState('weekly')
-  const [followFilter, setFollowFilter] = useState<string | null>(null)
   const { year, season } = queryParams
   const title = season ? `${year}年${seasonTcOption[season]}` : ''
-  const [now, setNow] = useState<Dayjs>()
-  const thisSeason = now ? year === now.year().toString() && season === month2Season(now.month() + 1) : false
-  useEffect(() => {
-    setNow(gethkNow())
-    const sortPref = window.localStorage.getItem('animes-sort')
-    const followFilterPref = window.localStorage.getItem('animes-follow-filter')
-    if (sortPref) setSort(sortPref)
-    if (followFilterPref) setFollowFilter(followFilterPref)
-  }, [])
-  const handleChangeSort = (v: string) => {
-    setSort(v)
-    window.localStorage.setItem('animes-sort', v)
-  }
 
-  const handleChangeFollowFilter = (v: string | null) => {
-    setFollowFilter(v)
-    window.localStorage.setItem('animes-follow-filter', v || '')
-  }
+  const time = useContext(TimeContext)
+  const thisSeason = time ? year === time.year().toString() && season === month2Season(time.month() + 1) : false
+
+  const pref = useContext(PrefContext)
+  const { sort, followFilter, handleChangeSort, handleChangeFollowFilter } = pref
 
   const fetchFollowing = async () => {
     const { data } = await axios.get('/api/following')
@@ -150,6 +138,8 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
     [animes]
   )
 
+  if (!time) return null
+
   return (
     <>
       <HtmlHead title={title} />
@@ -168,7 +158,7 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
         removeFollowing={removeFollowing}
         sort={sort}
         signedIn={!loading && !!session}
-        now={now}
+        now={time}
         followFilter={followFilter}
         thisSeason={thisSeason}
       />
