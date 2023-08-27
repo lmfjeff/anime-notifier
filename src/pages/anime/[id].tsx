@@ -3,7 +3,6 @@ import { GetStaticProps } from 'next'
 import { AnimeImage } from '../../components/AnimeImage'
 import { HtmlHead } from '../../components/HtmlHead'
 import {
-  genreTcOption,
   seasonTcOption,
   sourceTcOption,
   statusTcOption,
