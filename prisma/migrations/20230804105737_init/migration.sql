@@ -48,43 +48,63 @@ CREATE TABLE "verificationtokens" (
 
 -- CreateTable
 CREATE TABLE "animes" (
-    "id" TEXT NOT NULL,
-    "yearSeason" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "picture" TEXT,
-    "type" TEXT NOT NULL,
-    "status" TEXT NOT NULL,
-    "dayOfWeek" TEXT,
-    "time" TEXT,
-    "hide" BOOLEAN,
-    "alternative_titles" JSONB,
-    "startDate" TEXT,
-    "endDate" TEXT,
-    "summary" TEXT,
-    "genres" TEXT[],
+    "id" SERIAL NOT NULL,
+    "year" INTEGER,
+    "season" TEXT,
+    "slug" TEXT,
+    "airingStatus" TEXT,
+    "isHiden" BOOLEAN NOT NULL DEFAULT false,
+    "studios" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "votes" INTEGER NOT NULL DEFAULT 0,
+    "follows" INTEGER NOT NULL DEFAULT 0,
+    "format" TEXT,
+    "country" TEXT,
+    "pictures" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "source" TEXT,
-    "studios" TEXT[],
-    "numEpisodes" INTEGER NOT NULL DEFAULT 0,
-    "malId" TEXT,
-    "mal_score" REAL,
-    "average_vote_score" REAL,
-    "vote_number" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "episodes" INTEGER,
+    "score" REAL,
+    "title" JSONB NOT NULL,
+    "summary" JSONB,
+    "dayOfWeek" JSONB,
+    "time" JSONB,
+    "startDate" JSONB,
+    "endDate" JSONB,
+    "idExternal" JSONB,
+    "scoreExternal" JSONB,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ NOT NULL,
 
     CONSTRAINT "animes_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "animelist" (
-    "anime_id" TEXT NOT NULL,
+CREATE TABLE "genres" (
+    "id" SERIAL NOT NULL,
+    "key" TEXT NOT NULL,
+    "name" JSONB,
+
+    CONSTRAINT "genres_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "relations" (
+    "relationType" TEXT NOT NULL,
+    "source_id" INTEGER NOT NULL,
+    "destination_id" INTEGER NOT NULL,
+
+    CONSTRAINT "relations_pkey" PRIMARY KEY ("source_id","destination_id")
+);
+
+-- CreateTable
+CREATE TABLE "followlist" (
+    "media_id" INTEGER NOT NULL,
     "user_id" TEXT NOT NULL,
     "watch_status" TEXT NOT NULL DEFAULT 'watching',
-    "score" INTEGER,
+    "score" DOUBLE PRECISION,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "animelist_pkey" PRIMARY KEY ("anime_id","user_id")
+    CONSTRAINT "followlist_pkey" PRIMARY KEY ("media_id","user_id")
 );
 
 -- CreateTable
@@ -98,6 +118,12 @@ CREATE TABLE "webpush" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "webpush_pkey" PRIMARY KEY ("device")
+);
+
+-- CreateTable
+CREATE TABLE "_GenresToMedia" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
 );
 
 -- CreateIndex
@@ -118,6 +144,15 @@ CREATE UNIQUE INDEX "verificationtokens_token_key" ON "verificationtokens"("toke
 -- CreateIndex
 CREATE UNIQUE INDEX "verificationtokens_identifier_token_key" ON "verificationtokens"("identifier", "token");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "genres_key_key" ON "genres"("key");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_GenresToMedia_AB_unique" ON "_GenresToMedia"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_GenresToMedia_B_index" ON "_GenresToMedia"("B");
+
 -- AddForeignKey
 ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -125,10 +160,22 @@ ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_fkey" FOREIGN KEY ("user
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "animelist" ADD CONSTRAINT "animelist_anime_id_fkey" FOREIGN KEY ("anime_id") REFERENCES "animes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "relations" ADD CONSTRAINT "relations_source_id_fkey" FOREIGN KEY ("source_id") REFERENCES "animes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "animelist" ADD CONSTRAINT "animelist_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "relations" ADD CONSTRAINT "relations_destination_id_fkey" FOREIGN KEY ("destination_id") REFERENCES "animes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "followlist" ADD CONSTRAINT "followlist_media_id_fkey" FOREIGN KEY ("media_id") REFERENCES "animes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "followlist" ADD CONSTRAINT "followlist_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "webpush" ADD CONSTRAINT "webpush_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_GenresToMedia" ADD CONSTRAINT "_GenresToMedia_A_fkey" FOREIGN KEY ("A") REFERENCES "genres"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_GenresToMedia" ADD CONSTRAINT "_GenresToMedia_B_fkey" FOREIGN KEY ("B") REFERENCES "animes"("id") ON DELETE CASCADE ON UPDATE CASCADE;

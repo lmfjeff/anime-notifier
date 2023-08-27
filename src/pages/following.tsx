@@ -30,7 +30,7 @@ export default function FollowingPage() {
 
   // todo optimistic update, no need to unvalidate whole query if followed many
   const removeFollowing = async (id: string) => {
-    await axios.delete('/api/following', { params: { animeId: id } })
+    await axios.delete('/api/following', { params: { media_id: id } })
     await queryClient.invalidateQueries(['animes', 'following'])
   }
 
@@ -89,7 +89,7 @@ const End = ({ enabled }: { enabled: boolean }) => {
 }
 
 type FollowingListProps = {
-  animes: Prisma.AnimelistGetPayload<{ include: { anime: true } }>[]
+  animes: Prisma.FollowListGetPayload<{ include: { media: true } }>[]
   removeFollowing: (id: string) => Promise<void>
   disabled: boolean
 }
@@ -97,8 +97,8 @@ type FollowingListProps = {
 const FollowingList = ({ animes, removeFollowing, disabled }: FollowingListProps) => {
   return (
     <>
-      {animes.map(({ anime, watch_status, score }) => (
-        <Link href={`/anime/${anime.id}`} passHref key={anime.id}>
+      {animes.map(({ media, watch_status, score }) => (
+        <Link href={`/anime/${media.id}`} passHref key={media.id}>
           <Flex
             px={3}
             alignItems="center"
@@ -108,7 +108,7 @@ const FollowingList = ({ animes, removeFollowing, disabled }: FollowingListProps
             _hover={{ bg: 'gray.300' }}
             justifyContent="space-between"
           >
-            <Text noOfLines={1}>{anime.title}</Text>
+            <Text noOfLines={1}>{media.title?.zh || media.title?.native}</Text>
             <Box display="flex" alignItems="center" gap={1}>
               {score && (
                 <Text bg="blue.100" minWidth="32px" textAlign="center" py={1}>
@@ -124,7 +124,7 @@ const FollowingList = ({ animes, removeFollowing, disabled }: FollowingListProps
                 disabled={disabled}
                 onClick={e => {
                   e.preventDefault()
-                  removeFollowing(anime.id)
+                  removeFollowing(media.id.toString())
                 }}
                 icon={<CloseIcon />}
                 aria-label="unfollow"

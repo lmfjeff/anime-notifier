@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Grid, Text, Wrap, Icon, Select } from '@chakra-ui/react'
-import { Anime, Animelist } from '@prisma/client'
+import { Media, FollowList } from '@prisma/client'
 import { Dayjs } from 'dayjs'
 import { motion } from 'framer-motion'
 import produce from 'immer'
@@ -17,10 +17,10 @@ import {
 import { AnimeCard } from './AnimeCard'
 
 type AnimeListProps = {
-  animes: Anime[]
-  followingAnimes: Animelist[]
+  animes: Media[]
+  followingAnimes: FollowList[]
   isFollowingLoading: boolean
-  upsertAnimelist: (animelist: Partial<Animelist>) => Promise<void>
+  upsertAnimelist: (animelist: Partial<FollowList>) => Promise<void>
   removeFollowing: (id: string) => Promise<void>
   sort: string
   signedIn: boolean
@@ -66,12 +66,12 @@ export const AnimeList = ({
   // }
 
   const animesByDayReordered = useMemo(() => {
-    const animesByDay: Anime[][] = [[], [], [], [], [], [], [], []]
+    const animesByDay: Media[][] = [[], [], [], [], [], [], [], []]
     animes.forEach(anime => {
-      if (parseWeekday(anime.dayOfWeek) === -1) {
+      if (parseWeekday(anime.dayOfWeek?.jp) === -1) {
         animesByDay[7].push(anime)
       } else {
-        animesByDay[parseWeekday(anime.dayOfWeek)].push(anime)
+        animesByDay[parseWeekday(anime.dayOfWeek?.jp)].push(anime)
       }
     })
     const tmp = reorderByDate(animesByDay, hour, day)
@@ -84,17 +84,15 @@ export const AnimeList = ({
         draft.sort(sortDay)
       })
     }
-    if (sort === 'mal_score') {
+    if (sort === 'anilist_score') {
       return produce(animes, draft => {
-        draft.sort((a, b) => (b.mal_score || -1) - (a.mal_score || -1))
+        draft.sort((a, b) => (b?.scoreExternal?.anilist || -1) - (a?.scoreExternal?.anilist || -1))
       })
     }
     if (sort === 'score') {
       return produce(animes, draft => {
         draft.sort(
-          (a, b) =>
-            (typeof b.average_vote_score === 'number' ? b.average_vote_score : -1) -
-            (typeof a.average_vote_score === 'number' ? a.average_vote_score : -1)
+          (a, b) => (typeof b.score === 'number' ? b.score : -1) - (typeof a.score === 'number' ? a.score : -1)
         )
       })
     }
@@ -152,7 +150,7 @@ export const AnimeList = ({
                     <AnimeCard
                       key={anime.id}
                       anime={anime}
-                      followStatus={followingAnimes?.find(({ anime_id }) => anime_id === anime.id)}
+                      followStatus={followingAnimes?.find(({ media_id }) => media_id === anime.id)}
                       upsertAnimelist={upsertAnimelist}
                       removeFollowing={removeFollowing}
                       now={now}
@@ -168,13 +166,13 @@ export const AnimeList = ({
           })}
         </>
       )}
-      {['compact', 'mal_score', 'score'].includes(sort) && (
+      {['compact', 'anilist_score', 'score'].includes(sort) && (
         <Grid gridTemplateColumns={'repeat(auto-fill, minmax(160px, 1fr))'} gap={2}>
           {animeSorted.map((anime: any) => (
             <AnimeCard
               key={anime.id}
               anime={anime}
-              followStatus={followingAnimes?.find(({ anime_id }) => anime_id === anime.id)}
+              followStatus={followingAnimes?.find(({ media_id }) => media_id === anime.id)}
               upsertAnimelist={upsertAnimelist}
               removeFollowing={removeFollowing}
               now={now}

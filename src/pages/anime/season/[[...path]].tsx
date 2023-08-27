@@ -24,7 +24,7 @@ import { AnimeOverview } from '../../../types/anime'
 import { GetAnimesBySeasonRequest } from '../../../types/api'
 import { Dayjs } from 'dayjs'
 import { getAnimesBySeason, getAnimesByStatus } from '../../../services/prisma/anime.service'
-import { Anime, Animelist, Prisma } from '@prisma/client'
+import { FollowList, Media, Prisma } from '@prisma/client'
 import { FollowFilter } from '../../../components/FollowFilter'
 import { BackToTop } from '../../../components/BackToTop'
 import { TimeContext } from '../../../context/time'
@@ -47,19 +47,22 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     season,
   }
 
-  let animes: Anime[]
+  let animes: Media[]
 
   // if visit this season, get this season's anime & past 3 seasons' currently_airing anime
   if (year === now.year().toString() && season === month2Season(nowMonth)) {
-    const animesByStatus = await getAnimesByStatus(year, season)
+    // const animesByStatus = await getAnimesByStatus(year, season)
+    // const animesBySeason = await getAnimesBySeason(year, season)
+    // animes = [...animesByStatus, ...animesBySeason]
     const animesBySeason = await getAnimesBySeason(year, season)
-    animes = [...animesByStatus, ...animesBySeason]
+    animes = animesBySeason
   } else {
     const animesBySeason = await getAnimesBySeason(year, season)
     animes = animesBySeason
   }
 
-  animes = animes.filter(anime => anime.type === 'tv')
+  animes = animes.filter(anime => anime.format === 'TV')
+  console.log('🚀 ~ file: [[...path]].tsx:63 ~ constgetStaticProps:GetStaticProps= ~ animes:', animes.length)
 
   return {
     props: { animes, queryParams, genTime },
@@ -72,7 +75,7 @@ export async function getStaticPaths() {
 }
 
 type AnimeSeasonPageProps = {
-  animes: Anime[]
+  animes: Media[]
   queryParams: GetAnimesBySeasonRequest
   genTime: string
 }
@@ -106,13 +109,13 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
   const followingAnimes = followingData?.animes
 
   // todo optimistic update
-  const upsertAnimelist = async (animelist: Partial<Animelist>) => {
-    await axios.post('/api/following', animelist)
+  const upsertAnimelist = async (data: Partial<FollowList>) => {
+    await axios.post('/api/following', data)
     await followingRefetch()
   }
 
   const removeFollowing = async (id: string) => {
-    await axios.delete('/api/following', { params: { animeId: id } })
+    await axios.delete('/api/following', { params: { media_id: id } })
     await followingRefetch()
   }
 
@@ -123,20 +126,21 @@ export default function AnimeSeasonPage({ animes, queryParams, genTime }: AnimeS
   }
 
   // filter out anime hidden by admin
-  const filterByHide = (el: any) => el.hide !== true
+  const filterByHide = (el: any) => el.isHiden !== true
 
-  const calcVote = (ani: Prisma.AnimeGetPayload<{ include: { animelist: true } }>) => {
-    const votedList = ani.animelist.filter(a => a.score !== null)
+  const calcVote = (ani: Prisma.MediaGetPayload<{ include: { followlist: true } }>) => {
+    const votedList = ani.followlist.filter(a => a.score !== null)
     if (votedList.length > 0) {
-      ani.average_vote_score = votedList.reduce((prev, curr) => prev + (curr.score || 0), 0) / votedList.length
+      ani.score = votedList.reduce((prev, curr) => prev + (curr.score || 0), 0) / votedList.length
     }
     return ani
   }
 
-  const tvAnimes: Anime[] = useMemo(
+  const tvAnimes: Media[] = useMemo(
     () => animes.filter(filterByHide).map(jp2hk).map(transformAnimeLateNight).sort(sortTime).map(calcVote),
     [animes]
   )
+  // console.log("🚀 ~ file: [[...path]].tsx:142 ~ AnimeSeasonPage ~ tvAnimes:", tvAnimes)
 
   if (!time) return null
 

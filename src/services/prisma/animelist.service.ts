@@ -1,18 +1,18 @@
-import { Animelist, Prisma } from '@prisma/client'
+import { FollowList, Prisma } from '@prisma/client'
 import { prismaClient } from '../../lib/prisma'
 
-export async function getFollowing(userId: string, options: Prisma.AnimelistFindManyArgs) {
+export async function getFollowing(userId: string, options: Prisma.FollowListFindManyArgs) {
   const { where: otherWhere, ...otherOptions } = options
-  const where: Prisma.AnimelistWhereInput = {
+  const where: Prisma.FollowListWhereInput = {
     ...otherWhere,
     user_id: userId,
   }
   const resp = await prismaClient.$transaction([
-    prismaClient.animelist.findMany({
+    prismaClient.followList.findMany({
       where,
       ...otherOptions,
     }),
-    prismaClient.animelist.count({
+    prismaClient.followList.count({
       where,
     }),
   ])
@@ -20,14 +20,14 @@ export async function getFollowing(userId: string, options: Prisma.AnimelistFind
 }
 
 export async function upsertAnimelist(
-  animelist: Prisma.Without<Prisma.AnimelistCreateInput, Prisma.AnimelistUncheckedCreateInput> &
-    Prisma.AnimelistUncheckedCreateInput
+  animelist: Prisma.Without<Prisma.FollowListCreateInput, Prisma.FollowListUncheckedCreateInput> &
+    Prisma.FollowListUncheckedCreateInput
 ) {
-  const { anime_id, user_id, score, watch_status } = animelist
-  await prismaClient.animelist.upsert({
+  const { media_id, user_id, score, watch_status } = animelist
+  await prismaClient.followList.upsert({
     where: {
-      anime_id_user_id: {
-        anime_id,
+      media_id_user_id: {
+        media_id,
         user_id,
       },
     },
@@ -39,12 +39,16 @@ export async function upsertAnimelist(
   })
 }
 
-export async function removeFollowing(userId: string, animeId: string) {
-  const resp = await prismaClient.animelist.delete({
+export async function removeFollowing(userId: string, media_id: string) {
+  const resp = await prismaClient.followList.delete({
     where: {
-      anime_id_user_id: {
+      // anime_id_user_id: {
+      //   user_id: userId,
+      //   anime_id: animeId,
+      // },
+      media_id_user_id: {
+        media_id: parseInt(media_id),
         user_id: userId,
-        anime_id: animeId,
       },
     },
   })

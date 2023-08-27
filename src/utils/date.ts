@@ -69,24 +69,24 @@ function toWeekday(n: number): string {
 }
 
 export function sortDay(a: any, b: any) {
-  if (!a.dayOfWeek) return 1
-  if (!b.dayOfWeek) return -1
-  return parseWeekday(a.dayOfWeek) - parseWeekday(b.dayOfWeek)
+  if (!a.dayOfWeek?.jp) return 1
+  if (!b.dayOfWeek?.jp) return -1
+  return parseWeekday(a.dayOfWeek?.jp) - parseWeekday(b.dayOfWeek?.jp)
 }
 
 export function sortTime(a: any, b: any) {
-  if (!a.time) return 1
-  if (!b.time) return -1
-  return a.time > b.time ? 1 : -1
+  if (!a.time?.jp) return 1
+  if (!b.time?.jp) return -1
+  return a.time?.jp > b.time?.jp ? 1 : -1
 }
 
 export function jp2hk(anime: any): any {
-  if (!anime.time) return anime
+  if (!anime.time?.jp) return anime
 
   let transformedTime
   let transformedDay
-  if (anime.dayOfWeek) {
-    const dayjsJP = parseFromTimeJP(anime.time)?.day(parseWeekday(anime.dayOfWeek))
+  if (anime.dayOfWeek?.jp) {
+    const dayjsJP = parseFromTimeJP(anime.time?.jp)?.day(parseWeekday(anime.dayOfWeek?.jp))
     if (dayjsJP) {
       const dayjsHK = dayjsJP.tz('Asia/Hong_Kong')
       transformedDay = toWeekday(dayjsHK.day())
@@ -95,59 +95,59 @@ export function jp2hk(anime: any): any {
   }
 
   let transformedStartDate
-  if (anime.startDate) {
-    const startDayjsJP = parseFromDateTimeJP(`${anime.startDate} ${anime.time}`)
+  if (anime.startDate?.jp) {
+    const startDayjsJP = parseFromDateTimeJP(`${anime.startDate?.jp} ${anime.time?.jp}`)
     const startDayjsHK = startDayjsJP?.tz('Asia/Hong_Kong')
     transformedStartDate = startDayjsHK?.format('YYYY-MM-DD')
   }
 
   let transformedEndDate
-  if (anime.endDate) {
-    const endDayjsJP = parseFromDateTimeJP(`${anime.endDate} ${anime.time}`)
+  if (anime.endDate?.jp) {
+    const endDayjsJP = parseFromDateTimeJP(`${anime.endDate?.jp} ${anime.time?.jp}`)
     const endDayjsHK = endDayjsJP?.tz('Asia/Hong_Kong')
     transformedEndDate = endDayjsHK?.format('YYYY-MM-DD')
   }
 
   return {
     ...anime,
-    time: transformedTime,
-    dayOfWeek: transformedDay || null,
-    startDate: transformedStartDate || null,
-    endDate: transformedEndDate || null,
+    time: { jp: transformedTime },
+    dayOfWeek: { jp: transformedDay } || null,
+    startDate: { jp: transformedStartDate } || null,
+    endDate: { jp: transformedEndDate } || null,
   }
 }
 
 export function transformAnimeLateNight(anime: any): any {
-  if (!anime.time) return anime
-  const dayjsHK = dayjs(anime.time, 'HH:mm')
+  if (!anime.time?.jp) return anime
+  const dayjsHK = dayjs(anime.time?.jp, 'HH:mm')
   if (dayjsHK.hour() > 5) return anime
 
   const transformedTime = `${dayjsHK.hour() + 24}:${dayjsHK.format('mm')}`
 
   let transformedDay
-  if (anime.dayOfWeek) {
-    const newDayjsHK = dayjsHK.day(parseWeekday(anime.dayOfWeek))
+  if (anime.dayOfWeek?.jp) {
+    const newDayjsHK = dayjsHK.day(parseWeekday(anime.dayOfWeek?.jp))
     transformedDay = toWeekday(newDayjsHK.subtract(1, 'day').day())
   }
 
   let transformedStartDate
-  if (anime.startDate) {
-    const startDayjs = parseFromDateTimeJP(`${anime.startDate} ${anime.time}`)
+  if (anime.startDate?.jp) {
+    const startDayjs = parseFromDateTimeJP(`${anime.startDate?.jp} ${anime.time?.jp}`)
     transformedStartDate = startDayjs?.subtract(1, 'day')?.format('YYYY-MM-DD')
   }
 
   let transformedEndDate
-  if (anime.endDate) {
-    const endDayjs = parseFromDateTimeJP(`${anime.endDate} ${anime.time}`)
+  if (anime.endDate?.jp) {
+    const endDayjs = parseFromDateTimeJP(`${anime.endDate?.jp} ${anime.time?.jp}`)
     transformedEndDate = endDayjs?.subtract(1, 'day')?.format('YYYY-MM-DD')
   }
 
   return {
     ...anime,
-    time: transformedTime,
-    dayOfWeek: transformedDay || null,
-    startDate: transformedStartDate || null,
-    endDate: transformedEndDate || null,
+    time: { jp: transformedTime },
+    dayOfWeek: { jp: transformedDay } || null,
+    startDate: { jp: transformedStartDate } || null,
+    endDate: { jp: transformedEndDate } || null,
   }
 }
 
@@ -184,7 +184,7 @@ export function month2Season(n: number): string {
     return 'summer'
   }
   if (n >= 10 && n <= 12) {
-    return 'autumn'
+    return 'fall'
   }
   throw Error('month number out of range')
 }

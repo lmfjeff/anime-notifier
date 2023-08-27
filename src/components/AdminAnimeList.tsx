@@ -1,5 +1,5 @@
 import { Box, Text, Wrap } from '@chakra-ui/layout'
-import { Anime } from '@prisma/client'
+import { Media } from '@prisma/client'
 import React, { useMemo } from 'react'
 import { weekdayOption, weekdayTcOption } from '../constants/animeOption'
 import { AnimeOverview } from '../types/anime'
@@ -7,7 +7,7 @@ import { gethkNow, parseWeekday, reorderByDate, reorderIndexFromSunday } from '.
 import { AdminAnimeCard } from './AdminAnimeCard'
 
 type AdminAnimeListProps = {
-  animes: Anime[]
+  animes: Media[]
   deleteAnime: (id: string) => Promise<void>
   hideAnime: (id: string, hide: boolean) => Promise<void>
 }
@@ -18,12 +18,12 @@ export const AdminAnimeList = ({ animes, deleteAnime, hideAnime }: AdminAnimeLis
   const day = now.day()
 
   const animesByDayReordered = useMemo(() => {
-    const animesByDay: Anime[][] = [[], [], [], [], [], [], [], []]
+    const animesByDay: Media[][] = [[], [], [], [], [], [], [], []]
     animes.forEach(anime => {
-      if (parseWeekday(anime.dayOfWeek) === -1) {
+      if (parseWeekday(anime.dayOfWeek?.jp) === -1) {
         animesByDay[7].push(anime)
       } else {
-        animesByDay[parseWeekday(anime.dayOfWeek)].push(anime)
+        animesByDay[parseWeekday(anime.dayOfWeek?.jp)].push(anime)
       }
     })
     const tmp = reorderByDate(animesByDay, hour, day)

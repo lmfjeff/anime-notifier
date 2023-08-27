@@ -1,5 +1,5 @@
 import { Box, Flex, Text } from '@chakra-ui/react'
-import { Anime } from '@prisma/client'
+import { Media } from '@prisma/client'
 import axios from 'axios'
 import { GetServerSideProps, GetStaticProps } from 'next'
 import { getSession } from 'next-auth/react'
@@ -32,7 +32,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
 }
 
 type AnimeEditPageProps = {
-  anime: Anime
+  anime: Media
 }
 
 export default function AnimeEditPage({ anime }: AnimeEditPageProps) {

@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
-import { Anime } from '@prisma/client'
+import { Media } from '@prisma/client'
 import axios from 'axios'
 import { GetServerSideProps } from 'next'
 import { getSession } from 'next-auth/react'
@@ -39,7 +39,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     season,
   }
 
-  let animes: Anime[]
+  let animes: Media[]
 
   // if visit this season, get this season's anime & past 3 seasons' currently_airing anime
   if (year === now.year().toString() && season === month2Season(nowMonth)) {
@@ -51,7 +51,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     animes = animesBySeason
   }
 
-  animes = animes.filter(anime => anime.type === 'tv')
+  animes = animes.filter(anime => anime.format === 'TV')
 
   return {
     props: { animes, queryParams },
@@ -59,7 +59,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
 }
 
 type AdminAnimeSeasonPageProps = {
-  animes: Anime[]
+  animes: Media[]
   queryParams: GetAnimesBySeasonRequest
 }
 
@@ -85,7 +85,7 @@ export default function AdminAnimeSeasonPage({ animes, queryParams }: AdminAnime
     router.push(`/admin/anime/season/${url}`)
   }
 
-  const tvAnimes: Anime[] = useMemo(() => animes.map(jp2hk).map(transformAnimeLateNight).sort(sortTime), [animes])
+  const tvAnimes: Media[] = useMemo(() => animes.map(jp2hk).map(transformAnimeLateNight).sort(sortTime), [animes])
 
   return (
     <>

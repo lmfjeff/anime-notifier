@@ -20,15 +20,15 @@ import { AnimeImage } from './AnimeImage'
 import { weekdayTcOption } from '../constants/animeOption'
 import { formatHKMonthDay, parseFromDateTime, parseToDayjs } from '../utils/date'
 import { Dayjs } from 'dayjs'
-import { Anime, Animelist } from '@prisma/client'
+import { Media, FollowList } from '@prisma/client'
 import { range } from 'ramda'
 import { WATCH_STATUS_COLOR, WATCH_STATUS_DISPLAY_NAME, WATCH_STATUS_OPTIONS } from '../constants/followOption'
 import { BeatLoader } from 'react-spinners'
 
 type AnimeCardProps = {
-  anime: Anime
-  followStatus?: Animelist
-  upsertAnimelist: (animelist: Partial<Animelist>) => Promise<void>
+  anime: Media
+  followStatus?: FollowList
+  upsertAnimelist: (animelist: Partial<FollowList>) => Promise<void>
   removeFollowing: (id: string) => Promise<void>
   now: Dayjs | undefined
   sort: string
@@ -48,14 +48,14 @@ export const AnimeCard = ({
   showMenu,
   thisSeason,
 }: AnimeCardProps) => {
-  const displayName = anime.title
-  const weekdayString = weekdayTcOption[anime.dayOfWeek || '']
-    ? weekdayTcOption[anime.dayOfWeek || '']?.replace('星期', '')
+  const displayName = anime.title.zh || anime.title.native
+  const weekdayString = weekdayTcOption[anime.dayOfWeek?.jp || '']
+    ? weekdayTcOption[anime.dayOfWeek?.jp || '']?.replace('星期', '')
     : '未知'
-  const airTime = anime.time
+  const airTime = anime.time?.jp
   const timeString = airTime || '無時間'
 
-  const startDate = anime.startDate
+  const startDate = anime.startDate?.jp
   const startDayjs = startDate && airTime && parseFromDateTime(`${startDate} ${airTime}`)
   const hrToAir = startDayjs && startDayjs.diff(now, 'hour', true)
   const notAired = hrToAir && hrToAir > 0
@@ -63,7 +63,7 @@ export const AnimeCard = ({
   const within72HrToAir = notAired && hrToAir < 72
   const startDateString = within72HrToAir ? `即將首播` : notAired ? `仲有${Math.floor(hrToAir / 24)}日` : null
 
-  const endDate = anime.endDate
+  const endDate = anime.endDate?.jp
   const endDayjs = parseFromDateTime(`${endDate} ${airTime}`)
   const hrToEnd = endDayjs && endDayjs.diff(now, 'hour', true)
   const isFinished = hrToEnd && hrToEnd < 0
@@ -71,9 +71,8 @@ export const AnimeCard = ({
   const almostEndString = within72HrToEnd ? '最後一集' : null
   const endString = isFinished && thisSeason ? '完' : null
 
-  const malScore = anime.mal_score || '無'
-  const score =
-    anime.average_vote_score || anime.average_vote_score === 0 ? Math.round(anime.average_vote_score * 100) / 100 : '無'
+  const malScore = anime.scoreExternal?.anilist || anime.scoreExternal?.mal || '無'
+  const score = anime.score || anime.score === 0 ? Math.round(anime.score * 100) / 100 : '無'
 
   const [showModal, setShowModal] = useState(false)
   const [rating, setRating] = useState('')
@@ -96,10 +95,10 @@ export const AnimeCard = ({
     setFollowLoading(true)
     try {
       if (followed) {
-        await removeFollowing(anime.id)
+        await removeFollowing(anime.id.toString())
       } else {
         await upsertAnimelist({
-          anime_id: anime.id,
+          media_id: anime.id,
           watch_status: 'watching',
         })
       }
@@ -115,7 +114,7 @@ export const AnimeCard = ({
     setVoteLoading(true)
     try {
       await upsertAnimelist({
-        anime_id: anime.id,
+        media_id: anime.id,
         score: r,
       })
     } catch {
@@ -130,7 +129,7 @@ export const AnimeCard = ({
     setStatusLoading(true)
     try {
       await upsertAnimelist({
-        anime_id: anime.id,
+        media_id: anime.id,
         watch_status: s,
       })
     } catch {
@@ -155,7 +154,7 @@ export const AnimeCard = ({
       <Link href={`/anime/${anime.id}`} passHref>
         <AspectRatio ratio={1}>
           <AnimeImage
-            src={anime.picture || ''}
+            src={anime.pictures?.[0] || ''}
             alt={displayName}
             borderRadius={2}
             boxShadow="0 0 3px gray"
@@ -179,7 +178,7 @@ export const AnimeCard = ({
             minW="35px"
             minH="35px"
           >
-            {sort === 'mal_score' ? (
+            {sort === 'anilist_score' ? (
               <Text>{malScore}</Text>
             ) : sort === 'score' ? (
               <Text>{score}</Text>

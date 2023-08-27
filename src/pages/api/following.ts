@@ -1,4 +1,4 @@
-import { Animelist, Prisma } from '@prisma/client'
+import { FollowList, Prisma } from '@prisma/client'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getSession } from 'next-auth/react'
 import { getAnimeById } from '../../services/prisma/anime.service'
@@ -14,9 +14,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'GET') {
     try {
-      const options: Prisma.AnimelistFindManyArgs = {} //orderBy: { score: { sort: 'desc', nulls: 'last' } }
+      const options: Prisma.FollowListFindManyArgs = {} //orderBy: { score: { sort: 'desc', nulls: 'last' } }
       const { page } = req.query
-      const sort = req.query.sort as Prisma.AnimelistOrderByWithRelationInput
+      const sort = req.query.sort as keyof Prisma.FollowListOrderByWithRelationInput
       const order = (req.query.order as Prisma.SortOrder) || 'asc'
       const watch_status = req.query.status as string
       const offsetPage = parseInt(page as string) - 1
@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
       if (page) {
-        options.include = { anime: true }
+        options.include = { media: true }
         options.take = pageSize
         options.skip = offsetPage * pageSize
       }
@@ -64,12 +64,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'POST') {
     try {
-      const animelist = req.body as Animelist
-      const anime = await getAnimeById(animelist.anime_id)
-      animelist.user_id = userId
+      const { media_id, ...rest } = req.body as Partial<FollowList>
+      const anime = await getAnimeById(media_id?.toString())
+      if (!media_id) return res.status(400)
       if (anime === null) return res.status(400).json({ message: 'anime id not exist' })
 
-      await upsertAnimelist(animelist)
+      await upsertAnimelist({ media_id, user_id: userId, ...rest })
       res.status(200).end()
     } catch (error) {
       console.log(error)
@@ -79,8 +79,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'DELETE') {
     try {
-      const { animeId } = req.query as { animeId: string }
-      await removeFollowing(userId, animeId)
+      const { media_id } = req.query as { media_id: string }
+      await removeFollowing(userId, media_id)
       res.status(200).end()
     } catch (error) {
       console.log(error)

@@ -31,7 +31,7 @@ export const AnimeSorter = ({ sort, setSort }: AnimeSorterProps) => {
   const sortOptions = [
     { val: 'weekly', text: '星期' },
     { val: 'compact', text: '無排序' },
-    { val: 'mal_score', text: 'MAL評分' },
+    { val: 'anilist_score', text: 'Anilist評分' },
     { val: 'score', text: '本站評分' },
   ]
   return (

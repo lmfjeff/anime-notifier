@@ -1,18 +1,24 @@
-import { Anime, Prisma } from '@prisma/client'
+import { Media, Prisma } from '@prisma/client'
 import { prismaClient } from '../../lib/prisma'
 import { pastSeasons } from '../../utils/date'
 
-export async function getAnimesByStatus(year: string, season: string): Promise<Anime[]> {
+export async function getAnimesByStatus(year: string, season: string): Promise<Media[]> {
   const yearSeason = `${year}-${season}`
-  return await prismaClient.anime.findMany({
+  return await prismaClient.media.findMany({
     where: {
-      status: 'currently_airing',
-      yearSeason: {
-        in: pastSeasons(yearSeason, 3),
-      },
+      airingStatus: 'RELEASING',
+      // yearSeason: {
+      //   in: pastSeasons(yearSeason, 3),
+      // },
+      AND: [
+        {
+          year: parseInt(year),
+          season,
+        },
+      ],
     },
     include: {
-      animelist: {
+      followlist: {
         select: {
           score: true,
         },
@@ -21,14 +27,15 @@ export async function getAnimesByStatus(year: string, season: string): Promise<A
   })
 }
 
-export async function getAnimesBySeason(year: string, season: string): Promise<Anime[]> {
+export async function getAnimesBySeason(year: string, season: string): Promise<Media[]> {
   const yearSeason = `${year}-${season}`
-  return await prismaClient.anime.findMany({
+  return await prismaClient.media.findMany({
     where: {
-      yearSeason,
+      year: parseInt(year),
+      season,
     },
     include: {
-      animelist: {
+      followlist: {
         select: {
           score: true,
         },
@@ -37,65 +44,73 @@ export async function getAnimesBySeason(year: string, season: string): Promise<A
   })
 }
 
-export async function findAnimeWithExternalPic(): Promise<Anime | null> {
-  return await prismaClient.anime.findFirst({
+// todo
+export async function findAnimeWithExternalPic(): Promise<Media | null> {
+  return await prismaClient.media.findFirst({
+    // where: {
+    //   picture: {
+    //     startsWith: 'http',
+    //   },
+    //   type: 'tv',
+    // },
+  })
+}
+
+export async function getAnimeById(id: string | undefined): Promise<Media | null> {
+  if (!id) return null
+  return await prismaClient.media.findUnique({
     where: {
-      picture: {
-        startsWith: 'http',
-      },
-      type: 'tv',
+      id: parseInt(id),
+    },
+    include: {
+      genres: true,
     },
   })
 }
 
-export async function getAnimeById(id: string | undefined): Promise<Anime | null> {
-  return await prismaClient.anime.findUnique({
-    where: {
-      id,
-    },
-  })
-}
-
-export async function getAnimesByIds(animeIds: string[]): Promise<Anime[]> {
-  return await prismaClient.anime.findMany({
+export async function getAnimesByIds(animeIds: string[]): Promise<Media[]> {
+  return await prismaClient.media.findMany({
     where: {
       id: {
-        in: animeIds,
+        in: animeIds.map(id => parseInt(id)),
       },
     },
   })
 }
 
 export async function updateAnime(
-  anime: Prisma.XOR<Prisma.AnimeUpdateInput, Prisma.AnimeUncheckedUpdateInput>
-): Promise<Anime> {
+  anime: Prisma.XOR<Prisma.MediaUpdateInput, Prisma.MediaUncheckedUpdateInput>
+): Promise<Media> {
   const { id, ...data } = anime
-  return await prismaClient.anime.update({
+  return await prismaClient.media.update({
     where: {
-      id: id as string | undefined,
+      id: id as number,
     },
     data,
   })
 }
 
-export async function createAnime(anime: Prisma.AnimeCreateInput): Promise<Anime> {
-  return await prismaClient.anime.create({
+export async function createAnime(anime: Prisma.MediaCreateInput): Promise<Media> {
+  return await prismaClient.media.create({
     data: anime,
   })
 }
 
-export async function deleteAnime(id: string): Promise<Anime> {
-  return await prismaClient.anime.delete({
+export async function deleteAnime(id: number): Promise<Media> {
+  return await prismaClient.media.delete({
     where: {
       id,
     },
   })
 }
 
-export async function getAnimeByMalId(malId: string): Promise<Anime | null> {
-  return await prismaClient.anime.findFirst({
+export async function getAnimeByMalId(malId: string): Promise<Media | null> {
+  return await prismaClient.media.findFirst({
     where: {
-      malId,
+      idExternal: {
+        path: ['mal'],
+        equals: parseInt(malId),
+      },
     },
   })
 }

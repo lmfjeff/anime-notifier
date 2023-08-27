@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'DELETE') {
     try {
-      await deleteAnime(req.query.id as string)
+      await deleteAnime(parseInt(req.query.id as string))
       res.status(200).end()
     } catch (error) {
       console.log(error)

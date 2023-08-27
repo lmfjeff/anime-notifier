@@ -64,7 +64,7 @@ export const SeasonPicker = ({ queryParams, onSelectSeason }: SeasonPickerProps)
   const { year, season } = queryParams
   const [selectedYear, setSelectedYear] = useState(year)
 
-  const yearList = range(2020, gethkNow().add(3, 'month').year() + 1)
+  const yearList = range(1995, gethkNow().add(3, 'month').year() + 1)
     .map(number => number.toString())
     .reverse()
 

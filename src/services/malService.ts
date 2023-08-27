@@ -85,6 +85,18 @@ export async function getSeasonalAnime(
   return resp.data
 }
 
+export async function getAnimeList(offset: number) {
+  const params = {
+    fields: malFields.join(','),
+    nsfw: '1',
+    limit: '100',
+    offset: offset.toString(),
+  }
+  const url = `https://api.myanimelist.net/v2/anime?` + new URLSearchParams(params)
+  const resp = await axios.get(url, malGetConfig)
+  return resp.data
+}
+
 export async function getAnime(
   // malAuth: { accessToken: string; refreshToken: string; lastUpdated: string },
   malId: string

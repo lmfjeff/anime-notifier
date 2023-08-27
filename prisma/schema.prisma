@@ -2,8 +2,12 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["orderByNulls"]
+}
+
+generator json {
+  provider = "prisma-json-types-generator"
 }
 
 datasource db {
@@ -42,16 +46,16 @@ model Session {
 }
 
 model User {
-  id            String      @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String?
-  email         String?     @unique
-  username      String?     @unique
+  email         String?      @unique
+  username      String?      @unique
   password      String?
-  emailVerified DateTime?   @map("email_verified")
+  emailVerified DateTime?    @map("email_verified")
   image         String?
   accounts      Account[]
   sessions      Session[]
-  animelist     Animelist[]
+  followlist    FollowList[]
   webpush       Webpush[]
 
   @@map("users")
@@ -66,38 +70,79 @@ model VerificationToken {
   @@map("verificationtokens")
 }
 
-model Anime {
-  id                 String      @id @default(cuid())
-  yearSeason         String
-  title              String
-  picture            String?
-  type               String
-  status             String
-  dayOfWeek          String?
-  time               String?
-  hide               Boolean?
-  alternative_titles Json?
-  startDate          String?
-  endDate            String?
-  summary            String?
-  genres             String[]
-  source             String?
-  studios            String[]
-  numEpisodes        Int         @default(0)
-  malId              String?
-  mal_score          Float?      @db.Real
-  average_vote_score Float?      @db.Real
-  vote_number        Int         @default(0)
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @updatedAt
-  animelist          Animelist[]
+model Media {
+  // get one by id
+  id           Int      @id @default(autoincrement())
+  year         Int?
+  season       String? // winter,spring,summer,fall
+  slug         String? // Kono_Subarashii_Sekai_ni_Shukufuku_wo
+  airingStatus String? // not_yet_aired,currently_airing,currently_airing
+  isHiden      Boolean  @default(false)
+  studios      String[] @default([]) // ["tokyo animatio","fappa"]
+  genres       Genres[]
+  votes        Int      @default(0)
+  follows      Int      @default(0)
+
+  format   String? // tv,ona,ova,movie
+  country  String? // jp/kr/cn/hk/us/gb (ios 3166-1 alpha-2)
+  pictures String[] @default([]) // [img/123.webp,img/121.webp]
+  source   String? // original,light_novel,manga,game
+  episodes Int?
+  score    Float?   @db.Real // 7.81
+
+  // alternative_titles Json?
+  /// [MyType]
+  title   Json // ISO 639-1 {"zh":"冰菓","en":"Hyouka","ja":"氷菓","romaji":"Isekai Ittara Honki Dasu"}
+  /// [MyType]
+  summary Json?
+  /// [MyType]
+  dayOfWeek     Json? // {"jp":"saturday","baha":"sunday"} jst+9
+  /// [MyType]
+  time          Json? // {"jp":"23:30","baha":"00:30"} jst+9
+  /// [MyType]
+  startDate     Json? // {"jp":"2023-01-01","baha":"2023-01-02"} jst+9
+  /// [MyType]
+  endDate       Json? // {"jp":"2023-04-30","baha":"2023-05-01"} jst+9
+  /// [MyType]
+  idExternal    Json? // {"mal": 123, "anilist": 234}
+  /// [MyType]
+  scoreExternal Json? // {"mal": 4.55, "anilist": 3.55}
+
+  createdAt            DateTime     @default(now()) @db.Timestamptz()
+  updatedAt            DateTime     @updatedAt @db.Timestamptz()
+  followlist           FollowList[]
+  destinationRelations Relations[]  @relation("destination-media")
+  sourceRelations      Relations[]  @relation("source-media")
 
   @@map("animes")
 }
 
-model Animelist {
-  anime        Anime    @relation(fields: [anime_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  anime_id     String
+model Genres {
+  id    Int     @id @default(autoincrement())
+  key   String  @unique // detective
+  /// [MyType]
+  name  Json? // {"en":"detective","zh":"偵探"}
+  media Media[]
+
+  @@map("genres")
+}
+
+model Relations {
+  relationType   String // source vs adaption/prequel vs sequel
+  //side_story/summary/character/spin_off/other/compilation/contains vs parent
+  //alternative
+  source         Media  @relation(name: "source-media", fields: [source_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  source_id      Int
+  destination    Media  @relation(name: "destination-media", fields: [destination_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  destination_id Int
+
+  @@id([source_id, destination_id])
+  @@map("relations")
+}
+
+model FollowList {
+  media        Media    @relation(fields: [media_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  media_id     Int
   user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user_id      String
   watch_status String   @default("watching")
@@ -105,13 +150,14 @@ model Animelist {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  @@id([anime_id, user_id])
-  @@map("animelist")
+  @@id([media_id, user_id])
+  @@map("followlist")
 }
 
 model Webpush {
   device            String   @id
   active            Boolean
+  /// [MyType]
   push_subscription Json
   useragent         String
   user              User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
