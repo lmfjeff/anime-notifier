@@ -33,6 +33,9 @@ export async function getAnimesBySeason(year: string, season: string): Promise<M
     where: {
       year: parseInt(year),
       season,
+      format: {
+        in: ['TV', 'TV_SHORT'],
+      },
     },
     include: {
       followlist: {

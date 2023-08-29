@@ -61,7 +61,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     animes = animesBySeason
   }
 
-  animes = animes.filter(anime => anime.format === 'TV')
+  // animes = animes.filter(anime => anime.format === 'TV')
   console.log('🚀 ~ file: [[...path]].tsx:63 ~ constgetStaticProps:GetStaticProps= ~ animes:', animes.length)
 
   return {
