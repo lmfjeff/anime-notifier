@@ -2,7 +2,7 @@ import { Button } from '@chakra-ui/button'
 import { Flex, VStack } from '@chakra-ui/layout'
 import { GetServerSideProps } from 'next'
 import { getSession } from 'next-auth/react'
-import Link from 'next/link'
+import { Link } from '../../components/CustomLink'
 
 export const getServerSideProps: GetServerSideProps = async context => {
   const session = await getSession(context)

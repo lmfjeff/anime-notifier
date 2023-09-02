@@ -1,6 +1,6 @@
 import { Button, Flex, FlexProps, Progress, Spacer } from '@chakra-ui/react'
 import React from 'react'
-import Link from 'next/link'
+import { Link } from './CustomLink'
 import { signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 

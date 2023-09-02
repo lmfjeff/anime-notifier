@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react'
 import { FaTimes, FaBars } from 'react-icons/fa'
 import React, { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
+import { Link } from './CustomLink'
 import { AnimeImage } from './AnimeImage'
 import { weekdayTcOption } from '../constants/animeOption'
 import { formatHKMonthDay, parseFromDateTime, parseToDayjs } from '../utils/date'

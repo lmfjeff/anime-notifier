@@ -1,7 +1,7 @@
 import { IconButton } from '@chakra-ui/button'
 import { EditIcon, DeleteIcon, ViewOffIcon, ViewIcon } from '@chakra-ui/icons'
 import { AspectRatio, Box, Text } from '@chakra-ui/layout'
-import Link from 'next/link'
+import { Link } from './CustomLink'
 import React from 'react'
 import { weekdayTcOption } from '../constants/animeOption'
 import { AnimeOverview } from '../types/anime'
