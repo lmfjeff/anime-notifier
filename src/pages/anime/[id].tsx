@@ -20,7 +20,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { id } = params as { id: string | undefined }
 
   const anime = await getAnimeById(id)
-  console.log('🚀 ~ file: [id].tsx:24 ~ constgetStaticProps:GetStaticProps= ~ anime:', JSON.stringify(anime, null, 2))
+  // console.log('🚀 ~ file: [id].tsx:24 ~ constgetStaticProps:GetStaticProps= ~ anime:', JSON.stringify(anime, null, 2))
 
   if (!anime)
     return {

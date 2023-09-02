@@ -62,7 +62,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   }
 
   // animes = animes.filter(anime => anime.format === 'TV')
-  console.log('🚀 ~ file: [[...path]].tsx:63 ~ constgetStaticProps:GetStaticProps= ~ animes:', animes.length)
+  // console.log('🚀 ~ file: [[...path]].tsx:63 ~ constgetStaticProps:GetStaticProps= ~ animes:', animes.length)
 
   return {
     props: { animes, queryParams, genTime },
