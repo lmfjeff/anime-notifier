@@ -19,7 +19,7 @@ type SidebarLinkProps = {
 
 const SidebarLink = ({ text, url, checkActive, onClick, toggleSidebar }: SidebarLinkProps) => {
   return url ? (
-    <Link href={url} passHref>
+    <Link href={url}>
       <Button
         w="full"
         isActive={checkActive && checkActive(url)}
@@ -64,7 +64,7 @@ export const Sidebar = (props: SideBarProps) => {
 
   return (
     <Flex flexDirection="column" bg="#eaeaea" w={180} flexShrink={0} {...rest}>
-      <Link href="/" passHref>
+      <Link href="/">
         <Button
           w="full"
           bg="gray.400"

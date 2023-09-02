@@ -90,7 +90,7 @@ export default function AdminAnimeSeasonPage({ animes, queryParams }: AdminAnime
   return (
     <>
       <Flex justifyContent="center" alignItems="center" wrap="wrap" gap={2}>
-        <Link href="/admin/anime/create" passHref>
+        <Link href="/admin/anime/create">
           <Button bg={'white'}>新增動畫</Button>
         </Link>
         <SeasonPicker queryParams={queryParams} onSelectSeason={onSelectSeason} />

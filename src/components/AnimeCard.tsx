@@ -151,7 +151,7 @@ export const AnimeCard = ({
 
   return (
     <Box position="relative">
-      <Link href={`/anime/${anime.id}`} passHref>
+      <Link href={`/anime/${anime.id}`}>
         <AspectRatio ratio={1}>
           <AnimeImage
             src={anime.pictures?.[0] || ''}

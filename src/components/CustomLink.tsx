@@ -1,11 +1,17 @@
-import NextLink, { LinkProps } from 'next/link'
+import React from 'react'
+import { useRouter } from 'next/router'
 
-type CustomLinkProps = LinkProps & { children: React.ReactNode }
+type CustomLinkProps = { href: string; children: React.ReactNode }
 
-export function Link({ href, prefetch = false, children, ...rest }: CustomLinkProps) {
+export const Link = ({ href, children }: CustomLinkProps) => {
+  const router = useRouter()
+  const handleClick = async (event: React.MouseEvent) => {
+    event.preventDefault()
+    await router.push(href)
+  }
   return (
-    <NextLink href={href} prefetch={prefetch} {...rest}>
+    <a href={href} onClick={handleClick}>
       {children}
-    </NextLink>
+    </a>
   )
 }

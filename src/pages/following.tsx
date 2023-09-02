@@ -98,7 +98,7 @@ const FollowingList = ({ animes, removeFollowing, disabled }: FollowingListProps
   return (
     <>
       {animes.map(({ media, watch_status, score }) => (
-        <Link href={`/anime/${media.id}`} passHref key={media.id}>
+        <Link href={`/anime/${media.id}`} key={media.id}>
           <Flex
             px={3}
             alignItems="center"
