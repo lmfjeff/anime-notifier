@@ -19,11 +19,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const sort = req.query.sort as keyof Prisma.FollowListOrderByWithRelationInput
       const order = (req.query.order as Prisma.SortOrder) || 'asc'
       const watch_status = req.query.status as string
+      const media_id = req.query.media_id as string
       const offsetPage = parseInt(page as string) - 1
       const pageSize = 25
       if (watch_status && watch_status !== 'all') {
         options.where = {
           watch_status,
+        }
+      }
+      if (media_id) {
+        options.where = {
+          ...options.where,
+          media_id: parseInt(media_id),
         }
       }
       if (sort === 'score') {

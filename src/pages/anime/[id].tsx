@@ -1,4 +1,17 @@
-import { AspectRatio, Box, Container, Flex, Icon, IconButton, Table, Tbody, Td, Text, Tr } from '@chakra-ui/react'
+import {
+  AspectRatio,
+  Box,
+  Container,
+  Flex,
+  Icon,
+  IconButton,
+  Select,
+  Table,
+  Tbody,
+  Td,
+  Text,
+  Tr,
+} from '@chakra-ui/react'
 import { GetStaticProps } from 'next'
 import { AnimeImage } from '../../components/AnimeImage'
 import { HtmlHead } from '../../components/HtmlHead'
@@ -12,9 +25,15 @@ import {
 // import { getAnimeById } from '../../services/dynamodb/animeService'
 import { getAnimeById } from '../../services/prisma/anime.service'
 // import { AnimeDetail } from '../../types/anime'
-import { Media, Prisma } from '@prisma/client'
+import { FollowList, Media, Prisma } from '@prisma/client'
 import { formatTimeDetailed, jp2hk, parseToDayjs, transformAnimeLateNight } from '../../utils/date'
 import { TiArrowBack } from 'react-icons/ti'
+import { useSession } from 'next-auth/react'
+import axios from 'axios'
+import { useQuery } from 'react-query'
+import { useEffect, useState } from 'react'
+import { WATCH_STATUS_DISPLAY_NAME, WATCH_STATUS_OPTIONS } from '../../constants/followOption'
+import { range } from 'ramda'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { id } = params as { id: string | undefined }
@@ -45,6 +64,64 @@ type AnimeDetailPageProps = {
 AnimeDetailPage.getTitle = '動畫詳情'
 
 export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps) {
+  const [rating, setRating] = useState('')
+  const [watchStatus, setWatchStatus] = useState('')
+
+  const { data: session, status } = useSession()
+  const loading = status === 'loading'
+
+  const fetchFollowing = async () => {
+    const { data } = await axios.get('/api/following', { params: { media_id: anime.id } })
+    return data
+  }
+
+  const {
+    data: followingData,
+    refetch: followingRefetch,
+    isLoading: isFollowingLoading,
+  } = useQuery(['anime', 'following', anime.id], fetchFollowing, {
+    enabled: !loading && !!session,
+  })
+  const followingAnime = followingData?.animes?.[0]
+
+  const upsertAnimelist = async (data: Partial<FollowList>) => {
+    await axios.post('/api/following', data)
+    await followingRefetch()
+  }
+
+  const handleVote = async (r: string) => {
+    if (!r || r === rating) return
+    // setVoteLoading(true)
+    try {
+      await upsertAnimelist({
+        media_id: anime.id,
+        score: parseInt(r),
+      })
+    } catch {
+      alert('評分失敗 請再試')
+    }
+    // setVoteLoading(false)
+  }
+
+  const handleChangeStatus = async (s: string) => {
+    if (!s || s === watchStatus) return
+    // setStatusLoading(true)
+    try {
+      await upsertAnimelist({
+        media_id: anime.id,
+        watch_status: s,
+      })
+    } catch {
+      alert('更改失敗 請再試')
+    }
+    // setStatusLoading(false)
+  }
+
+  useEffect(() => {
+    setRating(followingAnime?.score?.toString())
+    setWatchStatus(followingAnime?.watch_status)
+  }, [followingAnime])
+
   const tvAnime: Prisma.MediaGetPayload<{ include: { genres: true } }> = transformAnimeLateNight(jp2hk(anime))
   const {
     year,
@@ -86,9 +163,43 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
       </Flex>
 
       <Flex wrap="wrap" justifyContent="center" alignItems="flex-start" gap={5}>
-        <AspectRatio w={['250px', '300px', null]} ratio={3 / 4}>
-          <AnimeImage src={pictures?.[0] || ''} alt={displayedTitle} borderRadius={2} boxShadow="0 0 3px gray" />
-        </AspectRatio>
+        <Flex flexDir={'column'} gap={2}>
+          <AspectRatio w={['250px', '300px', null]} ratio={3 / 4}>
+            <AnimeImage src={pictures?.[0] || ''} alt={displayedTitle} borderRadius={2} boxShadow="0 0 3px gray" />
+          </AspectRatio>
+          <Flex align={'center'} gap={2}>
+            <Text>觀看狀態</Text>
+            <Select
+              w={'fit-content'}
+              variant={'outline'}
+              value={watchStatus}
+              placeholder=" "
+              onChange={e => handleChangeStatus(e.target.value)}
+            >
+              {WATCH_STATUS_OPTIONS.map(v => (
+                <option key={v} value={v}>
+                  {WATCH_STATUS_DISPLAY_NAME[v]}
+                </option>
+              ))}
+            </Select>
+            <Text>評分</Text>
+            <Select
+              w={'fit-content'}
+              variant={'outline'}
+              value={rating}
+              placeholder=" "
+              onChange={e => handleVote(e.target.value)}
+            >
+              {range(0, 21)
+                .map(n => n / 2)
+                .map(rat => (
+                  <option key={rat} value={rat}>
+                    {rat}
+                  </option>
+                ))}
+            </Select>
+          </Flex>
+        </Flex>
         <Box flexGrow={1} w={['250px', '400px', null]}>
           <Text fontSize="2xl">{displayedTitle}</Text>
           <Text fontSize="sm" color="gray">
