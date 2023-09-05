@@ -2,6 +2,36 @@ import { Media, Prisma } from '@prisma/client'
 import { prismaClient } from '../../lib/prisma'
 import { pastSeasons } from '../../utils/date'
 
+export async function searchAnimes(q: string, page: number) {
+  const offset = page ? (page - 1) * 20 : 0
+  return await prismaClient.media.findMany({
+    take: 20,
+    skip: offset,
+    where: {
+      OR: [
+        {
+          title: {
+            path: ['native'],
+            string_contains: q,
+          },
+        },
+        {
+          title: {
+            path: ['zh'],
+            string_contains: q,
+          },
+        },
+        {
+          title: {
+            path: ['english'],
+            string_contains: q,
+          },
+        },
+      ],
+    },
+  })
+}
+
 export async function getAnimesByStatus(year: string, season: string): Promise<Media[]> {
   const yearSeason = `${year}-${season}`
   return await prismaClient.media.findMany({

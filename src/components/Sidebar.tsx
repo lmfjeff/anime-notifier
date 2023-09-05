@@ -1,5 +1,5 @@
-import { Button, Flex, FlexProps, Progress, Spacer } from '@chakra-ui/react'
-import React from 'react'
+import { Box, Button, Flex, FlexProps, Input, Progress, Spacer } from '@chakra-ui/react'
+import React, { useState } from 'react'
 import { Link } from './CustomLink'
 import { signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
@@ -62,6 +62,8 @@ export const Sidebar = (props: SideBarProps) => {
     return reg.test(router.asPath)
   }
 
+  const [search, setSearch] = useState('')
+
   return (
     <Flex flexDirection="column" bg="#eaeaea" w={180} flexShrink={0} {...rest}>
       <Link href="/">
@@ -84,6 +86,22 @@ export const Sidebar = (props: SideBarProps) => {
       <SidebarLink url="/faq" text="FAQ" checkActive={checkActive} />
 
       <Spacer />
+      <Box px={1}>
+        <Input
+          bg="whiteAlpha.500"
+          placeholder="搜尋"
+          onChange={e => setSearch(e.target.value)}
+          onKeyDown={e => {
+            if (!search) return
+            if (e.key === 'Enter') {
+              router.push({
+                pathname: '/anime/search',
+                query: { q: search },
+              })
+            }
+          }}
+        />
+      </Box>
       {loading ? (
         <Progress isIndeterminate />
       ) : (
