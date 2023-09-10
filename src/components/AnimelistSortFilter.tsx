@@ -4,11 +4,11 @@ import { FaLongArrowAltUp, FaLongArrowAltDown, FaSort, FaSortUp, FaSortDown } fr
 
 type AnimelistSortFilterProps = {
   sort: string
-  setSort: React.Dispatch<React.SetStateAction<string>>
+  setSort?: (v: string) => void
   sortOrder: string
-  setSortOrder: React.Dispatch<React.SetStateAction<string>>
+  setSortOrder?: (v: string) => void
   statusFilter: string
-  setStatusFilter: React.Dispatch<React.SetStateAction<string>>
+  setStatusFilter?: (v: string) => void
 }
 
 export const AnimelistSortFilter = ({
@@ -22,6 +22,7 @@ export const AnimelistSortFilter = ({
   const sortOptions = {
     updatedAt: '更新',
     score: '評分',
+    year: '播出',
   }
   const watchStatusOptions = [...WATCH_STATUS_OPTIONS, 'all']
   const watchStatusDisplayName: Record<string, string> = {
@@ -41,7 +42,7 @@ export const AnimelistSortFilter = ({
             borderLeft={index === 0 ? '1px solid grey' : 'none'}
             bg={status === statusFilter ? 'hsl(216, 68%, 42%)' : 'unset'}
             color={status === statusFilter ? 'white' : 'unset'}
-            onClick={() => setStatusFilter(status)}
+            onClick={() => setStatusFilter && setStatusFilter(status)}
           >
             {watchStatusDisplayName[status]}
           </Box>
@@ -62,10 +63,10 @@ export const AnimelistSortFilter = ({
             color={sort === sortOpt ? 'white' : 'unset'}
             onClick={() => {
               if (sort === sortOpt) {
-                setSortOrder(old => (old === 'asc' ? 'desc' : 'asc'))
+                setSortOrder && setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
               } else {
-                setSort(sortOpt)
-                setSortOrder('desc')
+                setSort && setSort(sortOpt)
+                // setSortOrder && setSortOrder('desc')
               }
             }}
           >

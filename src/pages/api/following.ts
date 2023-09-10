@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const options: Prisma.FollowListFindManyArgs = {} //orderBy: { score: { sort: 'desc', nulls: 'last' } }
       const { page } = req.query
-      const sort = req.query.sort as keyof Prisma.FollowListOrderByWithRelationInput
+      const sort = req.query.sort // todo type?
       const order = (req.query.order as Prisma.SortOrder) || 'asc'
       const watch_status = req.query.status as string
       const media_id = req.query.media_id as string
@@ -44,6 +44,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (sort === 'updatedAt') {
         options.orderBy = {
           updatedAt: order,
+        }
+      }
+      if (sort === 'year') {
+        options.orderBy = {
+          media: {
+            year: order,
+          },
         }
       }
       if (page) {

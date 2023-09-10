@@ -5,14 +5,16 @@ import { useQuery, useQueryClient } from 'react-query'
 import { useFollowingQuery } from '../hooks/useFollowingQuery'
 import { CloseIcon } from '@chakra-ui/icons'
 import { Link } from '../components/CustomLink'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { HtmlHead } from '../components/HtmlHead'
 import { FollowingAnime } from '../types/anime'
 import { Prisma } from '@prisma/client'
-import { WATCH_STATUS_DISPLAY_NAME } from '../constants/followOption'
+import { WATCH_STATUS_COLOR, WATCH_STATUS_DISPLAY_NAME } from '../constants/followOption'
 import { AnimelistSortFilter } from '../components/AnimelistSortFilter'
+import { PrefContext } from '../context/pref'
+import { seasonTcOption } from '../constants/animeOption'
 
 FollowingPage.getTitle = '追蹤'
 
@@ -20,11 +22,23 @@ export default function FollowingPage() {
   const { data: session, status } = useSession()
   const loading = status === 'loading'
   const queryClient = useQueryClient()
-  const [sort, setSort] = useState('updatedAt')
-  const [sortOrder, setSortOrder] = useState('desc')
-  const [statusFilter, setStatusFilter] = useState('watching')
 
-  const { data, fetchNextPage, hasNextPage, isFetching } = useFollowingQuery(!!session, sort, sortOrder, statusFilter)
+  const pref = useContext(PrefContext)
+  const {
+    followSort,
+    followOrder,
+    followStatus,
+    handleChangeFollowSort,
+    handleChangeFollowOrder,
+    handleChangeFollowStatus,
+  } = pref
+
+  const { data, fetchNextPage, hasNextPage, isFetching } = useFollowingQuery(
+    !!session,
+    followSort,
+    followOrder,
+    followStatus
+  )
 
   const animes = data?.pages.map(({ animes }) => animes).flat() || []
 
@@ -40,12 +54,12 @@ export default function FollowingPage() {
       {session && (
         <Flex flexDir="column" alignItems="center" w="full">
           <AnimelistSortFilter
-            sort={sort}
-            setSort={setSort}
-            sortOrder={sortOrder}
-            setSortOrder={setSortOrder}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
+            sort={followSort}
+            setSort={handleChangeFollowSort}
+            sortOrder={followOrder}
+            setSortOrder={handleChangeFollowOrder}
+            statusFilter={followStatus}
+            setStatusFilter={handleChangeFollowStatus}
           />
           {data && (
             <>
@@ -115,7 +129,10 @@ const FollowingList = ({ animes, removeFollowing, disabled }: FollowingListProps
                   {score}
                 </Text>
               )}
-              <Text bg="blue.100" minWidth="40px" textAlign="center" p={1}>
+              <Text bg="blue.100" minWidth="60px" textAlign="center" p={1}>
+                {`${media.year}${seasonTcOption[media.season || ''].replace('番', '')}`}
+              </Text>
+              <Text bg={WATCH_STATUS_COLOR[watch_status]} minWidth="40px" textAlign="center" p={1}>
                 {WATCH_STATUS_DISPLAY_NAME[watch_status]}
               </Text>
               <IconButton
@@ -124,6 +141,7 @@ const FollowingList = ({ animes, removeFollowing, disabled }: FollowingListProps
                 disabled={disabled}
                 onClick={e => {
                   e.preventDefault()
+                  e.stopPropagation()
                   removeFollowing(media.id.toString())
                 }}
                 icon={<CloseIcon />}

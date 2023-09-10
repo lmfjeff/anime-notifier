@@ -7,45 +7,72 @@ type Props = {
 type PrefContextProps = {
   sort: string
   followFilter: string | null
+  followSort: string
+  followOrder: string
+  followStatus: string
   handleChangeSort?: (v: string) => void
   handleChangeFollowFilter?: (v: string | null) => void
+  handleChangeFollowSort?: (v: string) => void
+  handleChangeFollowOrder?: (v: string) => void
+  handleChangeFollowStatus?: (v: string) => void
 }
 
 const defaultPref = {
   sort: 'weekly',
   followFilter: null,
+  followSort: 'updatedAt',
+  followOrder: 'desc',
+  followStatus: 'watching',
 }
 
 export const PrefContext = createContext<PrefContextProps>(defaultPref)
 
 export default function PrefProvider({ children }: Props) {
-  const [sort, setSort] = useState('weekly')
-  const [followFilter, setFollowFilter] = useState<string | null>(null)
-  const LOCAL_STORAGE_SORT_KEY = 'animes-sort'
-  const LOCAL_STORAGE_FOLLOW_FILTER_KEY = 'animes-follow-filter'
+  const [pref, setPref] = useState<PrefContextProps>(defaultPref)
+  const LOCAL_STORAGE_KEY = 'animeland-pref'
 
-  const handleChangeSort = (v: string) => {
-    setSort(v)
-    window.localStorage.setItem(LOCAL_STORAGE_SORT_KEY, v)
+  const handleSave = (newPref: PrefContextProps) => {
+    setPref(newPref)
+    window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newPref))
   }
 
+  const handleChangeSort = (v: string) => {
+    const newPref = { ...pref, sort: v }
+    handleSave(newPref)
+  }
   const handleChangeFollowFilter = (v: string | null) => {
-    setFollowFilter(v)
-    window.localStorage.setItem(LOCAL_STORAGE_FOLLOW_FILTER_KEY, v || '')
+    const newPref = { ...pref, followFilter: v }
+    handleSave(newPref)
+  }
+  const handleChangeFollowSort = (v: string) => {
+    const newPref = { ...pref, followSort: v, followOrder: 'desc' }
+    handleSave(newPref)
+  }
+  const handleChangeFollowOrder = (v: string) => {
+    const newPref = { ...pref, followOrder: v }
+    handleSave(newPref)
+  }
+  const handleChangeFollowStatus = (v: string) => {
+    const newPref = { ...pref, followStatus: v }
+    handleSave(newPref)
   }
 
   useEffect(() => {
-    const sortPref = window.localStorage.getItem(LOCAL_STORAGE_SORT_KEY)
-    const followFilterPref = window.localStorage.getItem(LOCAL_STORAGE_FOLLOW_FILTER_KEY)
-    if (sortPref) setSort(sortPref)
-    if (followFilterPref) setFollowFilter(followFilterPref)
+    const savedPref = window.localStorage.getItem(LOCAL_STORAGE_KEY)
+    let p = defaultPref
+    if (savedPref) {
+      p = { ...p, ...JSON.parse(savedPref) }
+    }
+    setPref(p)
   }, [])
 
   const state = {
-    sort,
-    followFilter,
+    ...pref,
     handleChangeSort,
     handleChangeFollowFilter,
+    handleChangeFollowSort,
+    handleChangeFollowOrder,
+    handleChangeFollowStatus,
   }
 
   return <PrefContext.Provider value={state}>{children}</PrefContext.Provider>

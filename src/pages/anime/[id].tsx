@@ -6,6 +6,7 @@ import {
   Icon,
   IconButton,
   Select,
+  Spinner,
   Table,
   Tbody,
   Td,
@@ -65,6 +66,7 @@ AnimeDetailPage.getTitle = '動畫詳情'
 
 export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps) {
   const [rating, setRating] = useState('')
+  const [changingFollowList, setChangingFollowList] = useState(false)
   const [watchStatus, setWatchStatus] = useState('')
 
   const { data: session, status } = useSession()
@@ -91,21 +93,21 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
 
   const handleVote = async (r: string) => {
     if (!r || r === rating) return
-    // setVoteLoading(true)
+    setChangingFollowList(true)
     try {
       await upsertAnimelist({
         media_id: anime.id,
-        score: parseInt(r),
+        score: Number(r),
       })
     } catch {
       alert('評分失敗 請再試')
     }
-    // setVoteLoading(false)
+    setChangingFollowList(false)
   }
 
   const handleChangeStatus = async (s: string) => {
     if (!s || s === watchStatus) return
-    // setStatusLoading(true)
+    setChangingFollowList(true)
     try {
       await upsertAnimelist({
         media_id: anime.id,
@@ -114,7 +116,7 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
     } catch {
       alert('更改失敗 請再試')
     }
-    // setStatusLoading(false)
+    setChangingFollowList(false)
   }
 
   useEffect(() => {
@@ -167,7 +169,7 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
           <AspectRatio w={['250px', '300px', null]} ratio={3 / 4}>
             <AnimeImage src={pictures?.[0] || ''} alt={displayedTitle} borderRadius={2} boxShadow="0 0 3px gray" />
           </AspectRatio>
-          <Flex align={'center'} gap={2}>
+          <Flex align={'center'} gap={2} position={'relative'}>
             <Text>觀看狀態</Text>
             <Select
               w={'fit-content'}
@@ -175,6 +177,7 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
               value={watchStatus}
               placeholder=" "
               onChange={e => handleChangeStatus(e.target.value)}
+              disabled={changingFollowList}
             >
               {WATCH_STATUS_OPTIONS.map(v => (
                 <option key={v} value={v}>
@@ -189,6 +192,7 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
               value={rating}
               placeholder=" "
               onChange={e => handleVote(e.target.value)}
+              disabled={changingFollowList}
             >
               {range(0, 21)
                 .map(n => n / 2)
@@ -198,6 +202,7 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
                   </option>
                 ))}
             </Select>
+            {changingFollowList && <Spinner position={'absolute'} left="50%" />}
           </Flex>
         </Flex>
         <Box flexGrow={1} w={['250px', '400px', null]}>
