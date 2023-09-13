@@ -1,4 +1,4 @@
-import { Button, Center, Flex, IconButton, Spacer, Spinner, Text, Box } from '@chakra-ui/react'
+import { Button, Center, Flex, IconButton, Spacer, Spinner, Text, Box, Select } from '@chakra-ui/react'
 import axios from 'axios'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useQuery, useQueryClient } from 'react-query'
@@ -10,11 +10,12 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { HtmlHead } from '../components/HtmlHead'
 import { FollowingAnime } from '../types/anime'
-import { Prisma } from '@prisma/client'
+import { FollowList, Prisma } from '@prisma/client'
 import { WATCH_STATUS_COLOR, WATCH_STATUS_DISPLAY_NAME } from '../constants/followOption'
 import { AnimelistSortFilter } from '../components/AnimelistSortFilter'
 import { PrefContext } from '../context/pref'
 import { seasonTcOption } from '../constants/animeOption'
+import { range } from 'ramda'
 
 FollowingPage.getTitle = '追蹤'
 
@@ -22,6 +23,7 @@ export default function FollowingPage() {
   const { data: session, status } = useSession()
   const loading = status === 'loading'
   const queryClient = useQueryClient()
+  const [changeStatusLoading, setChangeStatusLoading] = useState(false)
 
   const pref = useContext(PrefContext)
   const {
@@ -33,7 +35,7 @@ export default function FollowingPage() {
     handleChangeFollowStatus,
   } = pref
 
-  const { data, fetchNextPage, hasNextPage, isFetching } = useFollowingQuery(
+  const { data, fetchNextPage, hasNextPage, isFetching, refetch } = useFollowingQuery(
     !!session,
     followSort,
     followOrder,
@@ -43,9 +45,41 @@ export default function FollowingPage() {
   const animes = data?.pages.map(({ animes }) => animes).flat() || []
 
   // todo optimistic update, no need to unvalidate whole query if followed many
+  const upsertAnimelist = async (data: Partial<FollowList>) => {
+    await axios.post('/api/following', data)
+    await refetch()
+  }
+
   const removeFollowing = async (id: string) => {
     await axios.delete('/api/following', { params: { media_id: id } })
-    await queryClient.invalidateQueries(['animes', 'following'])
+    // await queryClient.invalidateQueries(['animes', 'following'])
+    await refetch()
+  }
+
+  const handleVote = async (r: string, id: number) => {
+    setChangeStatusLoading(true)
+    try {
+      await upsertAnimelist({
+        media_id: id,
+        score: parseFloat(r),
+      })
+    } catch {
+      alert('評分失敗 請再試')
+    }
+    setChangeStatusLoading(false)
+  }
+
+  const handleChangeStatus = async (s: string, id: number) => {
+    setChangeStatusLoading(true)
+    try {
+      await upsertAnimelist({
+        media_id: id,
+        watch_status: s,
+      })
+    } catch {
+      alert('更改失敗 請再試')
+    }
+    setChangeStatusLoading(false)
   }
 
   return (
@@ -73,7 +107,14 @@ export default function FollowingPage() {
                   endMessage={<End enabled={animes.length > 0} />}
                   scrollThreshold={0.95}
                 >
-                  <FollowingList animes={animes} removeFollowing={removeFollowing} disabled={isFetching} />
+                  <FollowingList
+                    animes={animes}
+                    removeFollowing={removeFollowing}
+                    disabled={isFetching}
+                    handleVote={handleVote}
+                    handleChangeStatus={handleChangeStatus}
+                    changeStatusLoading={changeStatusLoading}
+                  />
                 </InfiniteScroll>
               </Box>
             </>
@@ -106,9 +147,19 @@ type FollowingListProps = {
   animes: Prisma.FollowListGetPayload<{ include: { media: true } }>[]
   removeFollowing: (id: string) => Promise<void>
   disabled: boolean
+  handleVote: (r: string, id: number) => Promise<void>
+  handleChangeStatus: (s: string, id: number) => Promise<void>
+  changeStatusLoading: boolean
 }
 
-const FollowingList = ({ animes, removeFollowing, disabled }: FollowingListProps) => {
+const FollowingList = ({
+  animes,
+  removeFollowing,
+  disabled,
+  handleVote,
+  handleChangeStatus,
+  changeStatusLoading,
+}: FollowingListProps) => {
   return (
     <>
       {animes.map(({ media, watch_status, score }) => (
@@ -124,11 +175,31 @@ const FollowingList = ({ animes, removeFollowing, disabled }: FollowingListProps
           >
             <Text noOfLines={1}>{media.title?.zh || media.title?.native}</Text>
             <Box display="flex" alignItems="center" gap={1}>
-              {score && (
+              {/* {score && (
                 <Text bg="blue.100" minWidth="32px" textAlign="center" py={1}>
                   {score}
                 </Text>
-              )}
+              )} */}
+              <Select
+                w="80px"
+                variant={'outline'}
+                value={score || undefined}
+                placeholder=" "
+                onChange={e => handleVote(e.target.value, media.id)}
+                disabled={changeStatusLoading}
+                onClick={e => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                }}
+              >
+                {range(0, 21)
+                  .map(n => n / 2)
+                  .map(rat => (
+                    <option key={rat} value={rat}>
+                      {rat}
+                    </option>
+                  ))}
+              </Select>
               <Text bg="blue.100" minWidth="60px" textAlign="center" p={1}>
                 {`${media.year}${seasonTcOption[media.season || ''].replace('番', '')}`}
               </Text>
