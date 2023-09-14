@@ -47,11 +47,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
       if (sort === 'year') {
-        options.orderBy = {
-          media: {
-            year: order,
+        options.orderBy = [
+          {
+            media: {
+              year: order,
+            },
           },
-        }
+          {
+            media: {
+              season: order,
+            },
+          },
+        ]
       }
       if (page) {
         options.include = { media: true }
