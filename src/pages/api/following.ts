@@ -58,6 +58,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               season: order,
             },
           },
+          {
+            createdAt: order,
+          },
         ]
       }
       if (page) {
