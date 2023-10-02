@@ -13,7 +13,6 @@ generator json {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 model Account {
@@ -75,7 +74,7 @@ model Media {
   // get one by id
   id           Int      @id @default(autoincrement())
   year         Int?
-  season       String? // winter,spring,summer,fall
+  season       Int? // winter,spring,summer,fall (1,2,3,4,null)
   slug         String? // Kono_Subarashii_Sekai_ni_Shukufuku_wo
   airingStatus String? // not_yet_aired,currently_airing,currently_airing
   isHiden      Boolean  @default(false)
@@ -93,9 +92,9 @@ model Media {
 
   // alternative_titles Json?
   /// [MyType]
-  title   Json // ISO 639-1 {"zh":"冰菓","en":"Hyouka","ja":"氷菓","romaji":"Isekai Ittara Honki Dasu"}
+  title         Json // ISO 639-1 {"zh":"冰菓","en":"Hyouka","ja":"氷菓","romaji":"Isekai Ittara Honki Dasu"}
   /// [MyType]
-  summary Json?
+  summary       Json?
   /// [MyType]
   dayOfWeek     Json? // {"jp":"saturday","baha":"sunday"} jst+9
   /// [MyType]
@@ -115,15 +114,15 @@ model Media {
   destinationRelations Relations[]  @relation("destination-media")
   sourceRelations      Relations[]  @relation("source-media")
 
-  @@map("animes")
+  @@map("media")
 }
 
 model Genres {
-  id    Int     @id @default(autoincrement())
-  key   String  @unique // detective
+  id      Int     @id @default(autoincrement())
+  key     String  @unique // detective
   /// [MyType]
-  name  Json? // {"en":"detective","zh":"偵探"}
-  media Media[]
+  name    Json? // {"en":"detective","zh":"偵探"}
+  media   Media[]
 
   @@map("genres")
 }

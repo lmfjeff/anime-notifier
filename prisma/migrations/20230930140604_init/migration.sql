@@ -47,10 +47,10 @@ CREATE TABLE "verificationtokens" (
 );
 
 -- CreateTable
-CREATE TABLE "animes" (
+CREATE TABLE "media" (
     "id" SERIAL NOT NULL,
     "year" INTEGER,
-    "season" TEXT,
+    "season" INTEGER,
     "slug" TEXT,
     "airingStatus" TEXT,
     "isHiden" BOOLEAN NOT NULL DEFAULT false,
@@ -74,7 +74,7 @@ CREATE TABLE "animes" (
     "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMPTZ NOT NULL,
 
-    CONSTRAINT "animes_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "media_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -160,13 +160,13 @@ ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_fkey" FOREIGN KEY ("user
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "relations" ADD CONSTRAINT "relations_source_id_fkey" FOREIGN KEY ("source_id") REFERENCES "animes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "relations" ADD CONSTRAINT "relations_source_id_fkey" FOREIGN KEY ("source_id") REFERENCES "media"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "relations" ADD CONSTRAINT "relations_destination_id_fkey" FOREIGN KEY ("destination_id") REFERENCES "animes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "relations" ADD CONSTRAINT "relations_destination_id_fkey" FOREIGN KEY ("destination_id") REFERENCES "media"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "followlist" ADD CONSTRAINT "followlist_media_id_fkey" FOREIGN KEY ("media_id") REFERENCES "animes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "followlist" ADD CONSTRAINT "followlist_media_id_fkey" FOREIGN KEY ("media_id") REFERENCES "media"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "followlist" ADD CONSTRAINT "followlist_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -178,4 +178,4 @@ ALTER TABLE "webpush" ADD CONSTRAINT "webpush_user_id_fkey" FOREIGN KEY ("user_i
 ALTER TABLE "_GenresToMedia" ADD CONSTRAINT "_GenresToMedia_A_fkey" FOREIGN KEY ("A") REFERENCES "genres"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_GenresToMedia" ADD CONSTRAINT "_GenresToMedia_B_fkey" FOREIGN KEY ("B") REFERENCES "animes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_GenresToMedia" ADD CONSTRAINT "_GenresToMedia_B_fkey" FOREIGN KEY ("B") REFERENCES "media"("id") ON DELETE CASCADE ON UPDATE CASCADE;

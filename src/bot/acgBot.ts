@@ -1,6 +1,6 @@
 // import { Anime } from '@prisma/client'
 // import axios from 'axios'
-// import * as cheerio from 'cheerio'
+import * as cheerio from 'cheerio'
 // // import { getAnimeByMalId, updateAnime } from "../services/dynamodb/animeService"
 // import { getAnimeByMalId, updateAnime } from '../services/prisma/anime.service'
 // import { AnimeDetail } from '../types/anime'
@@ -40,33 +40,33 @@
 //   }
 // }
 
-// function extractAnimeListFromAcgHtml(data: any) {
-//   const $ = cheerio.load(data)
-//   const animeList = $('[acgs-bangumi-anime-id]')
-//     .map((index, el) => {
-//       const title = $(el).find('.entity_localized_name').first().text()
-//       const summary = $(el).find('.anime_story').text()
+function extractAnimeListFromAcgHtml(data: any) {
+  const $ = cheerio.load(data)
+  const animeList = $('[acgs-bangumi-anime-id]')
+    .map((index, el) => {
+      const title = $(el).find('.entity_localized_name').first().text()
+      const summary = $(el).find('.anime_story').text()
 
-//       const malId = $(el)
-//         .find('.anime_links')
-//         .children()
-//         .filter((index, el) => {
-//           const link = $(el).attr('href')
-//           return !!link?.includes('myanimelist')
-//         })
-//         .first()
-//         .attr('href')
-//         ?.match(/\d+/)?.[0]
+      const malId = $(el)
+        .find('.anime_links')
+        .children()
+        .filter((index, el) => {
+          const link = $(el).attr('href')
+          return !!link?.includes('myanimelist')
+        })
+        .first()
+        .attr('href')
+        ?.match(/\d+/)?.[0]
 
-//       return {
-//         title,
-//         summary,
-//         malId,
-//       }
-//     })
-//     .toArray()
-//   return animeList
-// }
+      return {
+        title,
+        summary,
+        malId,
+      }
+    })
+    .toArray()
+  return animeList
+}
 
 // todo update bot
 export const a = 1

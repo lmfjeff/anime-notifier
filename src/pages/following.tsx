@@ -14,7 +14,7 @@ import { FollowList, Prisma } from '@prisma/client'
 import { WATCH_STATUS_COLOR, WATCH_STATUS_DISPLAY_NAME } from '../constants/followOption'
 import { AnimelistSortFilter } from '../components/AnimelistSortFilter'
 import { PrefContext } from '../context/pref'
-import { seasonTcOption } from '../constants/animeOption'
+import { seasonOption, seasonTcOption } from '../constants/animeOption'
 import { range } from 'ramda'
 
 FollowingPage.getTitle = '追蹤'
@@ -173,7 +173,7 @@ const FollowingList = ({
             _hover={{ bg: 'gray.300' }}
             justifyContent="space-between"
           >
-            <Text noOfLines={1}>{media.title?.zh || media.title?.native}</Text>
+            <Text noOfLines={1}>{media.title?.zh || media.title?.jp}</Text>
             <Box display="flex" alignItems="center" gap={1}>
               {/* {score && (
                 <Text bg="blue.100" minWidth="32px" textAlign="center" py={1}>
@@ -201,7 +201,9 @@ const FollowingList = ({
                   ))}
               </Select>
               <Text bg="blue.100" minWidth="60px" textAlign="center" p={1}>
-                {`${media.year}${seasonTcOption[media.season || ''].replace('番', '')}`}
+                {`${media.year}${
+                  media.season ? seasonTcOption[seasonOption?.[media.season - 1]]?.replace('番', '') : ''
+                }`}
               </Text>
               <Text bg={WATCH_STATUS_COLOR[watch_status]} minWidth="40px" textAlign="center" p={1}>
                 {WATCH_STATUS_DISPLAY_NAME[watch_status]}

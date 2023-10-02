@@ -23,7 +23,7 @@ export async function upsertAnimelist(
   animelist: Prisma.Without<Prisma.FollowListCreateInput, Prisma.FollowListUncheckedCreateInput> &
     Prisma.FollowListUncheckedCreateInput
 ) {
-  const { media_id, user_id, score, watch_status } = animelist
+  const { media_id, user_id, score, watch_status, createdAt, updatedAt } = animelist
   await prismaClient.followList.upsert({
     where: {
       media_id_user_id: {
@@ -34,6 +34,8 @@ export async function upsertAnimelist(
     update: {
       score,
       watch_status,
+      createdAt,
+      updatedAt,
     },
     create: animelist,
   })

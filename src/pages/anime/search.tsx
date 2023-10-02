@@ -43,7 +43,7 @@ export default function AnimeSearchPage({ animes, q, page }: { animes: Media[]; 
         {animes.map(({ id, title }) => (
           <Box key={id} _hover={{ bg: '#eaeaea' }}>
             <Link href={`/anime/${id}`}>
-              <Text noOfLines={1}>{title?.zh || title?.native || '?????'}</Text>
+              <Text noOfLines={1}>{title?.zh || title?.jp || '?????'}</Text>
             </Link>
           </Box>
         ))}

@@ -17,6 +17,7 @@ import { GetStaticProps } from 'next'
 import { AnimeImage } from '../../components/AnimeImage'
 import { HtmlHead } from '../../components/HtmlHead'
 import {
+  seasonOption,
   seasonTcOption,
   sourceTcOption,
   statusTcOption,
@@ -145,7 +146,7 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
   } = tvAnime
   // const [year, season] = yearSeason?.split('-') || []
 
-  const displayedTitle = title?.zh || title?.native || ''
+  const displayedTitle = title?.zh || title?.jp || ''
   const displayedSummary = summary?.zh || summary?.en
 
   return (
@@ -208,12 +209,10 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
         <Box flexGrow={1} w={['250px', '400px', null]}>
           <Text fontSize="2xl">{displayedTitle}</Text>
           <Text fontSize="sm" color="gray">
-            {title?.zh ? title?.native : ''}
+            {title?.zh ? title?.jp : ''}
           </Text>
           <Text my={5}>{displayedSummary || '未有介紹'}</Text>
-          <Text my={3}>
-            季度: {year} {seasonTcOption[season || ''] || ''}
-          </Text>
+          <Text my={3}>季度: {`${year} ${season ? seasonTcOption[seasonOption?.[season - 1]] : ''}`}</Text>
           <Text my={3}>
             {weekdayTcOption[dayOfWeek?.jp || ''] ? '逢' + weekdayTcOption[dayOfWeek?.jp || ''] : '星期未知'} {time?.jp}
           </Text>

@@ -77,3 +77,10 @@ export const seasonTcOption: Record<string, string> = {
   summer: '夏番',
   fall: '秋番',
 }
+
+export const seasonIntMap: Record<string, number> = {
+  winter: 1,
+  spring: 2,
+  summer: 3,
+  fall: 4,
+}

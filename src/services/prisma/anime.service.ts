@@ -1,6 +1,7 @@
 import { Media, Prisma } from '@prisma/client'
 import { prismaClient } from '../../lib/prisma'
 import { pastSeasons } from '../../utils/date'
+import { seasonIntMap } from '../../constants/animeOption'
 
 export async function searchAnimes(q: string, page: number) {
   const offset = page ? (page - 1) * 20 : 0
@@ -11,7 +12,7 @@ export async function searchAnimes(q: string, page: number) {
       OR: [
         {
           title: {
-            path: ['native'],
+            path: ['jp'],
             string_contains: q,
           },
         },
@@ -23,7 +24,7 @@ export async function searchAnimes(q: string, page: number) {
         },
         {
           title: {
-            path: ['english'],
+            path: ['en'],
             string_contains: q,
           },
         },
@@ -36,16 +37,16 @@ export async function getAnimesByStatus(year: string, season: string): Promise<M
   const yearSeason = `${year}-${season}`
   return await prismaClient.media.findMany({
     where: {
-      airingStatus: 'RELEASING',
+      // airingStatus: 'RELEASING',
       // yearSeason: {
       //   in: pastSeasons(yearSeason, 3),
       // },
-      AND: [
-        {
-          year: parseInt(year),
-          season,
-        },
-      ],
+      // AND: [
+      //   {
+      //     year: parseInt(year),
+      //     season,
+      //   },
+      // ],
     },
     include: {
       followlist: {
@@ -58,14 +59,22 @@ export async function getAnimesByStatus(year: string, season: string): Promise<M
 }
 
 export async function getAnimesBySeason(year: string, season: string): Promise<Media[]> {
-  const yearSeason = `${year}-${season}`
   return await prismaClient.media.findMany({
     where: {
       year: parseInt(year),
-      season,
-      format: {
-        in: ['TV', 'TV_SHORT'],
-      },
+      season: seasonIntMap[season] || null,
+      AND: [
+        {
+          dayOfWeek: {
+            not: Prisma.DbNull,
+          },
+        },
+        {
+          time: {
+            not: Prisma.DbNull,
+          },
+        },
+      ],
     },
     include: {
       followlist: {

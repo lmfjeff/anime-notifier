@@ -48,7 +48,7 @@ export const AnimeCard = ({
   showMenu,
   thisSeason,
 }: AnimeCardProps) => {
-  const displayName = anime.title.zh || anime.title.native
+  const displayName = anime.title.zh || anime.title.jp
   const weekdayString = weekdayTcOption[anime.dayOfWeek?.jp || '']
     ? weekdayTcOption[anime.dayOfWeek?.jp || '']?.replace('星期', '')
     : '未知'
