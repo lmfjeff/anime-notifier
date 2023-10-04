@@ -67,10 +67,10 @@ export async function getAnimesBySeason(year: string, season: string): Promise<M
           airingStatus: 'RELEASING',
           OR: past3seasonslist,
         },
-        // {
-        //   year: parseInt(year),
-        //   season: seasonIntMap[season] || null,
-        // },
+        {
+          year: parseInt(year),
+          season: seasonIntMap[season] || null,
+        },
       ],
       dayOfWeek: {
         not: Prisma.DbNull,
