@@ -56,8 +56,9 @@ export async function getAnimesByStatus(year?: string, season?: string): Promise
   } while (nextCursor)
 
   // only retrive current_airing animes of past 3 seasons
-  const filteredAnimes = allAnimes.filter(anime => pastSeasons(yearSeason, 3).includes(anime.yearSeason))
-  return filteredAnimes
+  // const filteredAnimes = allAnimes.filter(anime => pastSeasons(yearSeason, 3).includes(anime.yearSeason))
+  // return filteredAnimes
+  return []
 }
 
 export async function getAnimesBySeason(year?: string, season?: string): Promise<AnimeDetail[]> {
