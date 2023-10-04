@@ -219,9 +219,9 @@ export function nextSeason({ year, season }: GetAnimesBySeasonRequest): GetAnime
 export function pastSeasons(year: number, season: number, numOfSeason: number) {
   const list = []
   for (let i = 0; i < numOfSeason; i++) {
-    year =   season === 1 ? year - 1 : year
+    year = season === 1 ? year - 1 : year
     season = season === 1 ? 4 : season - 1
-    list.push({year, season})
+    list.push({ year, season })
   }
   return list
 }
