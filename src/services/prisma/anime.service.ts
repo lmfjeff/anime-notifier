@@ -59,22 +59,25 @@ export async function getAnimesByStatus(year: string, season: string): Promise<M
 }
 
 export async function getAnimesBySeason(year: string, season: string): Promise<Media[]> {
+  const past3seasonslist = pastSeasons(parseInt(year), seasonIntMap[season], 3)
   return await prismaClient.media.findMany({
     where: {
-      year: parseInt(year),
-      season: seasonIntMap[season] || null,
-      AND: [
+      OR: [
         {
-          dayOfWeek: {
-            not: Prisma.DbNull,
-          },
+          airingStatus: 'RELEASING',
+          OR: past3seasonslist,
         },
-        {
-          time: {
-            not: Prisma.DbNull,
-          },
-        },
+        // {
+        //   year: parseInt(year),
+        //   season: seasonIntMap[season] || null,
+        // },
       ],
+      dayOfWeek: {
+        not: Prisma.DbNull,
+      },
+      time: {
+        not: Prisma.DbNull,
+      },
     },
     include: {
       followlist: {

@@ -205,13 +205,23 @@ export function nextSeason({ year, season }: GetAnimesBySeasonRequest): GetAnime
 
 // convert yearSeason to array of past N seasons
 // e.g. '2022-spring' -> ['2021-summer', '2021-autumn', '2022-winter']
-export function pastSeasons(season: string, numOfSeason: number): string[] {
-  const [yr, sn] = season.split('-')
-  const lastSeason = pastSeason({ year: yr, season: sn })
-  const lastSeasonString = `${lastSeason.year}-${lastSeason.season}`
-  if (numOfSeason === 1) {
-    return [lastSeasonString]
-  } else {
-    return [...pastSeasons(lastSeasonString, numOfSeason - 1), lastSeasonString]
+// export function pastSeasons(season: string, numOfSeason: number): string[] {
+//   const [yr, sn] = season.split('-')
+//   const lastSeason = pastSeason({ year: yr, season: sn })
+//   const lastSeasonString = `${lastSeason.year}-${lastSeason.season}`
+//   if (numOfSeason === 1) {
+//     return [lastSeasonString]
+//   } else {
+//     return [...pastSeasons(lastSeasonString, numOfSeason - 1), lastSeasonString]
+//   }
+// }
+
+export function pastSeasons(year: number, season: number, numOfSeason: number) {
+  const list = []
+  for (let i = 0; i < numOfSeason; i++) {
+    year =   season === 1 ? year - 1 : year
+    season = season === 1 ? 4 : season - 1
+    list.push({year, season})
   }
+  return list
 }
