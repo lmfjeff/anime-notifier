@@ -5,6 +5,7 @@ import {
   Flex,
   Icon,
   IconButton,
+  Link as ChakraLink,
   Select,
   Spinner,
   Table,
@@ -36,6 +37,8 @@ import { useQuery } from 'react-query'
 import { useEffect, useState } from 'react'
 import { WATCH_STATUS_DISPLAY_NAME, WATCH_STATUS_OPTIONS } from '../../constants/followOption'
 import { range } from 'ramda'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { ANILIST_ANIME_PAGE_ID_URL, MAL_ANIME_PAGE_ID_URL } from '../../constants/constants'
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { id } = params as { id: string | undefined }
@@ -143,6 +146,7 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
     studios,
     updatedAt,
     episodes,
+    idExternal,
   } = tvAnime
   // const [year, season] = yearSeason?.split('-') || []
 
@@ -225,6 +229,24 @@ export default function AnimeDetailPage({ anime, genTime }: AnimeDetailPageProps
                 </Text>
               )
             })}
+          </Flex>
+          <Flex gap={3} alignItems={'center'}>
+            {idExternal?.mal && (
+              <Flex alignItems={'center'} gap={1}>
+                <ChakraLink href={MAL_ANIME_PAGE_ID_URL + idExternal?.mal} isExternal>
+                  MyAnimeList
+                </ChakraLink>
+                <ExternalLinkIcon />
+              </Flex>
+            )}
+            {idExternal?.anilist && (
+              <Flex alignItems={'center'} gap={1}>
+                <ChakraLink href={ANILIST_ANIME_PAGE_ID_URL + idExternal?.anilist} isExternal>
+                  AniList
+                </ChakraLink>
+                <ExternalLinkIcon />
+              </Flex>
+            )}
           </Flex>
         </Box>
         <Table variant="simple" colorScheme="blackAlpha" w={['250px', '300px', null]} flexGrow={1}>

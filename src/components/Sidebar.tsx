@@ -65,7 +65,7 @@ export const Sidebar = (props: SideBarProps) => {
   const [search, setSearch] = useState('')
 
   return (
-    <Flex flexDirection="column" bg="#eaeaea" w={180} flexShrink={0} {...rest}>
+    <Flex flexDirection="column" bg="#eaeaea" w={180} flexShrink={0} {...rest} onClick={e => e.stopPropagation()}>
       <Link href="/">
         <Button
           w="full"
@@ -81,9 +81,9 @@ export const Sidebar = (props: SideBarProps) => {
           動畫新番網
         </Button>
       </Link>
-      <SidebarLink url="/anime/season" text="番表" checkActive={checkActive} />
-      <SidebarLink url="/following" text="追蹤" checkActive={checkActive} />
-      <SidebarLink url="/faq" text="FAQ" checkActive={checkActive} />
+      <SidebarLink url="/anime/season" text="番表" checkActive={checkActive} toggleSidebar={toggleSidebar} />
+      <SidebarLink url="/following" text="追蹤" checkActive={checkActive} toggleSidebar={toggleSidebar} />
+      <SidebarLink url="/faq" text="FAQ" checkActive={checkActive} toggleSidebar={toggleSidebar} />
 
       <Spacer />
       <Box px={1}>
@@ -117,8 +117,14 @@ export const Sidebar = (props: SideBarProps) => {
           )}
           {session && (
             <>
-              <SidebarLink url="/setting" text="設定" checkActive={checkActive} />
-              <SidebarLink text="登出" onClick={() => signOut()} />
+              <SidebarLink url="/setting" text="設定" checkActive={checkActive} toggleSidebar={toggleSidebar} />
+              <SidebarLink
+                text="登出"
+                onClick={() => {
+                  toggleSidebar && toggleSidebar()
+                  signOut()
+                }}
+              />
             </>
           )}
         </>
